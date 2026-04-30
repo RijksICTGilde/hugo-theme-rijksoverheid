@@ -43,7 +43,7 @@
 }
 
 .tile header h2 a:focus-visible::after {
-  box-shadow: 0 0 0 2px var(--mox-color-interactive-default-background);
+  box-shadow: 0 0 0 2px var(--toepassing-color-interactive-default-background);
   outline: 2px solid transparent;
   outline-offset: 2px;
 }

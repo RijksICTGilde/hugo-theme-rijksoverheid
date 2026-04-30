@@ -25,7 +25,7 @@
   transform: translateY(-50%);
   left: 0;
   right: 1rem;
-  padding: var(--mox-space-padding-sm) var(--mox-space-padding-md);
+  padding: var(--toepassing-space-padding-sm) var(--toepassing-space-padding-md);
   margin-left: -0.6rem;
   background-color: rgba(220, 227, 234, 0.9);
   border-radius: 0 0 2rem 0;
@@ -35,7 +35,7 @@
   }
 
   @media (min-width: 1100px) {
-    left: calc(50% - var(--mox-page-max-inline-size) / 2);
+    left: calc(50% - var(--toepassing-page-max-inline-size) / 2);
   }
 }
 
