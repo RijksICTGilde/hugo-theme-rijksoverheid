@@ -11,6 +11,8 @@ repos:
       - id: check-yaml
         args: [--allow-multiple-documents]
       - id: check-json
+        # layouts/*.json zijn Hugo-templates met {{ }} syntax, geen echte JSON.
+        exclude: ^layouts/.*\.json$
       - id: check-merge-conflict
       - id: mixed-line-ending
         args: [--fix=lf]
