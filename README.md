@@ -20,10 +20,15 @@ en [go.dev/dl](https://go.dev/dl/).
 
 ## Versioning
 
-Dit project gebruikt Calendar Versioning. Tags hebben de vorm
-`vYYYY.M.D`, bijvoorbeeld `v2026.5.30`. Pin op een vaste tag voor
-reproduceerbare builds, of werk bij met `hugo mod get -u`. Zie de
-[CHANGELOG](CHANGELOG.md) voor wijzigingen per release.
+Dit project volgt Semantic Versioning. Tags hebben de vorm
+`vMAJOR.MINOR.PATCH`, bijvoorbeeld `v0.1.0`. Zolang de major op 0 staat
+mogen breaking changes voorkomen tussen minor versies. Vanaf `v1.0.0`
+geldt de SemVer-belofte en vereisen breaking changes een major bump
+(`/v2` suffix in het module-path volgens Go modules).
+
+Pin op een vaste tag voor reproduceerbare builds, of werk bij met
+`hugo mod get -u`. Zie de [CHANGELOG](CHANGELOG.md) voor wijzigingen
+per release.
 
 ## Snelstart
 
@@ -33,7 +38,7 @@ Minimaal nodig om het theme in een nieuwe Hugo-site te gebruiken:
 hugo new site mijn-site --format=yaml
 cd mijn-site
 hugo mod init github.com/<organisatie>/mijn-site
-hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v2026.5.30
+hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.1.0
 ```
 
 Schrijf vervolgens een `hugo.yaml`. Het minimale werkende voorbeeld:

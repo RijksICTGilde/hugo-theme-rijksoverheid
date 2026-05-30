@@ -5,8 +5,8 @@
 We voorzien de meest recente release van beveiligingsupdates. Oudere
 releases krijgen alleen patches als de impact zwaarwegend is.
 
-Releases volgen Calendar Versioning met tags in de vorm `vYYYY.M.D`.
-De huidige release staat op de
+Releases volgen Semantic Versioning met tags in de vorm
+`vMAJOR.MINOR.PATCH`. De huidige release staat op de
 [releases-pagina](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases).
 
 ## Een kwetsbaarheid melden

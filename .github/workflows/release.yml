@@ -18,17 +18,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Valideer CalVer tagformaat
+      - name: Valideer SemVer tagformaat
         run: |
           set -euo pipefail
-          # Verwacht: vYYYY.M.D met optionele suffix -N. Geen leading zeros.
-          # Geldig:   v2026.5.30, v2026.12.31, v2026.5.30-2
-          # Ongeldig: v2026.05.30 (leading zero), v1.0.0 (geen jaartal),
-          #           v2026.0.1 (maand 0).
-          if ! printf '%s\n' "$TAG_NAME" \
-              | grep -Eq '^v[0-9]{4}\.[1-9][0-9]?\.[1-9][0-9]?(-[1-9][0-9]*)?$'; then
-            echo "Tag ${TAG_NAME} voldoet niet aan CalVer (vYYYY.M.D[-N])." >&2
-            echo "Voorbeeld van een geldige tag: v2026.5.30 of v2026.5.30-2." >&2
+          # Strikte SemVer: vMAJOR.MINOR.PATCH met optionele -PRERELEASE.
+          # Geldig:   v0.1.0, v1.2.3, v2.0.0-rc1, v1.0.0-beta.2
+          # Ongeldig: v01.0.0 (leading zero), v1.0 (incompleet),
+          #           v1.0.0+sha (build metadata, niet ondersteund)
+          regex='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if ! printf '%s\n' "$TAG_NAME" | grep -Eq "$regex"; then
+            echo "Tag ${TAG_NAME} voldoet niet aan SemVer (vMAJOR.MINOR.PATCH[-PRERELEASE])." >&2
+            echo "Voorbeeld: v0.1.0, v1.2.3 of v2.0.0-rc1." >&2
             exit 1
           fi
 
