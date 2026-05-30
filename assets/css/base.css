@@ -1,0 +1,249 @@
+/* Verberg tekst visueel, maar houd toegankelijk voor screenreaders */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Respecteer gebruikersvoorkeur voor minder beweging (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1.2rem;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+}
+
+h1 + h2 {
+  margin-top: 1.5rem;
+}
+
+article > header + h2 {
+  margin-top: 0.7rem;
+}
+
+h2 + h3,
+h3 + h4,
+h4 + h5,
+h5 + h6 {
+  margin-top: 1rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.4rem;
+}
+
+h5 {
+  font-size: 1.3rem;
+}
+
+h6 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: color-mix(in oklch, var(--color-link), black 12%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+  }
+}
+
+:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a,
+:where(.card-grid > article, .card) header a {
+  text-decoration: none;
+}
+
+:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a,
+:where(.card-grid > article, .card) header a {
+  color: inherit;
+}
+
+:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a:hover,
+:where(.card-grid > article, .card) header a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+a[rel~="external"]::after {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-left: 0.25em;
+  background-color: currentColor;
+  mask-image: url("{{ relURL "images/icons/externe-link.svg" }}");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  vertical-align: inherit;
+}
+
+a[href^="mailto:"]::after {
+  content: "";
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.25em;
+  background-color: currentColor;
+  mask-image: url("{{ relURL "images/icons/mail.svg" }}");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  vertical-align: -0.12em;
+}
+
+a[rel~="private"]::after {
+  width: 1em;
+  height: 1em;
+  margin-left: 0.1em;
+  vertical-align: -0.15em;
+  mask-image: url("{{ relURL "images/icons/lock.svg" }}");
+}
+
+p + ul,
+p + ol {
+  margin-top: -0.5rem;
+}
+
+ul,
+ol {
+  padding-left: 1.15rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  list-style: disc;
+}
+
+ol {
+  list-style: decimal;
+  padding-left: 2.25rem;
+
+  > li {
+    padding-left: 0.4rem;
+  }
+}
+
+li {
+  margin-bottom: 0.5rem;
+
+  > ul,
+  > ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+}
+
+strong,
+b {
+  font-weight: 700;
+}
+
+mark {
+  background-color: var(--color-highlight);
+  color: var(--color-highlight-text);
+}
+
+.semibold {
+  font-weight: 600;
+}
+
+code {
+  background: var(--color-bg-muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+pre {
+  background: var(--color-bg-muted);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+
+  code {
+    background: none;
+    padding: 0;
+  }
+}
+
+hr {
+  border: none;
+  height: 2px;
+  background: var(--color-border);
+  margin: 2rem 0;
+}
+
+nav ul,
+nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+figcaption {
+  text-align: center;
+  font-style: italic;
+  font-size: 1rem;
+  margin-block-start: 0.5rem;
+}

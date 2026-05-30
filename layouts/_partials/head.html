@@ -1,38 +1,83 @@
-{{/*
-  HTML head
-  Source: adapted from MinBZK/moza-poc (_includes/base.njk)
-  CSS pipeline: adapted from MinBZK/moza-site (layouts/_partials/head.html)
-*/}}
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
-{{ with .Description }}<meta name="description" content="{{ . }}">{{ end }}
-
-{{/* MOx CSS — served as static files so the browser resolves @import chains */}}
-<link rel="stylesheet" href="{{ "style/style.css" | relURL }}">
-
-{{/* Theme CSS via Hugo asset pipeline */}}
-{{ $theme := resources.Get "css/theme.css" }}
-{{ $hero := resources.Get "css/components/hero.css" }}
-{{ $tileGrid := resources.Get "css/components/tile-grid.css" }}
-{{ $callout := resources.Get "css/components/callout.css" }}
-{{ $box := resources.Get "css/components/box.css" }}
-{{ $pageNav := resources.Get "css/components/page-nav.css" }}
-{{ $button := resources.Get "css/components/button.css" }}
-{{ $list := resources.Get "css/components/list.css" }}
-{{ $toast := resources.Get "css/components/toast.css" }}
-{{ $mermaid := resources.Get "css/components/mermaid.css" }}
-{{ $articleLayout := resources.Get "css/components/article-layout.css" }}
-{{ $toc := resources.Get "css/components/toc.css" }}
-{{ $styles := slice $theme $hero $tileGrid $callout $box $pageNav $button $list $toast $mermaid $articleLayout $toc }}
-{{ with resources.Get "css/main.css" }}
-  {{ $styles = $styles | append . }}
-{{ end }}
-{{ $bundle := $styles | resources.Concat "css/bundle.css" }}
-<link rel="stylesheet" href="{{ $bundle.RelPermalink }}">
-
-{{/* Pagefind search — opt-in via params.search.enable */}}
-{{- if site.Params.search.enable -}}
-<link rel="stylesheet" href="/pagefind/pagefind-ui.css">
-<script src="/pagefind/pagefind-ui.js" defer></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{{- $pageTitle := .Site.Title -}}
+{{- $metaTitle := or .Params.page_title .Title -}}
+{{- if and (not .IsHome) $metaTitle -}}
+  {{- $pageTitle = printf "%s | %s" $metaTitle .Site.Title -}}
 {{- end -}}
+<title>{{ $pageTitle }}</title>
+{{- $description := .Description -}}
+{{- if not $description -}}
+  {{- if .Content -}}
+    {{- $description = .Plain | truncate 160 -}}
+  {{- else -}}
+    {{- $description = .Site.Params.description -}}
+  {{- end -}}
+{{- else if gt (len $description) 160 -}}
+  {{- warnf "Description te lang (%d tekens) op pagina: %s - max 160 tekens aanbevolen" (len $description) .RelPermalink -}}
+{{- end -}}
+<meta name="description" content="{{ $description }}" />
+<link rel="canonical" href="{{ .Permalink }}" />
+
+{{/* Favicons */}}
+<link rel="icon" href="{{ relURL "favicon.ico" }}" sizes="any" />
+<link rel="icon" href="{{ relURL "favicon-32x32.png" }}" type="image/png" sizes="32x32" />
+<link rel="icon" href="{{ relURL "favicon-192x192.png" }}" type="image/png" sizes="192x192" />
+<link rel="apple-touch-icon" href="{{ relURL "apple-touch-icon.png" }}" />
+
+{{/* Open Graph */}}
+<meta property="og:title" content="{{ $pageTitle }}" />
+<meta property="og:description" content="{{ $description }}" />
+<meta property="og:url" content="{{ .Permalink }}" />
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+<meta property="og:locale" content="nl_NL" />
+<meta property="og:image" content="{{ absURL "favicon-192x192.png" }}" />
+<meta property="og:image:width" content="192" />
+<meta property="og:image:height" content="192" />
+
+{{/* Twitter Card */}}
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="{{ $pageTitle }}" />
+<meta name="twitter:description" content="{{ $description }}" />
+<meta name="twitter:image" content="{{ absURL "favicon-192x192.png" }}" />
+<meta name="twitter:image:width" content="192" />
+<meta name="twitter:image:height" content="192" />
+
+<link rel="preload" href="{{ relURL "fonts/RO-SansWebText-Regular.woff2" }}" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="{{ relURL "fonts/RO-SansWebText-Bold.woff2" }}" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="{{ relURL "fonts/RO-SerifWeb-Italic.woff2" }}" as="font" type="font/woff2" crossorigin />
+
+{{/* CSS bundling via Hugo's asset pipeline.
+     Volgorde: design tokens → fonts → base typography → layout → components → consumer overrides.
+     Components: glob op css/components/*.css zodat nieuwe componenten automatisch worden meegenomen. */}}
+{{ $tokens     := resources.Get "css/tokens.css" }}
+{{ $fonts      := resources.Get "css/fonts.css" }}
+{{ $base       := resources.Get "css/base.css" }}
+{{ $layout     := resources.Get "css/layout.css" }}
+{{ $components := resources.Match "css/components/*.css" }}
+
+{{/* Consumer-overrides: het thema pakt CSS-bestanden op uit de consumer's
+     assets/css/ (glob, top-level). Hugo's module-systeem merget de eigen
+     assets/css/ van het thema in dezelfde namespace; filter daarom dubbele
+     bestanden (tokens, fonts, base, layout) eruit zodat alleen extra
+     consumer-bestanden (main.css, etc.) doorkomen — anders overschrijft
+     theme's tokens.css de consumer-overrides aan het eind van de cascade. */}}
+{{ $themeRoots := slice "tokens.css" "fonts.css" "base.css" "layout.css" }}
+{{ $consumerCss := resources.Match "css/*.css" }}
+
+{{ $cssList := slice }}
+{{ with $tokens }}{{ $cssList = $cssList | append . }}{{ end }}
+{{ with $fonts }}{{ $cssList = $cssList | append . }}{{ end }}
+{{ with $base }}{{ $cssList = $cssList | append . }}{{ end }}
+{{ with $layout }}{{ $cssList = $cssList | append . }}{{ end }}
+{{ $cssList = $cssList | append $components }}
+{{ range $consumerCss }}
+  {{ $basename := path.Base .Name }}
+  {{ if not (in $themeRoots $basename) }}{{ $cssList = $cssList | append . }}{{ end }}
+{{ end }}
+{{ $css := $cssList | resources.Concat "css/style.css" | resources.ExecuteAsTemplate "css/style.css" . | fingerprint "md5" }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" />
+
+{{- $themeInit := resources.Get "js/theme-init.js" | fingerprint "md5" -}}
+<script src="{{ $themeInit.RelPermalink }}"></script>

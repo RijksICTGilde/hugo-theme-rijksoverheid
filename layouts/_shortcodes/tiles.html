@@ -1,0 +1,27 @@
+{{- /* Render tiles uit een frontmatter list-of-objects.
+
+  Frontmatter:
+    tiles:
+      - title: "..."
+        body: "..."
+      - ...
+
+  Optionele params:
+    field    — naam van de frontmatter-key (default "tiles")
+    columns  — 2|3 (default 3, via .card-grid breakpoints)
+    aria     — aria-label op de section
+*/ -}}
+{{- $field := .Get "field" | default "tiles" -}}
+{{- $tiles := index .Page.Params $field -}}
+{{- $cols := .Get "columns" -}}
+{{- $aria := .Get "aria" -}}
+{{- with $tiles -}}
+<section class="card-grid{{ with $cols }} columns-{{ . }}{{ end }}"{{ with $aria }} aria-label="{{ . }}"{{ end }}>
+  {{- range . }}
+  <article>
+    <header><h2>{{ .title }}</h2></header>
+    {{ .body | markdownify }}
+  </article>
+  {{- end }}
+</section>
+{{- end -}}

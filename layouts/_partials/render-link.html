@@ -1,21 +1,22 @@
 {{- /*
-  Render a link with automatic detection of external links.
+  Render een link met automatische detectie van externe links.
 
   Parameters (dict):
-    - href:    The URL
-    - text:    The link text
-    - title:   (optional) Title attribute
-    - private: (optional) Mark as private link
+    - href: De URL
+    - text: De linktekst
+    - title: (optioneel) Title attribuut
+    - private: (optioneel) Markeer als besloten link via {.private} in Markdown
 
-  External links get target="_blank" and rel="external noopener noreferrer".
-  Private links get an additional "(besloten omgeving)" screen-reader label.
-
-  Source: adapted from MinBZK/moza-site (layouts/_partials/render-link.html)
+  Externe links krijgen automatisch target="_blank" en rel="external noopener noreferrer".
+  Private links krijgen een slotje-icoon en "(besloten omgeving)" label.
+  Een link is private als {.private} is meegegeven in Markdown, of automatisch
+  bij samenwerkruimten.nl en digilab.overheid.nl/chat.
 */ -}}
 {{- $u := urls.Parse .href -}}
 {{- $isExternal := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
-{{- if .private -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $isExternal }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="private"{{ end }}>{{ .text }}<span class="visually-hidden"> (besloten omgeving)</span></a>
+{{- $isPrivate := or .private (and $isExternal (or (strings.Contains $u.Host "samenwerkruimten.nl") (and (strings.Contains $u.Host "digilab.overheid.nl") (strings.Contains $u.Path "/chat")))) -}}
+{{- if $isPrivate -}}
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external private noopener noreferrer">{{ .text }}<span class="visually-hidden"> (besloten omgeving)</span></a>
 {{- else if $isExternal -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}</a>
 {{- else -}}

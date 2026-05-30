@@ -1,0 +1,35 @@
+/* Page-banner — site-wide melding bovenaan elke pagina.
+ * Activeren via site.Params.page_banner.
+ */
+
+.page-banner {
+	padding: 0.75rem 1rem;
+	text-align: center;
+	font-family: var(--font-sans);
+	font-size: 0.9375rem;
+	line-height: 1.4;
+}
+
+.page-banner p {
+	margin: 0;
+}
+
+.page-banner--info {
+	background: var(--color-bg-info);
+	color: var(--color-text);
+}
+
+.page-banner--warning {
+	background: #fbb900;
+	color: #000;
+}
+
+.page-banner--success {
+	background: light-dark(#d1fae5, #064e3b);
+	color: var(--color-text);
+}
+
+.page-banner--danger {
+	background: light-dark(#fee2e2, #7f1d1d);
+	color: var(--color-text);
+}

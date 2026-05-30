@@ -1,25 +1,27 @@
-/* Box — bordered content container with optional header and content section.
-   Markup: <section class="box">
-             <header><h2>...</h2></header>
-             <div class="content">...</div>
-           </section> */
-
+/* .box = neutraal panel (subtiele grijze bg).
+   Variants voor semantische betekenis (compound class):
+   - .box.info     : hemelblauw accent (info/key fact, zoals "kern van …")
+   - .box.warning  : geel/oranje accent (let-op melding)
+   - .box.success  : groen accent (afgeronde stap / OK)
+   - .box.danger   : rood accent (fout / kritieke melding)
+   Kleur-overrides via consumer main.css indien gewenst. */
 .box {
-  padding: var(--toepassing-space-padding-lg);
-  margin-bottom: var(--toepassing-space-layout-md);
-  border: 1px solid var(--toepassing-color-border-default);
-  border-radius: var(--toepassing-border-radius-md);
-  background-color: var(--toepassing-color-background-default);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-bg-muted);
 
   header {
-    margin-bottom: var(--toepassing-space-padding-md);
+    margin-bottom: 1rem;
 
     h2 {
-      font-size: var(--toepassing-text-size-title-xl);
+      font-size: 1.8rem;
       margin: 0;
 
       a {
-        color: var(--toepassing-color-text-default);
+        color: var(--color-text-heading);
       }
     }
   }
@@ -32,10 +34,10 @@
     }
 
     h2 {
-      font-size: var(--toepassing-text-size-title-lg);
+      font-size: 1.5rem;
 
       &:first-child {
-        margin-top: var(--toepassing-space-padding-xs);
+        margin-top: 0.5rem;
       }
     }
 
@@ -47,4 +49,32 @@
       }
     }
   }
+
+  .button,
+  .button-outline {
+    display: block;
+    width: fit-content;
+    margin: 1rem auto 0;
+  }
+}
+
+/* Variants — accent-border + tinted bg per type. */
+.box.info {
+  border-left-color: var(--color-primary);
+  background-color: var(--color-bg-info);
+}
+
+.box.warning {
+  border-left-color: #fbb900;
+  background-color: light-dark(#fff8e1, #3a3219);
+}
+
+.box.success {
+  border-left-color: light-dark(#16a34a, #4ade80);
+  background-color: light-dark(#dcfce7, #14361f);
+}
+
+.box.danger {
+  border-left-color: light-dark(#dc2626, #f87171);
+  background-color: light-dark(#fee2e2, #3a1a1a);
 }

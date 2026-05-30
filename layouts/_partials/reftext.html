@@ -1,0 +1,35 @@
+{{- /*
+  Render tekst met {ref:N} → onderstippelde underline op het direct
+  voorafgaande woord. Hover/focus toont een tooltip met
+  referenties[N-1].tekst en (indien aanwezig) een Bekijk-bron-link.
+
+  Gebruik: {{ partial "reftext.html" (dict "tekst" .tekst "page" $page) }}
+*/ -}}
+{{- $tekst := .tekst | markdownify -}}
+{{- $base := "x" | relURL -}}
+{{- $base = strings.TrimSuffix "x" $base -}}
+{{- if ne $base "/" -}}
+  {{- $tekst = replace $tekst "href=\"/" (printf "href=\"%s" $base) -}}
+{{- end -}}
+{{- $page := .page -}}
+{{- range $i, $ref := $page.Params.referenties -}}
+  {{- $num := add $i 1 -}}
+  {{- $textEsc := $ref.tekst | htmlEscape -}}
+  {{- $linkHTML := "" -}}
+  {{- with $ref.url -}}
+    {{- $linkHTML = partial "render-link.html" (dict "href" . "text" "Bekijk bron") -}}
+  {{- end -}}
+  {{- $tooltip := printf "<span class=\"ref-tooltip\" role=\"note\"><span>%s</span>%s</span>" $textEsc $linkHTML -}}
+  {{- /* Mark eerste occurrence zodat alleen die het id="refback-N" krijgt
+         — back-anchor target voor de ↑-link onderaan. */ -}}
+  {{- $marker := printf "{ref:%d}" $num -}}
+  {{- $firstMarker := printf "{ref:%d!}" $num -}}
+  {{- $tekst = replace $tekst $marker $firstMarker 1 -}}
+  {{- $patternFirst := printf "([^\\s<>]*)(\\s*)\\{ref:%d!\\}" $num -}}
+  {{- $replaceFirst := printf "<span class=\"ref-wrapper\" id=\"refback-%d\"><span class=\"ref-term\" tabindex=\"0\">${1}</span>%s</span>${2}" $num $tooltip -}}
+  {{- $tekst = replaceRE $patternFirst $replaceFirst $tekst -}}
+  {{- $patternRest := printf "([^\\s<>]*)(\\s*)\\{ref:%d\\}" $num -}}
+  {{- $replaceRest := printf "<span class=\"ref-wrapper\"><span class=\"ref-term\" tabindex=\"0\">${1}</span>%s</span>${2}" $tooltip -}}
+  {{- $tekst = replaceRE $patternRest $replaceRest $tekst -}}
+{{- end -}}
+{{- $tekst | safeHTML -}}

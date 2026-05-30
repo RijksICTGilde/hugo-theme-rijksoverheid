@@ -1,0 +1,73 @@
+:root {
+  color-scheme: light dark;
+
+  /* Layout */
+  --content-max-width: 1100px;
+  --article-max-width: 800px;
+  --navbar-height: 55px;
+
+  /* Primaire kleuren */
+  --color-rijksblauw: #154273;
+  --color-rijksoranje: #e17000;
+  --color-primary: light-dark(var(--color-rijksblauw), #80d5fc);
+  --color-link: light-dark(#01689b, #93dcfa);
+
+  /* Background voor menu + footer. */
+  --color-banner: var(--color-rijksblauw);
+
+  /* Achtergrondkleuren */
+  --color-bg-page: light-dark(#ffffff, #0f172a);
+  --color-bg-hero: light-dark(rgba(220, 227, 234, 0.9), rgba(30, 41, 59, 0.95));
+  --color-bg-info: light-dark(#d9ebf7, #1e3a5f);
+  --color-bg-muted: light-dark(#f3f3f3, #1e293b);
+  --color-bg-light: light-dark(#eff7fc, #1e293b);
+
+  /* Tekstkleuren */
+  --color-text: light-dark(#0f172a, #e2e8f0);
+  --color-text-heading: light-dark(#0f172a, #f1f5f9);
+  --color-text-muted: light-dark(#334155, #b8c4d0);
+  --color-text-inverse: #ffffff;
+  --color-text-on-primary: light-dark(#ffffff, #1e293b);
+
+  /* Border kleur */
+  --color-border: light-dark(#e2e8f0, #334155);
+
+  /* Highlight kleur voor zoekresultaten */
+  --color-highlight: oklch(0.9 0.091 79);
+  --color-highlight-text: oklch(0.263 0.059 79);
+
+  /* Typography */
+  --font-sans: "RO-Sans", "Fira Sans", Arial, sans-serif;
+  --font-serif: "RO-Serif", "Times New Roman", serif;
+
+  /* Font size */
+  --text-base: 1rem;
+
+  /* Border radius */
+  --radius-upper-left: 2rem 0 0 0;
+  --radius-upper-right: 0 2rem 0 0;
+  --radius-bottom-right: 0 0 2rem 0;
+  --radius-bottom-left: 0 0 0 2rem;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}

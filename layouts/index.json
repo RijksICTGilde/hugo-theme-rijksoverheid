@@ -1,0 +1,67 @@
+{{- /* Bouwt search-index voor de Fuse-search-modal.
+
+  Per pagina:
+   - Index de pagina zelf (titel + content tot eerste ## heading).
+   - Index elke ## sectie als losse entry met anchor, zodat zoekresultaten
+     direct naar de juiste sectie scrollen.
+
+  Drafts en non-page kinds (lists, taxonomies) worden overgeslagen.
+*/ -}}
+{{- $pages := where .Site.RegularPages "Kind" "page" -}}
+{{- $index := slice -}}
+
+{{- define "partials/anchor-id" -}}
+  {{- return (. | anchorize) -}}
+{{- end -}}
+
+{{- define "partials/clean-content" -}}
+  {{- $content := . -}}
+  {{- $content = replaceRE `^#+\s*` "" $content -}}
+  {{- $content = replaceRE `\n#+\s*` "\n" $content -}}
+  {{- $content = replaceRE `>\s*\[!(?:NOTE|WARNING|TIP|IMPORTANT)\][^\n]*` "" $content -}}
+  {{- $content = replaceRE `^>\s*` "" $content -}}
+  {{- $content = replaceRE `\n>\s*` "\n" $content -}}
+  {{- $content = replaceRE `\[([^\]]+)\]\([^)]+\)` "$1" $content -}}
+  {{- $content = replaceRE `\*\*([^*]+)\*\*` "$1" $content -}}
+  {{- $content = replaceRE `\*([^*]+)\*` "$1" $content -}}
+  {{- $content = replaceRE `^\d+\.\s+` "" $content -}}
+  {{- $content = replaceRE `\n\d+\.\s+` "\n· " $content -}}
+  {{- $content = replaceRE `^[-*]\s+` "" $content -}}
+  {{- $content = replaceRE `\n[-*]\s+` "\n· " $content -}}
+  {{- $content = replaceRE `[ \t]+` " " $content -}}
+  {{- $content = replaceRE `\n[ \t]+` "\n" $content -}}
+  {{- $content = replaceRE `\n{2,}` "\n" $content -}}
+  {{- return ($content | strings.TrimSpace) -}}
+{{- end -}}
+
+{{- range $pages -}}
+  {{- if not .Draft -}}
+    {{- $pageTitle := .Title -}}
+    {{- $pageUrl := .RelPermalink -}}
+    {{- $pageSection := .Section -}}
+    {{- $rawContent := .RawContent -}}
+    {{- $sections := split $rawContent "\n## " -}}
+    {{- if eq (len $sections) 1 -}}
+      {{- $content := partial "clean-content" .Plain -}}
+      {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" $content "section" $pageSection) -}}
+    {{- else -}}
+      {{- /* Pagina zelf indexeren voor zoeken op titel */ -}}
+      {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" "" "section" $pageSection) -}}
+      {{- range $i, $sec := $sections -}}
+        {{- if gt $i 0 -}}
+          {{- $lines := split $sec "\n" -}}
+          {{- $heading := index $lines 0 -}}
+          {{- $heading = replaceRE `\s*{#[^}]+}\s*$` "" $heading -}}
+          {{- $heading = strings.TrimSpace $heading -}}
+          {{- $anchor := partial "anchor-id" $heading -}}
+          {{- $sectionRaw := delimit (after 1 $lines) "\n" -}}
+          {{- $sectionContent := partial "clean-content" $sectionRaw -}}
+          {{- if gt (len $sectionContent) 10 -}}
+            {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $heading) "url" (printf "%s#%s" $pageUrl $anchor) "content" $sectionContent "section" $pageSection) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{ $index | jsonify }}

@@ -1,0 +1,240 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-page);
+}
+
+/* Skip link voor toegankelijkheid */
+.skip-link {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  background: var(--color-rijksblauw);
+  color: var(--color-text-inverse);
+  padding: 0.5rem 1rem;
+  z-index: 100;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+main {
+  flex-grow: 1;
+}
+
+main > section,
+main > article,
+main > .content {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+main > section,
+main > article,
+main > .content {
+  padding: 1rem;
+  padding-top: 0;
+}
+
+main > article {
+  > * {
+    max-width: var(--article-max-width);
+  }
+}
+
+main > article.wide > * {
+  max-width: none;
+}
+
+.sidebar-layout-right {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+.sidebar-layout-right > aside :is(h1, h2) {
+  margin-top: 1rem;
+}
+
+.sidebar-layout-right > aside :is(h1, h2) a {
+  color: var(--color-text-heading);
+}
+
+.article-layout {
+  max-width: var(--article-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body:has(main > .article-layout) .breadcrumb {
+  max-width: var(--article-max-width);
+}
+
+article > header:has(.toc-toggle) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h1 {
+    flex: 1;
+  }
+}
+
+:where(article, section) > footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+:where(article, section) > footer p {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+button.toc-toggle {
+  flex-shrink: 0;
+  display: none; /* Verberg standaard op kleine schermen */
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin-top: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .icon-close {
+    display: none;
+  }
+
+  /* Toon alleen op grotere schermen waar TOC ook zichtbaar is */
+  @media (min-width: 950px) {
+    display: flex;
+  }
+}
+
+button.toc-toggle:hover,
+button.toc-toggle[aria-expanded="true"]:hover,
+button.toc-toggle[aria-expanded="false"]:hover {
+  background: var(--color-bg-info);
+  border: none;
+  color: inherit;
+}
+
+button.toc-toggle:focus-visible {
+  background: transparent;
+  border: none;
+  color: inherit;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button.toc-toggle[aria-expanded="true"] .icon-open {
+  display: none;
+}
+
+button.toc-toggle[aria-expanded="true"] .icon-close {
+  display: block;
+}
+
+/* Table of Contents (TOC) */
+.toc {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  padding-top: 1rem;
+  font-size: 1rem;
+
+  opacity: 0;
+  visibility: hidden;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, max-height 0.3s ease;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    max-height: 80vh;
+    overflow: visible;
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+
+    ul {
+      padding-left: 0.5rem;
+    }
+  }
+
+  > ul > li {
+    margin-bottom: 0.5rem;
+  }
+
+  ul ul li {
+    margin-bottom: 0;
+  }
+
+  a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    &.active {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+  }
+}
+
+main:has(.toc) {
+  @media (min-width: 950px) {
+    max-width: var(--content-max-width);
+    display: grid;
+    grid-template-columns: var(--article-max-width) calc(
+        min(100vw, var(--content-max-width)) - var(--article-max-width) - 1rem
+      );
+    gap: 1rem;
+    margin: 0 auto;
+  }
+}

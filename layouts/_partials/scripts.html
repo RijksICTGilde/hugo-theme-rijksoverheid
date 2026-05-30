@@ -1,0 +1,8 @@
+{{/* JavaScript bundling via Hugo's asset pipeline */}}
+{{- $baseJs := resources.Get "js/base.js" -}}
+{{- $tocJs := resources.Get "js/toc.js" -}}
+{{- $referentiesJs := resources.Get "js/referenties.js" -}}
+{{- $fuseJs := resources.Get "lib/fuse/fuse.min.js" -}}
+{{- $searchJs := resources.Get "js/search.js" -}}
+{{- $js := slice $baseJs $tocJs $referentiesJs $fuseJs $searchJs | resources.Concat "js/bundle.js" | fingerprint "md5" -}}
+<script src="{{ $js.RelPermalink }}"></script>

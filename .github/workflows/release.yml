@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Valideer CalVer tagformaat
+        run: |
+          set -euo pipefail
+          # Verwacht: vYYYY.M.D met optionele suffix -N. Geen leading zeros.
+          # Geldig:   v2026.5.30, v2026.12.31, v2026.5.30-2
+          # Ongeldig: v2026.05.30 (leading zero), v1.0.0 (geen jaartal),
+          #           v2026.0.1 (maand 0).
+          if ! printf '%s\n' "$TAG_NAME" \
+              | grep -Eq '^v[0-9]{4}\.[1-9][0-9]?\.[1-9][0-9]?(-[1-9][0-9]*)?$'; then
+            echo "Tag ${TAG_NAME} voldoet niet aan CalVer (vYYYY.M.D[-N])." >&2
+            echo "Voorbeeld van een geldige tag: v2026.5.30 of v2026.5.30-2." >&2
+            exit 1
+          fi
+
+      - name: Haal changelog-sectie op
+        run: |
+          set -euo pipefail
+          version="${TAG_NAME#v}"
+          awk -v ver="$version" '
+            $0 ~ "^## \\[" ver "\\]" { flag = 1; next }
+            flag && /^## \[/ { exit }
+            flag { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Geen changelog-sectie gevonden voor ${version}." >&2
+            echo "Voeg een sectie '## [${version}]' toe aan CHANGELOG.md." >&2
+            exit 1
+          fi
+
+      - name: Maak GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --notes-file release-notes.md

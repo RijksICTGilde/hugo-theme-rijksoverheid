@@ -1,10 +1,10 @@
-{{/*
-  404 error page
-  Source: hugo-theme-RO (original — not present in moza-poc or moza-site)
-*/}}
 {{ define "main" }}
-<article>
+<section>
   <h1>Pagina niet gevonden</h1>
-  <p>De pagina die u zoekt bestaat niet. <a href="{{ "/" | relURL }}">Ga naar de homepagina</a>.</p>
-</article>
+  <p>
+    Deze pagina bestaat niet of is verplaatst.
+    Ga terug naar de <a href="{{ relURL "/" }}">home-pagina</a>.
+  </p>
+  <p><small>Foutcode: 404</small></p>
+</section>
 {{ end }}

@@ -1,23 +1,17 @@
-{{/*
-  Base template
-  Source: adapted from MinBZK/moza-poc (_includes/base.njk)
-  Additions: breadcrumbs, language-switch (hugo-theme-RO)
-*/}}
-<!DOCTYPE html>
-<html lang="{{ .Site.Language.Lang | default "nl" }}">
+<!doctype html>
+<html lang="nl">
   <head>
-    {{- partial "head.html" . -}}
+    {{ partial "head.html" . }}
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Ga direct naar inhoud</a>
-    {{- partial "header.html" . -}}
-    {{- if site.Params.breadcrumbs.enable -}}
-      {{- partial "breadcrumbs.html" . -}}
-    {{- end -}}
+    {{ partial "page-banner.html" . }}
+    <a href="#main-content" class="skip-link">Ga naar de inhoud</a>
+    {{ partial "header.html" . }}
     <main id="main-content">
       {{- block "main" . }}{{ end -}}
     </main>
-    {{- partial "footer.html" . -}}
-    {{- partial "language-switch.html" . -}}
+    {{ partial "footer.html" . }}
+    {{ partial "search.html" . }}
+    {{ partial "scripts.html" . }}
   </body>
 </html>

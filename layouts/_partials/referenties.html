@@ -1,0 +1,47 @@
+{{- /*
+  Render voetnotenlijst op basis van .Params.referenties in een accordeon.
+  Klap automatisch uit wanneer op een referentie-link wordt geklikt.
+  Elke referentie heeft: tekst (verplicht), url (optioneel).
+  Gebruik: {{ partial "referenties.html" . }}
+
+  Opt-in via .Params.show_referenties (default uit). Op section-niveau
+  in een _index.md kun je cascade gebruiken om het voor alle child-
+  pages aan te zetten.
+*/ -}}
+{{- $page := . -}}
+{{- if and .Params.show_referenties .Params.referenties -}}
+{{- with .Params.referenties -}}
+{{- /* Bouw één string van alle velden waar reftext.html op werkt, zodat we
+       per ref kunnen bepalen of {ref:N} in de body voorkomt. Refs die niet
+       gebruikt worden krijgen geen ↩ back-link. */ -}}
+{{- $body := "" -}}
+{{- with $page.Params.kern }}{{ $body = printf "%s %s" $body . }}{{ end -}}
+{{- with $page.Params.toelichting }}{{ $body = printf "%s %s" $body . }}{{ end -}}
+{{- with $page.Params.reikwijdte }}{{ $body = printf "%s %s" $body . }}{{ end -}}
+{{- range $page.Params.normuitleg -}}
+  {{- range .voorschriften }}{{ $body = printf "%s %s" $body .tekst }}{{ end -}}
+  {{- range .criterium }}{{ $body = printf "%s %s" $body . }}{{ end -}}
+  {{- range .indicatoren }}{{ $body = printf "%s %s" $body . }}{{ end -}}
+{{- end -}}
+{{- range $page.Params.gerelateerde_onderwerpen }}{{ $body = printf "%s %s" $body .titel }}{{ end -}}
+<section id="referenties" class="references" aria-label="Referenties">
+  <details>
+    <summary>Referenties</summary>
+    <ol>
+      {{- range $i, $ref := . -}}
+      {{- $num := add $i 1 -}}
+      {{- $isUsed := strings.Contains $body (printf "{ref:%d}" $num) }}
+      <li id="ref-{{ $num }}">
+        {{- with $ref.url -}}
+          {{ partial "render-link.html" (dict "href" . "text" $ref.tekst) }}
+        {{- else -}}
+          {{ $ref.tekst }}
+        {{- end -}}
+        {{- if $isUsed }} <a href="#refback-{{ $num }}" class="ref-back" aria-label="Terug naar tekst">&#8617;</a>{{ end }}
+      </li>
+      {{- end }}
+    </ol>
+  </details>
+</section>
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,34 @@
+name: Valideer publiccode.yml
+
+on:
+  pull_request:
+    paths:
+      - publiccode.yml
+      - .github/workflows/publiccode-validate.yml
+  push:
+    branches: [main]
+    paths:
+      - publiccode.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      PARSER_VERSION: v5.3.1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installeer publiccode-parser
+        run: |
+          set -euo pipefail
+          url="https://github.com/italia/publiccode-parser-go/releases/download/${PARSER_VERSION}/publiccode-parser-go_Linux_x86_64.tar.gz"
+          curl -fsSL -o /tmp/pcparser.tar.gz "$url"
+          tar -xzf /tmp/pcparser.tar.gz -C /tmp
+          sudo install /tmp/publiccode-parser /usr/local/bin/publiccode-parser
+          publiccode-parser --version
+
+      - name: Valideer publiccode.yml
+        run: publiccode-parser publiccode.yml
