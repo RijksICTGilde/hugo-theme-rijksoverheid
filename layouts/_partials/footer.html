@@ -1,41 +1,21 @@
-{{/*
-  Site footer
-  Source: adapted from MinBZK/moza-poc (_includes/footer-overheid.njk)
-  Made configurable via site.Params.footer for theme reuse (hugo-theme-RO)
-*/}}
-{{- if or (site.Params.footer.service) (site.Params.footer.about) (site.Params.footer.description) -}}
 <footer>
-  <div class="footer-links">
-    {{- with site.Params.footer.description -}}
-    <nav>
-      <p>{{ . }}</p>
-    </nav>
-    {{- end -}}
-    {{- with site.Params.footer.service -}}
-    <nav>
-      <h4>Service</h4>
+  <p class="tagline">{{ .Site.Params.footer.tagline }}</p>
+  <div class="footer-columns">
+    <nav aria-label="{{ .Site.Params.footer.links }}">
+      <h2>{{ .Site.Params.footer.links }}</h2>
       <ul>
-        {{- range . -}}
-        <li><a href="{{ .url }}">{{ .name }}</a></li>
-        {{- end -}}
+        {{ range (index .Site.Menus "footer-links") }}
+        <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
+        {{ end }}
       </ul>
     </nav>
-    {{- end -}}
-    {{- with site.Params.footer.about -}}
-    <nav>
-      <h4>Over deze site</h4>
+    <nav aria-label="{{ .Site.Params.footer.rechts }}">
+      <h2>{{ .Site.Params.footer.rechts }}</h2>
       <ul>
-        {{- range . -}}
-        <li><a href="{{ .url }}">{{ .name }}</a></li>
-        {{- end -}}
+        {{ range (index .Site.Menus "footer-rechts") }}
+        <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
+        {{ end }}
       </ul>
     </nav>
-    {{- end -}}
   </div>
-  <p class="footer-copyright">&copy; {{ now.Year }} {{ .Site.Title }}</p>
 </footer>
-{{- else -}}
-<footer>
-  <p class="footer-copyright">&copy; {{ now.Year }} {{ .Site.Title }}</p>
-</footer>
-{{- end -}}

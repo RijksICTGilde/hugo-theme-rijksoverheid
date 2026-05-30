@@ -1,0 +1,124 @@
+/* Referenties — accordeon-overzicht onderaan een pagina, met inline
+   tooltip-marker (.ref-wrapper) op elke verwijzing in de body-tekst.
+   Activeer een ref via {ref:N} marker in markdown; consumer-partial
+   (reftext.html) doet de substitutie. */
+
+.references {
+  margin-block-start: 1rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.references > details > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  padding-block: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.references > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.references > details > summary::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.references > details[open] > summary::before {
+  transform: rotate(45deg) translate(-0.1em, -0.1em);
+}
+
+.references .ref-back {
+  margin-inline-start: 0.5em;
+}
+
+.references > details > summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.references li:target {
+  background-color: var(--color-bg-info);
+  padding: 0.25em 0.5em;
+  margin-inline-start: -0.5em;
+  border-radius: 3px;
+}
+
+.ref-wrapper {
+  position: relative;
+  display: inline;
+}
+
+.ref-term {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+.ref-term:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.ref-tooltip {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  z-index: 50;
+  inline-size: max-content;
+  min-inline-size: 14rem;
+  max-inline-size: min(22rem, calc(100vw - 2rem));
+  padding: 0.75rem 1rem;
+  padding-block-start: calc(0.75rem + 0.4rem);
+  background-color: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--color-text);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(var(--ref-offset-x, 0), -4px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+}
+
+.ref-tooltip::before {
+  content: "";
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 0.4rem;
+}
+
+.ref-wrapper:hover .ref-tooltip,
+.ref-wrapper:focus-within .ref-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(var(--ref-offset-x, 0), 0);
+}
+
+.ref-tooltip > span {
+  display: block;
+}
+
+.ref-tooltip > a {
+  display: inline-block;
+  margin-block-start: 0.75rem;
+  font-weight: 600;
+}

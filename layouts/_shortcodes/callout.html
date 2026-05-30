@@ -1,0 +1,31 @@
+{{- /* Callout: gestyleerd info-blok.
+
+  Usage:
+    {{< callout titel="Leeswijzer" >}}body{{< /callout >}}
+    {{< callout titel="Let op" variant="warning" corner="bottom-right" >}}body{{< /callout >}}
+
+  Params:
+    titel    optioneel
+    variant  optioneel — muted | warning | success | danger
+    corner   optioneel — bottom-right | bottom-left | upper-left
+             (default = upper-right)
+*/ -}}
+{{- $titel := .Get "titel" -}}
+{{- $variant := .Get "variant" -}}
+{{- $corner := .Get "corner" -}}
+{{- $validVariant := slice "muted" "warning" "success" "danger" -}}
+{{- $validCorner := slice "bottom-right" "bottom-left" "upper-left" -}}
+{{- if and $variant (not (in $validVariant $variant)) -}}
+  {{- errorf "callout: variant %q ongeldig (kies: %s)" $variant (delimit $validVariant ", ") -}}
+{{- end -}}
+{{- if and $corner (not (in $validCorner $corner)) -}}
+  {{- errorf "callout: corner %q ongeldig (kies: %s)" $corner (delimit $validCorner ", ") -}}
+{{- end -}}
+<blockquote class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
+  {{- with $titel }}
+  <header><span class="title">{{ . }}</span></header>
+  {{- end }}
+  <div class="content">
+    {{ .Inner | markdownify }}
+  </div>
+</blockquote>

@@ -1,0 +1,18 @@
+{{/*
+  Page-banner partial — optionele site-wide melding bovenaan elke pagina.
+
+  Activeren door in hugo.yaml params.page_banner toe te voegen:
+    params:
+      page_banner:
+        type: warning          # warning | info | success | danger
+        strong: "Let op:"      # optioneel, vetgedrukte aanhef
+        text: "Inhoud kan nog wijzigen."
+
+  Niets ingesteld → niets gerenderd.
+*/}}
+{{- $b := site.Params.page_banner -}}
+{{- if and $b $b.text -}}
+<div class="page-banner page-banner--{{ $b.type | default "info" }}" role="status">
+  <p>{{ with $b.strong }}<strong>{{ . }}</strong> {{ end }}{{ $b.text }}</p>
+</div>
+{{- end -}}

@@ -1,0 +1,99 @@
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card-grid.columns-2 {
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card-grid.boxed > article,
+.card-grid.boxed .card {
+  padding: 1rem 1.5rem;
+  background-color: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card-grid.boxed > article:hover,
+.card-grid.boxed > article:focus-within,
+.card-grid.boxed .card:hover,
+.card-grid.boxed .card:focus-within {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary);
+}
+
+.card-grid.clickable > article,
+.card-grid.clickable .card {
+  position: relative;
+
+  header h2 {
+    position: static;
+  }
+}
+
+.card-grid.clickable > article:hover header h2 a,
+.card-grid.clickable > article:focus-within header h2 a,
+.card-grid.clickable .card:hover header h2 a,
+.card-grid.clickable .card:focus-within header h2 a {
+  text-decoration: underline;
+}
+
+.card-grid > article header h2 a,
+.card header h2 a {
+  color: var(--color-primary);
+}
+
+.card-grid > article,
+.card {
+  width: 100%;
+
+  header {
+    img {
+      height: 2.5rem;
+      object-fit: contain;
+    }
+
+    h2 {
+      position: relative;
+      margin: 0;
+      font-size: 1.1em;
+
+      a {
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+        }
+
+        &:focus-visible {
+          outline: none;
+        }
+
+        &:focus-visible::after {
+          box-shadow: 0 0 0 2px var(--color-primary);
+          outline: 2px solid transparent;
+          outline-offset: 2px;
+        }
+      }
+    }
+  }
+
+  p {
+    padding-top: 0.5rem;
+  }
+}

@@ -1,28 +1,52 @@
-/* Button variants — outline, ghost, link.
-   The base button styling comes from MOx (.btn-cta). These are alternatives
-   from MinBZK/moza-site for content/UI use. */
-
-.button-outline {
+/* Standaard button styling */
+button,
+.button {
   display: inline-block;
   padding: 0.5rem 1.5rem;
   font: inherit;
-  font-weight: var(--toepassing-text-font-weight-bold);
+  font-weight: 600;
   text-decoration: none;
-  border-radius: var(--toepassing-border-radius-sm);
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  background-color: transparent;
-  color: var(--toepassing-color-interactive-default-background);
-  border: 2px solid var(--toepassing-color-interactive-default-background);
+  background-color: light-dark(var(--color-bg-info), var(--color-text));
+  color: light-dark(var(--color-text), var(--color-bg-page));
+  border: 1px solid light-dark(var(--color-bg-info), var(--color-text));
+
+  &:hover {
+    text-decoration: none;
+  }
 
   &:hover,
   &:focus-visible {
-    background-color: var(--toepassing-color-interactive-default-background);
-    color: var(--toepassing-color-text-inverse);
+    background-color: var(--color-rijksblauw);
+    border-color: var(--color-rijksblauw);
+    color: var(--color-text-inverse);
     outline: none;
+  }
+
+  flex-shrink: 0;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
+/* Outline variant */
+.button-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+  }
+}
+
+/* Ghost variant - transparant en subtiel */
 .button-ghost {
   display: flex;
   align-items: center;
@@ -31,22 +55,22 @@
   background: transparent;
   border: none;
   border-radius: 0;
-  color: var(--toepassing-color-text-subtle-1);
-  cursor: pointer;
+  color: var(--color-text-muted);
 
   &:hover,
   &:focus-visible {
-    background: transparent;
+    background: var(--color-bg-muted);
     border: none;
-    color: var(--toepassing-color-text-default);
+    color: var(--color-text);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--toepassing-color-interactive-default-background);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
 
+/* Link variant - button die eruitziet als een link */
 .button-link {
   display: inline;
   padding: 0;
@@ -55,22 +79,22 @@
   border-radius: 0;
   font: inherit;
   font-weight: inherit;
-  color: var(--toepassing-color-interactive-default-text);
+  color: var(--color-link);
   cursor: pointer;
   text-decoration: none;
 
   &:hover {
     background: none;
     border: none;
-    color: var(--toepassing-color-interactive-default-text);
+    color: var(--color-link);
     text-decoration: underline;
   }
 
   &:focus-visible {
     background: none;
     border: none;
-    color: var(--toepassing-color-interactive-default-text);
-    outline: 2px solid var(--toepassing-color-interactive-default-text);
+    color: var(--color-link);
+    outline: 2px solid var(--color-link);
     outline-offset: 2px;
   }
 }

@@ -1,17 +1,11 @@
-/* Mermaid diagram embed — supports light/dark variants and a download button.
-   Markup: <figure class="mermaid-diagram">
-             <img class="mermaid-img--light" src="...">
-             <img class="mermaid-img--dark" src="...">
-             <a class="mermaid-download" href="..." download>↓</a>
-           </figure> */
-
+/* Pre-rendered SVG diagrammen */
 .mermaid-diagram {
   position: relative;
   text-align: center;
-  background-color: var(--toepassing-color-background-subtle);
-  border-radius: var(--toepassing-border-radius-md);
-  padding: var(--toepassing-space-padding-md);
-  margin-bottom: var(--toepassing-space-layout-sm);
+  background-color: var(--color-bg-muted);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   overflow: hidden;
 }
 
@@ -47,12 +41,13 @@
   }
 }
 
+/* Download-knop */
 .mermaid-download {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 1;
-  border-radius: var(--toepassing-border-radius-sm);
+  border-radius: 0.25rem;
   opacity: 0.6;
   transition: opacity 0.2s;
 }

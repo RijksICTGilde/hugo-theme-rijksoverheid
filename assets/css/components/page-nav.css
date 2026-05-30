@@ -1,18 +1,7 @@
-/* Page navigation — prev/next links between sibling pages.
-   Markup: <nav class="page-nav" aria-label="Paginanavigatie">
-             <a class="page-nav-prev" href="...">
-               <span class="page-nav-label">Vorige</span>
-               <span class="page-nav-title">Title</span>
-             </a>
-             <a class="page-nav-next" href="...">...</a>
-           </nav> */
-
 .page-nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--toepassing-color-border-default);
 }
 
 .page-nav a {
@@ -21,16 +10,20 @@
   gap: 0.25rem;
   padding: 0.75rem 1rem;
   text-decoration: none;
-  border: 1px solid var(--toepassing-color-border-default);
-  border-radius: var(--toepassing-border-radius-sm);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
   color: inherit;
 
   &:hover,
   &:focus-visible {
     text-decoration: none;
-    background-color: var(--toepassing-color-interactive-default-background);
-    border-color: var(--toepassing-color-interactive-default-background);
-    color: var(--toepassing-color-text-inverse);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+
+    .page-nav-label {
+      opacity: 1;
+    }
   }
 }
 
@@ -57,7 +50,7 @@
 }
 
 .page-nav-title {
-  font-weight: var(--toepassing-text-font-weight-bold);
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {
