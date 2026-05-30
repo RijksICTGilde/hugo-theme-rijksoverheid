@@ -11,7 +11,7 @@ leading zeros, zodat tags geldig blijven als Go module versies. Bij
 meerdere releases op dezelfde dag voegen we een suffix toe:
 `v2026.5.30-2`.
 
-## [Unreleased]
+## [2026.5.31]
 
 Eerste publieke release.
 
@@ -32,4 +32,4 @@ Eerste publieke release.
   `.yamllint` voor consistente code en docs.
 * GitHub Actions workflows voor lint, publiccode-validatie en releases.
 
-[Unreleased]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/commits/main
+[2026.5.31]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v2026.5.31
