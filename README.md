@@ -1,4 +1,4 @@
-# hugo-theme-RO
+# hugo-theme-rijksoverheid
 
 Hugo-thema voor Rijksoverheid-sites, gebaseerd op het
 [moza-site](https://github.com/RijksICTGilde/moza-site) design system.
@@ -38,7 +38,7 @@ markup:
 
 module:
   imports:
-    - path: github.com/RijksICTGilde/hugo-theme-ro
+    - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
 
 # Zie sectie "Menus" hieronder voor footer + section-navs
 menus:
@@ -57,7 +57,7 @@ params:
 Bouwen:
 
 ```bash
-hugo mod get -u github.com/RijksICTGilde/hugo-theme-ro
+hugo mod get -u github.com/RijksICTGilde/hugo-theme-rijksoverheid
 hugo server
 ```
 
@@ -68,13 +68,13 @@ Voor parallelle ontwikkeling op thema + site, gebruik `go.mod`'s
 
 ```bash
 # In consumer's repo
-git clone git@github.com:RijksICTGilde/hugo-theme-RO.git ../hugo-theme-RO-local
+git clone git@github.com:RijksICTGilde/hugo-theme-rijksoverheid.git ../hugo-theme-rijksoverheid-local
 ```
 
 In `go.mod` van de consumer:
 
 ```go
-replace github.com/RijksICTGilde/hugo-theme-ro => ../hugo-theme-RO-local
+replace github.com/RijksICTGilde/hugo-theme-rijksoverheid => ../hugo-theme-rijksoverheid-local
 ```
 
 `hugo server` pakt vanaf nu wijzigingen in de lokale theme-clone live op.

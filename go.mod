@@ -1,3 +1,3 @@
-module github.com/RijksICTGilde/hugo-theme-ro
+module github.com/RijksICTGilde/hugo-theme-rijksoverheid
 
 go 1.26.3
