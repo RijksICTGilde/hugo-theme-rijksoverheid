@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    name: Lint en formattering
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - uses: pre-commit/action@v3.0.1
+
+  hugo-syntax:
+    name: Hugo template syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Installeer Hugo Extended
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.162.0"
+          extended: true
+
+      - name: Smoke build minimal site
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          theme_path="$PWD"
+          cd "$work"
+          hugo new site . --force --format=yaml >/dev/null
+          cat > hugo.yaml <<EOF
+          baseURL: https://example.test/
+          title: Smoke test
+          defaultContentLanguage: nl
+          module:
+            imports:
+              - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
+            replacements: "github.com/RijksICTGilde/hugo-theme-rijksoverheid -> ${theme_path}"
+          EOF
+          hugo mod init github.com/example/smoke
+          hugo --minify --gc --logLevel info

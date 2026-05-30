@@ -1,0 +1,30 @@
+name: Valideer publiccode.yml
+
+on:
+  pull_request:
+    paths:
+      - publiccode.yml
+      - .github/workflows/publiccode-validate.yaml
+  push:
+    branches: [main]
+    paths:
+      - publiccode.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Installeer pcvalidate
+        run: go install github.com/italia/publiccode-parser-go/v4/cmd/pcvalidate@latest
+
+      - name: Valideer publiccode.yml
+        run: pcvalidate publiccode.yml

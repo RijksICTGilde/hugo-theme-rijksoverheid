@@ -1,0 +1,10 @@
+default: true
+
+# Lange regels accepteren: technische docs hebben links en codeblocks.
+MD013: false
+
+# Toestaan dat eerste regel niet H1 is (frontmatter komt soms eerst).
+MD041: false
+
+# Sta inline HTML toe, theme docs gebruiken kbd en details soms.
+MD033: false
