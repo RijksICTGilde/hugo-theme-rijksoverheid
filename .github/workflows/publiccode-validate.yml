@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - publiccode.yml
-      - .github/workflows/publiccode-validate.yaml
+      - .github/workflows/publiccode-validate.yml
   push:
     branches: [main]
     paths:
