@@ -38,12 +38,6 @@
   }
 
   // Active link highlighting.
-  //
-  // Volg alléén de koppen die écht een TOC-link hebben (de link-targets), niet
-  // elke h2/h3/h4 in het artikel. Anders verdwijnt de highlight zodra je in een
-  // sectie scrolt die niet in de TOC staat (bv. diepere h4-koppen, of een kop
-  // die als <summary>/element i.p.v. <hN> is gerenderd): er is dan geen
-  // bijbehorende TOC-link en de highlight wordt uitgezet.
   const tocLinks = Array.from(document.querySelectorAll(".toc a[href^='#']"));
   const entries = tocLinks
     .map((link) => {
