@@ -54,8 +54,6 @@
 
     let current = null;
     for (const entry of entries) {
-      // getBoundingClientRect i.p.v. offsetTop: betrouwbaar ongeacht
-      // offsetParent (bv. koppen in een gepositioneerde sectie/<details>).
       if (entry.el.getBoundingClientRect().top <= threshold) {
         current = entry;
       } else {
