@@ -37,35 +37,54 @@
     }
   }
 
-  // Active link highlighting
-  const headings = Array.from(
-    document.querySelectorAll("article h2[id], article h3[id], article h4[id]")
-  );
-  const tocLinks = document.querySelectorAll(".toc a");
+  // Active link highlighting.
+  //
+  // Volg alléén de koppen die écht een TOC-link hebben (de link-targets), niet
+  // elke h2/h3/h4 in het artikel. Anders verdwijnt de highlight zodra je in een
+  // sectie scrolt die niet in de TOC staat (bv. diepere h4-koppen, of een kop
+  // die als <summary>/element i.p.v. <hN> is gerenderd): er is dan geen
+  // bijbehorende TOC-link en de highlight wordt uitgezet.
+  const tocLinks = Array.from(document.querySelectorAll(".toc a[href^='#']"));
+  const entries = tocLinks
+    .map((link) => {
+      const id = decodeURIComponent(link.getAttribute("href").slice(1));
+      const el = id && document.getElementById(id);
+      return el ? { link, el } : null;
+    })
+    .filter(Boolean);
 
-  if (!headings.length || !tocLinks.length) return;
+  if (!entries.length) return;
 
   function updateActiveLink() {
-    const scrollPos = window.scrollY + window.innerHeight * 0.2;
+    const threshold = window.innerHeight * 0.2;
 
     let current = null;
-    for (const heading of headings) {
-      if (heading.offsetTop <= scrollPos) {
-        current = heading;
+    for (const entry of entries) {
+      // getBoundingClientRect i.p.v. offsetTop: betrouwbaar ongeacht
+      // offsetParent (bv. koppen in een gepositioneerde sectie/<details>).
+      if (entry.el.getBoundingClientRect().top <= threshold) {
+        current = entry;
       } else {
         break;
       }
     }
 
-    tocLinks.forEach((link) => link.classList.remove("active"));
-    if (current) {
-      const activeLink = document.querySelector(
-        `.toc a[href="#${current.id}"]`
-      );
-      if (activeLink) activeLink.classList.add("active");
+    entries.forEach((entry) => entry.link.classList.remove("active"));
+    if (current) current.link.classList.add("active");
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        updateActiveLink();
+      });
     }
   }
 
-  window.addEventListener("scroll", updateActiveLink, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
   updateActiveLink();
 })();
