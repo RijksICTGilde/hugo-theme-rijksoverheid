@@ -100,6 +100,13 @@ markup:
     endLevel: 4
 ```
 
+Back-to-top-knop (staat standaard aan):
+
+```yaml
+params:
+  back_to_top: false   # zet de knop uit
+```
+
 `lastmod` op pagina's afleiden uit git-historie, en `robots.txt`
 genereren:
 
@@ -218,6 +225,7 @@ worden ondersteund.
 | `.search-modal`                                                                                      | Fuzzy site-search via Fuse.js. Sectievoorrang via `params.search.priority_sections`   |
 | `.page-banner` (`.page-banner--warning`, `.page-banner--info`)                                       | Site-brede melding bovenaan via `params.page_banner`                                  |
 | `.page-nav`                                                                                          | Prev/next binnen een reeks. Opt-in via `prev_next: true` op section `_index.md`       |
+| `.back-to-top`                                                                                        | Zwevende "naar boven"-knop op lange pagina's. Uit te zetten via `params.back_to_top: false`   |
 | `.breadcrumb`, `.toc`                                                                                | Standaard breadcrumbs en sticky table of contents                                     |
 | Header en footer                                                                                     | Site shell met `--color-banner` token (default `--color-rijksblauw`)                  |
 

@@ -8,3 +8,8 @@ MD041: false
 
 # Sta inline HTML toe, theme docs gebruiken kbd en details soms.
 MD033: false
+
+# Keep a Changelog herhaalt "Toegevoegd"/"Gewijzigd" per versie; alleen
+# duplicaten binnen dezelfde sectie zijn een fout.
+MD024:
+  siblings_only: true

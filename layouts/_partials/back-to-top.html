@@ -1,0 +1,11 @@
+{{/* Back-to-top — standaard aan; uit te zetten met `back_to_top: false` in
+     params. Een anchor naar #main-content (net als de skip-link), zodat de
+     knop ook zonder JS werkt en de focus meeverhuist naar de inhoud.
+     base.js haalt het `hidden`-attribuut weg zodra er meer dan een
+     schermhoogte is gescrold. */}}
+{{- if ne site.Params.back_to_top false -}}
+<a href="#main-content" class="back-to-top" hidden>
+  {{- partial "icon.html" "arrow-up" -}}
+  <span>Naar boven</span>
+</a>
+{{- end -}}
