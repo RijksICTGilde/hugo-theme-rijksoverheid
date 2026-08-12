@@ -23,7 +23,6 @@
   border: 1px solid currentColor;
   border-radius: 0.125rem;
   margin-left: 0.25rem;
-  opacity: 0.7;
 }
 
 /* Hide trigger text on small screens */
@@ -131,6 +130,14 @@
   outline: none;
 }
 
+/* Het invoerveld krijgt bij openen autofocus, maar wie met ArrowUp uit de
+   resultatenlijst terugkeert heeft zonder deze regel geen focusindicatie. */
+.search-modal .search-input:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .search-modal .search-input::placeholder {
   color: var(--color-text-muted);
 }
@@ -192,6 +199,15 @@
 .search-results li:has(.search-result-item:hover) + li .search-result-item::before,
 .search-results li:has(.search-result-item:focus-visible) + li .search-result-item::before {
   background-color: var(--color-bg-page);
+}
+
+/* De achtergrondwissel hierboven is als enige focusindicatie te zwak (1,22:1;
+   in donker 1,55:1) en deze lijst wordt met de pijltjestoetsen bediend. De
+   outline staat naar binnen zodat hij binnen de scrollende resultatenlijst
+   valt. Moet na de :hover/:focus-visible-regel staan: gelijke specificiteit. */
+.search-result-item:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: -2px;
 }
 
 .search-result-title {
