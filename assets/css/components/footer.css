@@ -44,6 +44,15 @@ body > footer {
   a {
     color: var(--color-text-inverse);
 
+    /* De basisregel in base.css tekent de ring in --color-link. Op de gekleurde
+       footerbalk levert dat te weinig contrast (bij --color-banner: #007bc7
+       haalt #01689b 1,35:1); de navbar heeft om dezelfde reden al een witte
+       ring. Wit haalt tegen #007bc7 4,51:1. */
+    &:focus-visible {
+      outline: 2px solid var(--color-text-inverse);
+      outline-offset: 2px;
+    }
+
     &::before {
       content: "";
       display: inline-block;
