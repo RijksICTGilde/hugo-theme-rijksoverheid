@@ -1,63 +1,66 @@
-/* Back-to-top — zwevende knop rechtsonder om in één keer naar de top van de
- * pagina te springen. Bedoeld voor lange pagina's.
+/* Back-to-top — zwevende "naar boven"-knop rechtsonder, bedoeld voor lange
+ * pagina's. Staat standaard uit; aanzetten via `params.back_to_top: true`.
  *
- * Uitzetten via site.Params.back_to_top: false. De knop is een anchor naar
- * #main-content en werkt dus ook zonder JS; base.js toont hem pas nadat er
- * meer dan een schermhoogte is gescrold.
+ * Erft van .button, alleen afwijkende styling hier. De knop is een anchor naar
+ * #main-content en werkt dus ook zonder JS; base.js haalt het `hidden`-attribuut
+ * pas weg nadat er meer dan een schermhoogte is gescrold.
+ *
+ * Element + class (a.back-to-top) omdat components/*.css alfabetisch wordt
+ * geconcat: button.css komt ná dit bestand, dus een losse class verliest.
  */
-
-html {
-  scroll-behavior: smooth;
-}
-
-.back-to-top {
+a.back-to-top {
   position: fixed;
-  inset-block-end: 1.5rem;
-  inset-inline-end: 1.5rem;
+  bottom: 1.5rem;
+  right: 1.5rem;
   z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
   padding: 0.6rem 1rem;
-  border: 1px solid var(--color-primary);
-  border-radius: 2rem;
-  background-color: var(--color-primary);
-  color: var(--color-text-on-primary);
-  font-family: var(--font-sans);
   font-size: 0.9375rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 2px 10px rgb(0 0 0 / 20%);
-}
-
-.back-to-top[hidden] {
-  display: none;
-}
-
-.back-to-top:hover,
-.back-to-top:focus-visible {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-text-on-primary);
-  filter: brightness(0.9);
-}
+  border-radius: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 
-.back-to-top svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
+  /* .button wisselt bij hover naar rijksblauw; die vlakvulling heeft de knop
+     al, dus in plaats daarvan een schaduwverschuiving zoals bij links. */
+  &:hover,
+  &:focus-visible {
+    background-color: color-mix(in oklch, var(--color-primary), black 12%);
+    border-color: color-mix(in oklch, var(--color-primary), black 12%);
+    color: var(--color-text-on-primary);
+  }
 
-/* Op smalle schermen alleen het icoon, zodat de knop geen tekst afdekt. */
-@media (max-width: 600px) {
-  .back-to-top {
+  /* .button zet `outline: none` bij focus en laat alleen een kleurwissel over;
+     op een zwevend element boven wisselende inhoud is dat te weinig. */
+  &:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  /* Op smalle schermen alleen het icoon, zodat de knop geen tekst afdekt.
+     Declaraties gelijk aan .visually-hidden in base.css. */
+  @media (max-width: 600px) {
     padding: 0.7rem;
     border-radius: 50%;
-  }
 
-  .back-to-top span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
+}
+
+/* .button zet `display: inline-block` en wint daarmee van de UA-regel voor
+   [hidden]; daarom expliciet. */
+a.back-to-top[hidden] {
+  display: none;
 }

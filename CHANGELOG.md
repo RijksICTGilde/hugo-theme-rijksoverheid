@@ -12,7 +12,7 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 * Back-to-top-knop: zwevende "naar boven"-knop rechtsonder die verschijnt
   zodra er meer dan een schermhoogte is gescrold. Bedoeld voor lange
   pagina's. De knop is een anchor naar `#main-content` en werkt dus ook
-  zonder JS. Uit te zetten met `params.back_to_top: false`.
+  zonder JS. Opt-in met `params.back_to_top: true`.
 
 ## [0.1.0]
 
