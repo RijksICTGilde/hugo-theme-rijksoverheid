@@ -90,3 +90,27 @@ window.addEventListener('resize', () => {
   }
   wasDesktop = isDesktop;
 });
+
+// Back-to-top: knop pas tonen als er meer dan een schermhoogte is gescrold,
+// zodat hij niet op korte pagina's staat te zweven. De knop staat in de HTML
+// met `hidden`; zonder JS blijft hij dus weg.
+const backToTop = document.querySelector('.back-to-top');
+if (backToTop) {
+  let backToTopTicking = false;
+
+  const updateBackToTop = () => {
+    backToTopTicking = false;
+    const scrolled = window.scrollY || document.documentElement.scrollTop;
+    backToTop.hidden = scrolled < window.innerHeight;
+  };
+
+  const onBackToTopScroll = () => {
+    if (backToTopTicking) return;
+    backToTopTicking = true;
+    window.requestAnimationFrame(updateBackToTop);
+  };
+
+  window.addEventListener('scroll', onBackToTopScroll, { passive: true });
+  window.addEventListener('resize', onBackToTopScroll, { passive: true });
+  updateBackToTop();
+}

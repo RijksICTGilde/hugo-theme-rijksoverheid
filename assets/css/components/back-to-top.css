@@ -1,0 +1,66 @@
+/* Back-to-top — zwevende "naar boven"-knop rechtsonder, bedoeld voor lange
+ * pagina's. Staat standaard uit; aanzetten via `params.back_to_top: true`.
+ *
+ * Erft van .button, alleen afwijkende styling hier. De knop is een anchor naar
+ * #main-content en werkt dus ook zonder JS; base.js haalt het `hidden`-attribuut
+ * pas weg nadat er meer dan een schermhoogte is gescrold.
+ *
+ * Element + class (a.back-to-top) omdat components/*.css alfabetisch wordt
+ * geconcat: button.css komt ná dit bestand, dus een losse class verliest.
+ */
+a.back-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.6rem 1rem;
+  font-size: 0.9375rem;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-radius: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+  /* .button wisselt bij hover naar rijksblauw; die vlakvulling heeft de knop
+     al, dus in plaats daarvan een schaduwverschuiving zoals bij links. */
+  &:hover,
+  &:focus-visible {
+    background-color: color-mix(in oklch, var(--color-primary), black 12%);
+    border-color: color-mix(in oklch, var(--color-primary), black 12%);
+    color: var(--color-text-on-primary);
+  }
+
+  /* .button zet `outline: none` bij focus en laat alleen een kleurwissel over;
+     op een zwevend element boven wisselende inhoud is dat te weinig. */
+  &:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  /* Op smalle schermen alleen het icoon, zodat de knop geen tekst afdekt.
+     Declaraties gelijk aan .visually-hidden in base.css. */
+  @media (max-width: 600px) {
+    padding: 0.7rem;
+    border-radius: 50%;
+
+    span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+}
+
+/* .button zet `display: inline-block` en wint daarmee van de UA-regel voor
+   [hidden]; daarom expliciet. */
+a.back-to-top[hidden] {
+  display: none;
+}

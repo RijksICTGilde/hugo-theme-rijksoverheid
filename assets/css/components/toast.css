@@ -30,6 +30,14 @@
   display: none;
 }
 
+/* De toast staat vast onderin met z-index 100 en kan een element dat focus
+   krijgt afdekken (WCAG 2.4.11). Zolang hij zichtbaar is, krijgt elk focusbaar
+   element ruimte onder zich mee, zodat de browser het erboven scrollt in
+   plaats van erachter. */
+body:has(.toast:not([hidden])) :is(a, button, summary, input, select, textarea, [tabindex]) {
+  scroll-margin-block-end: 6rem;
+}
+
 /* Interactive toast (button) */
 button.toast {
   cursor: pointer;

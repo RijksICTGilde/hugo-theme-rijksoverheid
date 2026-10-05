@@ -100,6 +100,30 @@ markup:
     endLevel: 4
 ```
 
+Back-to-top-knop (staat standaard uit):
+
+```yaml
+params:
+  back_to_top: true   # zet de knop aan
+```
+
+Logo in de kop: standaard het Rijksoverheid-lint met een link naar de
+eigen homepage. Optioneel een woordmerk ernaast (zoals op een briefhoofd)
+en een link naar een andere site:
+
+```yaml
+params:
+  logo:
+    url: "https://www.example.nl/"   # standaard de eigen homepage
+    woordmerk: "Ministerie van …"     # tekst naast het lint
+    label: "naar de website van …"    # verborgen toevoeging aan de linknaam
+```
+
+Met `url` is de logolink bereikbaar met toetsenbord en schermlezer. Geef dan
+ook `label` op: aan het lint of woordmerk is niet te zien dat de link de site
+verlaat. Tussen 600 en 820px schermbreedte is het woordmerk verborgen,
+omdat de sitetitel daar in dezelfde balk staat.
+
 `lastmod` op pagina's afleiden uit git-historie, en `robots.txt`
 genereren:
 
@@ -218,6 +242,7 @@ worden ondersteund.
 | `.search-modal`                                                                                      | Fuzzy site-search via Fuse.js. Sectievoorrang via `params.search.priority_sections`   |
 | `.page-banner` (`.page-banner--warning`, `.page-banner--info`)                                       | Site-brede melding bovenaan via `params.page_banner`                                  |
 | `.page-nav`                                                                                          | Prev/next binnen een reeks. Opt-in via `prev_next: true` op section `_index.md`       |
+| `.back-to-top`                                                                                       | Zwevende "naar boven"-knop op lange pagina's. Opt-in via `params.back_to_top: true`   |
 | `.breadcrumb`, `.toc`                                                                                | Standaard breadcrumbs en sticky table of contents                                     |
 | Header en footer                                                                                     | Site shell met `--color-banner` token (default `--color-rijksblauw`)                  |
 
