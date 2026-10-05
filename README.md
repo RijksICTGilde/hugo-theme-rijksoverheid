@@ -248,7 +248,13 @@ worden ondersteund.
 
 Voor externe links gebruik je de partial `render-link.html`. Die
 detecteert automatisch of een link extern, besloten of intern is en
-zorgt voor een consistent `rel="external"` en bijbehorend icoon.
+zorgt voor een consistent `rel="external"` en bijbehorend icoon. Externe
+links openen in een nieuw venster en krijgen daarom een verborgen melding
+voor schermlezers: `<span class="visually-hidden nieuw-venster-melding">
+(opent in een nieuw venster)</span>` (bij besloten links "(besloten
+omgeving, opent in een nieuw venster)"). Zet je zelf een `aria-label` op
+zo'n link, neem de melding dan in dat label op: een `aria-label`
+overschrijft de linktekst inclusief de verborgen span.
 
 ## Shortcodes
 

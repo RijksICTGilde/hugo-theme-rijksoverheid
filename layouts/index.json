@@ -16,6 +16,9 @@
 
 {{- define "partials/clean-content" -}}
   {{- $content := . -}}
+  {{- /* Verborgen nieuw-venster-melding van render-link hoort niet in de index. */ -}}
+  {{- $content = replace $content " (opent in een nieuw venster)" "" -}}
+  {{- $content = replace $content ", opent in een nieuw venster)" ")" -}}
   {{- $content = replaceRE `^#+\s*` "" $content -}}
   {{- $content = replaceRE `\n#+\s*` "\n" $content -}}
   {{- $content = replaceRE `>\s*\[!(?:NOTE|WARNING|TIP|IMPORTANT)\][^\n]*` "" $content -}}

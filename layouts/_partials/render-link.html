@@ -8,6 +8,10 @@
     - private: (optioneel) Markeer als besloten link via {.private} in Markdown
 
   Externe links krijgen automatisch target="_blank" en rel="external noopener noreferrer".
+  Omdat ze in een nieuw venster openen, krijgen ze een verborgen melding
+  "(opent in een nieuw venster)"; het icoon alleen is niet programmatisch
+  beschikbaar (WCAG 1.3.1). Klasse nieuw-venster-melding is de haak voor wie
+  er zelf een aria-label omheen zet: dat overschrijft deze tekst.
   Private links krijgen een slotje-icoon en "(besloten omgeving)" label.
   Een link is private als {.private} is meegegeven in Markdown, of automatisch
   bij samenwerkruimten.nl en digilab.overheid.nl/chat.
@@ -16,9 +20,9 @@
 {{- $isExternal := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
 {{- $isPrivate := or .private (and $isExternal (or (strings.Contains $u.Host "samenwerkruimten.nl") (and (strings.Contains $u.Host "digilab.overheid.nl") (strings.Contains $u.Path "/chat")))) -}}
 {{- if $isPrivate -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external private noopener noreferrer">{{ .text }}<span class="visually-hidden"> (besloten omgeving)</span></a>
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external private noopener noreferrer">{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (besloten omgeving, opent in een nieuw venster)</span></a>
 {{- else if $isExternal -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}</a>
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span></a>
 {{- else -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}>{{ .text }}</a>
 {{- end -}}
