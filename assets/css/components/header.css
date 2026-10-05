@@ -58,21 +58,72 @@ header {
       }
     }
 
-    /* Lint met optioneel woordmerk ernaast (params.logo.woordmerk). Het
-       woordmerk breekt zelf af, zodat het blok ook op een smal scherm binnen
-       de kolom blijft. */
+    /* Lint met optioneel woordmerk ernaast (params.logo.woordmerk), zoals in
+       de rijkshuisstijl: het lint staat in het midden van de pagina en het
+       woordmerk hangt er rechts naast. Het blok begint daarom een half lint
+       links van het midden, in plaats van als geheel gecentreerd te worden.
+       Lint, tekst en afstanden schalen in drie stappen mee, met dezelfde
+       maten en breekpunten als rijksoverheid.nl-sites (gemeten op
+       inspectie-oe.nl). */
+    .site-logo:has(.site-logo-woordmerk) {
+      --lint-breedte: 40px;
+      --woordmerk-afstand: 9px;
+      --woordmerk-boven: 41px;
+      --woordmerk-grootte: 0.75rem;
+      --woordmerk-max: none;
+
+      width: auto;
+      margin: 0;
+      padding-inline: calc(50% - var(--lint-breedte) / 2) 1rem;
+
+      @media (min-width: 576px) {
+        --lint-breedte: 45px;
+        --woordmerk-afstand: 12px;
+        --woordmerk-boven: 48px;
+        --woordmerk-grootte: 0.84375rem;
+        --woordmerk-max: 13.3rem;
+      }
+
+      @media (min-width: 992px) {
+        --lint-breedte: 48px;
+        --woordmerk-afstand: 13px;
+        --woordmerk-boven: 53px;
+        --woordmerk-grootte: 0.9375rem;
+        --woordmerk-max: 17.25rem;
+      }
+
+      img {
+        width: var(--lint-breedte);
+        height: auto;
+        flex-shrink: 0;
+      }
+    }
+
     .site-logo-link {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      align-items: flex-start;
+      gap: var(--woordmerk-afstand, 0.75rem);
+      width: fit-content;
       text-decoration: none;
     }
 
+    /* Het woordmerk begint iets onder het midden van het lint. */
     .site-logo-woordmerk {
-      max-width: 11rem;
-      font-size: 0.8125rem;
-      line-height: 1.25;
-      color: var(--color-text-heading);
+      min-width: 0;
+      max-width: var(--woordmerk-max, 17.25rem);
+      margin-block-start: var(--woordmerk-boven);
+      font-size: var(--woordmerk-grootte);
+      line-height: 1.17;
+      color: light-dark(var(--color-rijksblauw), var(--color-text-heading));
+    }
+
+    .site-logo-woordmerk-primair,
+    .site-logo-woordmerk-regel {
+      display: block;
+    }
+
+    .site-logo-woordmerk-primair {
+      font-weight: 700;
     }
 
     a.site-logo-link:hover .site-logo-woordmerk {
@@ -82,15 +133,6 @@ header {
     a.site-logo-link:focus-visible {
       outline: 3px solid var(--color-text);
       outline-offset: 3px;
-    }
-
-    /* Tussen 600px en 820px staat .site-info absoluut links in dezelfde balk
-       als het gecentreerde logo; het woordmerk zou ertegenaan lopen. Onder
-       600px is .site-info verborgen en is er ruimte. */
-    @media (min-width: 600px) and (max-width: 819px) {
-      .site-logo-woordmerk {
-        display: none;
-      }
     }
   }
 

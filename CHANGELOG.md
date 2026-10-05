@@ -7,6 +7,22 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+## [0.2.3]
+
+### Gewijzigd
+
+* Kop met `params.logo.woordmerk` volgt de rijkshuisstijl: het lint staat
+  in het midden van de pagina en het woordmerk hangt er rechts naast.
+  Voorheen werden lint en woordmerk samen gecentreerd, waardoor het lint
+  zo'n 94px links van het midden stond. Lint (40/45/48px), tekst
+  (12/13,5/15px) en afstanden schalen mee op 576 en 992px, de tekst is
+  rijksblauw. Het woordmerk blijft ook tussen 600 en 820px zichtbaar.
+
+### Toegevoegd
+
+* `params.logo.woordmerk` mag een lijst zijn: één regel per item, de
+  eerste vet (organisatie, met daaronder het ministerie).
+
 ## [0.2.2]
 
 ### Opgelost
@@ -74,6 +90,7 @@ Eerste publieke release.
   `.yamllint` voor consistente code en docs.
 * GitHub Actions workflows voor lint, publiccode-validatie en releases.
 
+[0.2.3]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.3
 [0.2.2]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.2
 [0.2.1]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.1
 [0.2.0]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.0
