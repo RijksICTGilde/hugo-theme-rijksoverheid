@@ -9,14 +9,49 @@
       </p>
       <p class="tagline">{{ .Site.Params.tagline }}</p>
     </div>
+    {{- /* Optioneel via params.logo (zie README):
+           - url: waar het logo heen linkt, standaard de eigen homepage;
+           - woordmerk: tekst naast het lint, zoals op een briefhoofd;
+           - label: verborgen toevoeging aan de linknaam die zegt waar de
+             link heen gaat, bijvoorbeeld "naar de website van …".
+         Zonder params.logo is de uitvoer gelijk aan eerdere versies. */ -}}
+    {{- $logo := site.Params.logo | default dict -}}
+    {{- $woordmerk := $logo.woordmerk -}}
     <div class="site-logo">
+      {{- with $logo.url }}
+      {{- /* Een link naar een andere site is niet overbodig naast de
+             sitetitel, dus bereikbaar voor iedereen: geen aria-hidden of
+             tabindex="-1". Met een woordmerk is dat de naam en is het lint
+             decoratief; anders draagt de alt-tekst van het lint de naam. Het
+             label staat áchter de zichtbare tekst (WCAG 2.5.3). */}}
+      <a href="{{ . }}" class="site-logo-link">
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Logo Rijksoverheid{{ end }}" />
+        {{- with $woordmerk }}
+        <span class="site-logo-woordmerk">{{ . }}</span>
+        {{- end }}
+        {{- with $logo.label }}
+        <span class="visually-hidden"> — {{ . }}</span>
+        {{- end }}
+      </a>
+      {{- else }}
       {{ if .IsHome }}
-      <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
-      {{ else }}
-      <a href="{{ .Site.Home.RelPermalink }}" tabindex="-1" aria-hidden="true">
+      {{- if $woordmerk }}
+      <span class="site-logo-link">
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
+        <span class="site-logo-woordmerk">{{ $woordmerk }}</span>
+      </span>
+      {{- else }}
+      <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
+      {{- end }}
+      {{ else }}
+      <a href="{{ .Site.Home.RelPermalink }}"{{ if $woordmerk }} class="site-logo-link"{{ end }} tabindex="-1" aria-hidden="true">
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
+        {{- with $woordmerk }}
+        <span class="site-logo-woordmerk">{{ . }}</span>
+        {{- end }}
       </a>
       {{ end }}
+      {{- end }}
     </div>
   </div>
 
