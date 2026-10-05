@@ -49,8 +49,24 @@
 
   if (!entries.length) return;
 
+  // Een kop is "gepasseerd" zodra hij boven 20% van het venster staat. Koppen
+  // in het laatste schermstuk halen die lijn nooit: de pagina is op voordat ze
+  // zo hoog komen. Daarom schuift de lijn op het laatste stuk scrollen mee
+  // naar beneden, tot onderaan het hele venster telt en de laatste kop actief
+  // is. Een pagina die niet scrollt houdt de gewone lijn.
+  function getThreshold() {
+    const base = window.innerHeight * 0.2;
+    const maxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const ramp = Math.min(window.innerHeight - base, maxScroll);
+    if (ramp <= 0) return base;
+    const rest = Math.max(0, maxScroll - window.scrollY);
+    const progress = Math.max(0, ramp - rest) / ramp;
+    return base + (window.innerHeight - base) * progress;
+  }
+
   function updateActiveLink() {
-    const threshold = window.innerHeight * 0.2;
+    const threshold = getThreshold();
 
     let current = null;
     for (const entry of entries) {

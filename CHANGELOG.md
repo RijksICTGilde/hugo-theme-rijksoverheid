@@ -7,7 +7,19 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
-## [0.3.0]
+## [0.2.2]
+
+### Opgelost
+
+* TOC scroll-spy: koppen in het laatste schermstuk worden nu ook actief. Die
+  haalden de lijn op 20% van het venster nooit, omdat de pagina eerder op
+  was; op korte pagina's werden de laatste secties zo nooit gemarkeerd. Op het
+  laatste stuk scrollen schuift de lijn mee naar beneden, tot onderaan de
+  laatste kop actief is.
+* Changelog: de vorige release heette hier `[0.3.0]`, maar is als `v0.2.1`
+  uitgebracht. Daardoor vond de release-workflow geen sectie en faalde.
+
+## [0.2.1]
 
 ### Toegevoegd
 
@@ -62,4 +74,7 @@ Eerste publieke release.
   `.yamllint` voor consistente code en docs.
 * GitHub Actions workflows voor lint, publiccode-validatie en releases.
 
+[0.2.2]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.2
+[0.2.1]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.1
+[0.2.0]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.0
 [0.1.0]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.1.0
