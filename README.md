@@ -107,6 +107,23 @@ params:
   back_to_top: true   # zet de knop aan
 ```
 
+Logo in de kop: standaard het Rijksoverheid-lint met een link naar de
+eigen homepage. Optioneel een woordmerk ernaast (zoals op een briefhoofd)
+en een link naar een andere site:
+
+```yaml
+params:
+  logo:
+    url: "https://www.example.nl/"   # standaard de eigen homepage
+    woordmerk: "Ministerie van …"     # tekst naast het lint
+    label: "naar de website van …"    # verborgen toevoeging aan de linknaam
+```
+
+Met `url` is de logolink bereikbaar met toetsenbord en schermlezer. Geef dan
+ook `label` op: aan het lint of woordmerk is niet te zien dat de link de site
+verlaat. Tussen 600 en 820px schermbreedte is het woordmerk verborgen,
+omdat de sitetitel daar in dezelfde balk staat.
+
 `lastmod` op pagina's afleiden uit git-historie, en `robots.txt`
 genereren:
 

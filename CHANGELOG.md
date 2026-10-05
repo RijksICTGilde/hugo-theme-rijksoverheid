@@ -7,12 +7,30 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+## [0.3.0]
+
+### Toegevoegd
+
+* Optionele `params.logo` voor de kop: `url` laat het logo naar een andere
+  site linken, `woordmerk` zet een tekst naast het lint en `label` voegt een
+  verborgen toelichting aan de linknaam toe. Zonder deze params blijft de kop
+  ongewijzigd
+  ([#20](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/20)).
+
+## [0.2.0]
+
 ### Toegevoegd
 
 * Back-to-top-knop: zwevende "naar boven"-knop rechtsonder die verschijnt
   zodra er meer dan een schermhoogte is gescrold. Bedoeld voor lange
   pagina's. De knop is een anchor naar `#main-content` en werkt dus ook
-  zonder JS. Opt-in met `params.back_to_top: true`.
+  zonder JS. Opt-in met `params.back_to_top: true`
+  ([#9](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/pull/9)).
+
+### Opgelost
+
+* Focusindicatoren en contrast in zoeken, footer en toast
+  ([#19](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/pull/19)).
 
 ## [0.1.0]
 
