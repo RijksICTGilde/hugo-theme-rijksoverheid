@@ -206,7 +206,11 @@ button.toc-toggle[aria-expanded="true"] .icon-close {
     margin-bottom: 0;
   }
 
+  /* Als block met verticale padding is elke link ruim 24px hoog, ook de
+     sublinks die zonder marge onder elkaar staan (WCAG 2.5.8). */
   a {
+    display: block;
+    padding-block: 0.25rem;
     color: var(--color-text-muted);
     text-decoration: none;
 
