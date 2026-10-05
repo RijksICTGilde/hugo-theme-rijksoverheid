@@ -74,13 +74,21 @@
   border-radius: 2px;
 }
 
+/* Gesloten tooltip staat buiten de layout (display: none). Met alleen
+   `visibility: hidden` telt het absoluut gepositioneerde blok van 14-22rem wél
+   mee voor de scrollbreedte: een term rechts in de regel gaf op elke
+   viewportbreedte horizontale scroll (1.4.10). `aria-describedby` naar de
+   tooltip blijft werken, de naamberekening leest ook verborgen doelen.
+   --ref-offset-x schuift een open tooltip terug binnen de viewport; die zet
+   referenties.js bij openen. */
 .ref-tooltip {
+  display: none;
   position: absolute;
   inset-block-start: 100%;
   inset-inline-start: 0;
   z-index: 50;
   inline-size: max-content;
-  min-inline-size: 14rem;
+  min-inline-size: min(14rem, calc(100vw - 2rem));
   max-inline-size: min(22rem, calc(100vw - 2rem));
   padding: 0.75rem 1rem;
   padding-block-start: calc(0.75rem + 0.4rem);
@@ -91,10 +99,8 @@
   font-size: 1rem;
   line-height: 1.45;
   color: var(--color-text);
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(var(--ref-offset-x, 0), -4px);
-  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+  transform: translate(var(--ref-offset-x, 0), 0);
+  transition: opacity 0.12s ease, transform 0.12s ease;
 }
 
 .ref-tooltip::before {
@@ -108,9 +114,21 @@
 
 .ref-wrapper:hover .ref-tooltip,
 .ref-wrapper:focus-within .ref-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(var(--ref-offset-x, 0), 0);
+  display: block;
+
+  /* Infaden vanuit display: none; browsers zonder @starting-style tonen de
+     tooltip direct. */
+  @starting-style {
+    opacity: 0;
+    transform: translate(var(--ref-offset-x, 0), -4px);
+  }
+}
+
+/* Escape sluit een open tooltip zonder dat de focus of muis verplaatst
+   (1.4.13). referenties.js zet de class en haalt hem weg zodra focus én muis
+   de wrapper hebben verlaten. */
+.ref-wrapper.is-dismissed .ref-tooltip {
+  display: none;
 }
 
 .ref-tooltip > span {

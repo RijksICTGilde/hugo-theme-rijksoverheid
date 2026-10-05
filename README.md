@@ -285,6 +285,8 @@ oplevert:
 * `aria-label`, `aria-current` en `aria-expanded` op interactieve
   componenten.
 * Zichtbare focus states via `:focus-visible`.
+* Bron-tooltips (`.ref-tooltip`) sluiten met Escape zonder dat de focus
+  verspringt, en blijven op smalle schermen binnen beeld.
 * Respect voor `prefers-color-scheme` en `prefers-reduced-motion`.
 
 De toegankelijkheid van de uiteindelijke site hangt ook af van de
