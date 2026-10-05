@@ -87,7 +87,10 @@
 
     <ul class="navbar-right">
       <li>
-        <button class="search-trigger" aria-label="Zoeken" aria-haspopup="dialog">
+        {{- /* Geen aria-label: de naam komt uit de zichtbare tekst, zodat die er
+               vanzelf in zit (WCAG 2.5.3). De icoon-knop op mobiel houdt zijn
+               label, want daar is geen tekst. */}}
+        <button class="search-trigger" aria-haspopup="dialog">
           {{- partial "icon.html" "search" -}}
           <span class="search-trigger-text">Zoeken...</span>
           <kbd class="search-shortcut">/</kbd>
