@@ -17,6 +17,16 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
   ongewijzigd
   ([#20](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/20)).
 
+### Opgelost
+
+* TOC scroll-spy ("Op deze pagina") volgt nu alleen koppen die ook een
+  TOC-link hebben, in plaats van elke `h2`/`h3`/`h4` in het artikel. De
+  actieve sectie loopt daardoor vloeiend mee; voorheen verdween de highlight
+  zodra je in een sectie zonder TOC-link scrolde (bv. diepere koppen of een
+  als `<summary>` gerenderde kop). Gebruikt `getBoundingClientRect` i.p.v.
+  `offsetTop` en `requestAnimationFrame`-throttling
+  ([#8](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/pull/8)).
+
 ## [0.2.0]
 
 ### Toegevoegd
