@@ -33,8 +33,8 @@ a.back-to-top {
     color: var(--color-text-on-primary);
   }
 
-  /* .button zet `outline: none` bij focus en laat alleen een kleurwissel over;
-     op een zwevend element boven wisselende inhoud is dat te weinig. */
+  /* Zwevend element boven wisselende inhoud: een smallere ring dan de
+     standaard-.button, zodat er minder inhoud onder verdwijnt. */
   &:focus-visible {
     outline: 2px solid var(--color-text);
     outline-offset: 2px;

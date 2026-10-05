@@ -215,7 +215,9 @@ button.toc-toggle[aria-expanded="true"] .icon-close {
       text-decoration: underline;
     }
 
-    &:focus-visible {
+    /* Niet voor een .button in de inhoudsopgave: die houdt de focusring van
+       de knop, anders wint deze regel op specificiteit. */
+    &:not(.button):focus-visible {
       outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
