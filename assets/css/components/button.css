@@ -22,7 +22,15 @@ button,
     background-color: var(--color-rijksblauw);
     border-color: var(--color-rijksblauw);
     color: var(--color-text-inverse);
-    outline: none;
+  }
+
+  /* Focus niet alleen via de kleurwissel: die is gelijk aan hover en verdwijnt
+     zodra een variant of consumer de knopkleuren overschrijft (2.4.7).
+     Door de offset ligt de ring los van de knop, op de pagina; --color-text
+     contrasteert daar in beide modi mee, ook bij een eigen knopkleur. */
+  &:focus-visible {
+    outline: 3px solid var(--color-text);
+    outline-offset: 2px;
   }
 
   flex-shrink: 0;
