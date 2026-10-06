@@ -9,7 +9,10 @@
 {{- $description := .Description -}}
 {{- if not $description -}}
   {{- if .Content -}}
-    {{- $description = .Plain | truncate 160 -}}
+    {{- /* Zonder de verborgen nieuw-venster-melding van render-link. */ -}}
+    {{- $plain := replace .Plain " (opent in een nieuw venster)" "" -}}
+    {{- $plain = replace $plain ", opent in een nieuw venster)" ")" -}}
+    {{- $description = $plain | truncate 160 -}}
   {{- else -}}
     {{- $description = .Site.Params.description -}}
   {{- end -}}

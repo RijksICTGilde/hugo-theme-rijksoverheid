@@ -155,7 +155,7 @@
       {{- if .Site.Menus.secondary -}}
       <ul>
         {{- range .Site.Menus.secondary -}}
-        <li><a href="{{ .URL }}" target="_blank" rel="external noopener noreferrer">{{ .Name }}</a></li>
+        <li><a href="{{ .URL }}" target="_blank" rel="external noopener noreferrer">{{ .Name }}<span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span></a></li>
         {{- end -}}
       </ul>
       {{- end -}}
