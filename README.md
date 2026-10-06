@@ -88,6 +88,10 @@ params:
     priority_sections: []
 ```
 
+De zoekmodal opent met Ctrl+K (Cmd+K op macOS). Een sneltoets zonder
+modifier, zoals `/`, zit er bewust niet in: die is niet uit te zetten en vuurt
+ook op spraakinvoer (WCAG 2.1.4).
+
 Voetnoten en aangepaste table of contents:
 
 ```yaml

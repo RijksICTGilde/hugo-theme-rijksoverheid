@@ -312,13 +312,25 @@
       }
     });
 
-    document.addEventListener('keydown', function (e) {
-      var activeElement = document.activeElement;
-      var isTyping = activeElement.tagName === 'INPUT' ||
-                     activeElement.tagName === 'TEXTAREA' ||
-                     activeElement.isContentEditable;
+    // Sneltoets Ctrl+K / Cmd+K. Bewust geen losse letter zoals "/": die vuurt
+    // ook op spraakinvoer en is niet uit te zetten (WCAG 2.1.4). Met een
+    // modifier valt de sneltoets buiten 2.1.4 en mag hij overal werken. De hint
+    // in de kop is aria-hidden; aria-keyshortcuts meldt de toets aan
+    // hulptechnologie.
+    searchTriggers.forEach(function (trigger) {
+      trigger.setAttribute('aria-keyshortcuts', 'Control+K Meta+K');
+    });
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) {
+      document.querySelectorAll('.search-shortcut').forEach(function (hint) {
+        hint.textContent = '⌘ K';
+      });
+    }
 
-      if (e.key === '/' && !isTyping && !searchModal.open) {
+    document.addEventListener('keydown', function (e) {
+      var isShortcut = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey &&
+                       typeof e.key === 'string' && e.key.toLowerCase() === 'k';
+
+      if (isShortcut && !searchModal.open) {
         e.preventDefault();
         openModal();
       }
