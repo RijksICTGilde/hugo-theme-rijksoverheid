@@ -114,16 +114,21 @@
       {{- partial "icon.html" "moon" -}}
     </button>
 
+    {{- /* Vaste naam: aria-expanded draagt de toestand al, en spraakbediening
+           mikt op een naam die niet verandert. */}}
     <button
       class="toggle"
-      aria-label="Menu openen"
+      aria-label="Menu"
       aria-expanded="false"
       aria-controls="mobile-menu"
     >
       {{- partial "icon.html" "menu" -}}
     </button>
 
-    <div id="mobile-menu" class="mobile" role="navigation" aria-label="Mobiel menu">
+    {{- /* Geen role="navigation": dit staat al binnen <nav id="main-nav">, en
+           een tweede landmark daarin maakt de landmarklijst onbetrouwbaar
+           (WCAG 1.3.1). */}}
+    <div id="mobile-menu" class="mobile">
       <ul>
         {{- range .Site.Menus.main -}}
         <li><a href="{{ .URL }}"{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) (eq $.RelPermalink .URL) }} class="active" aria-current="page"{{ end }}>{{ .Name }}</a></li>

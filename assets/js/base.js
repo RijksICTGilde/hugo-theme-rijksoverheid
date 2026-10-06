@@ -56,16 +56,25 @@ document.querySelectorAll('.subnav-toggle').forEach(btn => {
   });
 });
 
-// Mobile menu toggle
+// Mobile menu toggle. Het aria-label blijft "Menu"; de toestand staat in
+// aria-expanded, dat de schermlezer al voorleest.
 document.querySelectorAll('.navbar .toggle').forEach(btn => {
   btn.addEventListener('click', function() {
     const expanded = this.getAttribute('aria-expanded') === 'true';
-    const targetId = this.getAttribute('aria-controls');
-    const target = document.getElementById(targetId);
-
     this.setAttribute('aria-expanded', !expanded);
-    this.setAttribute('aria-label', !expanded ? 'Menu sluiten' : 'Menu openen');
   });
+});
+
+// Escape sluit het mobiele menu en zet de focus terug op de menuknop, zodat
+// toetsenbordgebruikers niet op een verdwenen link achterblijven. Staat er een
+// dialoog open (het zoekvenster), dan is de Escape voor die dialoog.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (document.querySelector('dialog[open]')) return;
+  const openToggle = document.querySelector('.navbar .toggle[aria-expanded="true"]');
+  if (!openToggle) return;
+  openToggle.setAttribute('aria-expanded', 'false');
+  openToggle.focus();
 });
 
 // Mobile theme toggle (sync with main toggle)
@@ -85,7 +94,6 @@ window.addEventListener('resize', () => {
   if (isDesktop && !wasDesktop) {
     document.querySelectorAll('.toggle[aria-expanded="true"]').forEach(btn => {
       btn.setAttribute('aria-expanded', 'false');
-      btn.setAttribute('aria-label', 'Menu openen');
     });
   }
   wasDesktop = isDesktop;
