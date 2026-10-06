@@ -40,6 +40,12 @@ h6 {
   line-height: 1.2;
   margin-top: 2rem;
   margin-bottom: 0.8rem;
+  /* Lange Nederlandse samenstellingen ("besturingsprogrammatuur") passen op
+     320px niet in een kop van 2rem; zonder afbreken scrolt de pagina
+     horizontaal (WCAG 1.4.10). hyphens volgt lang="nl" uit baseof.html;
+     overflow-wrap vangt woorden af die de browser niet kan afbreken. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 h1 {
