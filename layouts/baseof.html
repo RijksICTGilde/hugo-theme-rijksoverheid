@@ -7,7 +7,9 @@
     {{ partial "page-banner.html" . }}
     <a href="#main-content" class="skip-link">Ga naar de inhoud</a>
     {{ partial "header.html" . }}
-    <main id="main-content">
+    {{- /* tabindex="-1": zonder dat is <main> geen focusdoel en verhuist bij de
+           skip-link alleen de scrollpositie mee, niet de focus (WCAG 2.4.1). */}}
+    <main id="main-content" tabindex="-1">
       {{- block "main" . }}{{ end -}}
     </main>
     {{ partial "footer.html" . }}
