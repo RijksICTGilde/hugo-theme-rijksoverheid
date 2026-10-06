@@ -115,14 +115,17 @@ en een link naar een andere site:
 params:
   logo:
     url: "https://www.example.nl/"   # standaard de eigen homepage
-    woordmerk: "Ministerie van …"     # tekst naast het lint
+    woordmerk:                        # tekst naast het lint
+      - "Inspectie …"                 # eerste regel vet: de organisatie
+      - "Ministerie van …"
     label: "naar de website van …"    # verborgen toevoeging aan de linknaam
 ```
 
 Met `url` is de logolink bereikbaar met toetsenbord en schermlezer. Geef dan
 ook `label` op: aan het lint of woordmerk is niet te zien dat de link de site
-verlaat. Tussen 600 en 820px schermbreedte is het woordmerk verborgen,
-omdat de sitetitel daar in dezelfde balk staat.
+verlaat. `woordmerk` mag ook één tekst zijn. Met een woordmerk staat het
+lint in het midden van de pagina en het woordmerk er rechts naast, zoals in
+de rijkshuisstijl; lint en tekst schalen mee op 576 en 992px.
 
 `lastmod` op pagina's afleiden uit git-historie, en `robots.txt`
 genereren:

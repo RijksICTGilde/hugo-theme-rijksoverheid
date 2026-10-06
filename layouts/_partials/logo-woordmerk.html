@@ -1,0 +1,21 @@
+{{- /* Woordmerk naast het lint (params.logo.woordmerk).
+
+  Een tekst geeft één blok. Een lijst geeft één regel per item, de eerste
+  vet: de organisatie, met daaronder het ministerie, zoals in de
+  rijkshuisstijl.
+
+    woordmerk:
+      - "Inspectie Overheidsinformatie en Erfgoed"
+      - "Ministerie van Onderwijs, Cultuur en Wetenschap"
+*/ -}}
+<span class="site-logo-woordmerk">
+  {{- if reflect.IsSlice . -}}
+  {{- range $i, $regel := . -}}
+  {{- /* Spatie tussen de regels, anders plakken ze in de toegankelijke naam aan elkaar. */ -}}
+  {{- if $i }} {{ end -}}
+  <span class="{{ if eq $i 0 }}site-logo-woordmerk-primair{{ else }}site-logo-woordmerk-regel{{ end }}">{{ $regel }}</span>
+  {{- end -}}
+  {{- else -}}
+  {{ . }}
+  {{- end -}}
+</span>

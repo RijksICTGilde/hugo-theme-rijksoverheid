@@ -11,7 +11,8 @@
     </div>
     {{- /* Optioneel via params.logo (zie README):
            - url: waar het logo heen linkt, standaard de eigen homepage;
-           - woordmerk: tekst naast het lint, zoals op een briefhoofd;
+           - woordmerk: tekst naast het lint, zoals op een briefhoofd; een
+             lijst geeft één regel per item, de eerste vet;
            - label: verborgen toevoeging aan de linknaam die zegt waar de
              link heen gaat, bijvoorbeeld "naar de website van …".
          Zonder params.logo is de uitvoer gelijk aan eerdere versies. */ -}}
@@ -27,7 +28,7 @@
       <a href="{{ . }}" class="site-logo-link">
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Logo Rijksoverheid{{ end }}" />
         {{- with $woordmerk }}
-        <span class="site-logo-woordmerk">{{ . }}</span>
+        {{ partial "logo-woordmerk.html" . }}
         {{- end }}
         {{- with $logo.label }}
         <span class="visually-hidden"> — {{ . }}</span>
@@ -38,7 +39,7 @@
       {{- if $woordmerk }}
       <span class="site-logo-link">
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
-        <span class="site-logo-woordmerk">{{ $woordmerk }}</span>
+        {{ partial "logo-woordmerk.html" $woordmerk }}
       </span>
       {{- else }}
       <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
@@ -47,7 +48,7 @@
       <a href="{{ .Site.Home.RelPermalink }}"{{ if $woordmerk }} class="site-logo-link"{{ end }} tabindex="-1" aria-hidden="true">
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
         {{- with $woordmerk }}
-        <span class="site-logo-woordmerk">{{ . }}</span>
+        {{ partial "logo-woordmerk.html" . }}
         {{- end }}
       </a>
       {{ end }}
