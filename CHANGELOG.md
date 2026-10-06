@@ -17,11 +17,52 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
   zo'n 94px links van het midden stond. Lint (40/45/48px), tekst
   (12/13,5/15px) en afstanden schalen mee op 576 en 992px, de tekst is
   rijksblauw. Het woordmerk blijft ook tussen 600 en 820px zichtbaar.
+* Zoeken opent met Ctrl+K (Cmd+K op macOS) in plaats van de losse toets
+  `/`, die niet uit te zetten was en ook op spraakinvoer reageerde
+  (WCAG 2.1.4). De hint in de kop toont de nieuwe toets en
+  `aria-keyshortcuts` meldt hem aan hulpsoftware
+  ([#14](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/14)).
 
 ### Toegevoegd
 
 * `params.logo.woordmerk` mag een lijst zijn: één regel per item, de
   eerste vet (organisatie, met daaronder het ministerie).
+
+### Opgelost
+
+* Skip-link: `<main id="main-content">` heeft `tabindex="-1"`, zodat de
+  focus naar de inhoud verhuist en niet alleen de scrollpositie
+  (WCAG 2.4.1) ([#15](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/15)).
+* Zoekknop: geen `aria-label="Zoeken"` meer op de knop met zichtbare
+  tekst; de naam komt uit de tekst zelf (WCAG 2.5.3). De icoonknop op
+  mobiel houdt zijn label ([#16](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/16)).
+* Mobiel menu: geen genest navigatielandmark meer (WCAG 1.3.1), de
+  menuknop heet vast "Menu" en Escape sluit het menu en zet de focus terug
+  op de knop. Met het zoekvenster open is Escape voor het zoekvenster
+  ([#18](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/18)).
+* Externe links (`render-link`, secundair menu) melden dat ze in een nieuw
+  venster openen, met een verborgen "(opent in een nieuw venster)"
+  (WCAG 1.3.1). Besloten links melden "(besloten omgeving, opent in een
+  nieuw venster)". Meta-description en zoekindex laten de melding weg.
+  **Let op:** de linkinhoud bevat nu een
+  `<span class="visually-hidden nieuw-venster-melding">`; wie gerenderde
+  links nabewerkt met regexen of `textContent` moet die meenemen
+  ([#17](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/17)).
+* Bron-tooltip sluit met Escape zonder dat focus of muis verplaatst
+  (WCAG 1.4.13) en geeft geen horizontale scroll meer: gesloten staat hij
+  buiten de layout, open blijft hij binnen het venster (WCAG 1.4.10)
+  ([#10](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/10)).
+* Hero knipt geen tekst meer af bij tekstvergroting: minimale in plaats
+  van vaste hoogte, afbeelding als achtergrondlaag (WCAG 1.4.4)
+  ([#12](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/12)).
+* Links in de inhoudsopgave zijn minstens 24px hoog (WCAG 2.5.8). Een
+  knop in de inhoudsopgave houdt zijn eigen maten ([#23](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/23)).
+* `.button` heeft een eigen focusring in plaats van `outline: none`, zodat
+  focus van hover te onderscheiden is en zichtbaar blijft als een site de
+  knopkleuren overschrijft (WCAG 2.4.7) ([#24](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/24)).
+* Koppen breken lange woorden af (`hyphens: auto`, met
+  `overflow-wrap: break-word` als terugval); lange samenstellingen lieten
+  de pagina op 320px horizontaal scrollen (WCAG 1.4.10) ([#40](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/40)).
 
 ## [0.2.2]
 
