@@ -1,6 +1,9 @@
 /* Tabel: boxed surface met afgeronde hoeken en rij-dividers. De wikkel draagt
    de rand en schuift horizontaal (render-table.html). */
+/* position: relative houdt verborgen tekst in een cel (zoals de melding van
+   een externe link) binnen het schuifvlak; anders scrolt de pagina op 320px. */
 .tabel-wrap {
+  position: relative;
   min-width: 0;
   overflow-x: auto;
   margin: 1.5rem 0;
