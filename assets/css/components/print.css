@@ -1,0 +1,116 @@
+/* Afdrukstijl voor "Afdrukken" en "Opslaan als PDF" in de browser: alleen de
+   inhoud, geen site-omgeving. Het bestand hangt niet van de bundelvolgorde af:
+   alles staat in @media print en wint met !important of met meer specificiteit
+   dan het scherm. Printregels van een component staan in dat component. */
+
+@page {
+  size: A4;
+}
+
+@media print {
+  /* Altijd licht, ook als de bezoeker donker thema gebruikt. */
+  :root {
+    color-scheme: light !important;
+  }
+
+  /* De koppen hieronder verhouden zich tot deze maat. */
+  body {
+    background: #fff;
+    font-size: 1rem;
+  }
+
+  /* Documentpassende koppen; de webgroottes zijn voor het scherm. */
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  /* Niet verder omlaag: onder 1rem wordt een kop kleiner dan zijn tekst. */
+  h4 {
+    font-size: 1.05rem;
+  }
+
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
+
+  /* Navigatie, bediening en alles wat alleen op een scherm werkt. */
+  .skip-link,
+  body > header,
+  body > footer,
+  .page-aside,
+  .page-nav,
+  .back-to-top,
+  .toast,
+  .search-modal,
+  .button,
+  .button-outline,
+  .button-ghost {
+    display: none !important;
+  }
+
+  main {
+    padding-top: 0;
+  }
+
+  /* De inhoud over de volle breedte, ook zonder rechterkolom. */
+  article:has(> .page-aside) {
+    display: block !important;
+  }
+
+  /* display: contents laat de wikkel als box weg zonder de tekst los te
+     koppelen; weghalen breekt de tagstructuur van een PDF. */
+  .artikel-tekst {
+    display: contents;
+  }
+
+  main > article,
+  main > article > *,
+  main > article > .artikel-tekst > * {
+    max-width: none;
+  }
+
+  /* Papier heeft geen link om op te klikken: toon waar een externe link heen
+     gaat. Het icoon van de scherm-weergave (masker) maakt plaats voor de URL. */
+  main a[rel~="external"]::after {
+    content: " (" attr(href) ")";
+    display: inline;
+    width: auto;
+    height: auto;
+    margin: 0;
+    background: none;
+    mask: none;
+    -webkit-mask: none;
+    font-size: 0.85em;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+  }
+
+  /* Een kop hoort bij de tekst eronder: nooit een kop als laatste regel van
+     een pagina, en een kop breekt niet over twee pagina's. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+
+  /* Geen losse begin- of eindregel van een alinea op een andere pagina. */
+  p,
+  li,
+  blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+}
