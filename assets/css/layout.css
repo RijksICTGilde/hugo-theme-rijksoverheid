@@ -15,12 +15,14 @@ body {
 
 /* Skip link voor toegankelijkheid */
 /* Verborgen met translate in plaats van een vaste negatieve top: bij 200%
-   tekst is de link hoger dan die top en piepte hij in beeld. */
+   tekst is de link hoger dan die top en piepte hij in beeld. De 2px extra
+   vangt de afronding op: met de onderrand precies op 0 toont de browser een
+   streep. */
 .skip-link {
   position: absolute;
   top: 0;
   left: 0;
-  transform: translateY(-100%);
+  transform: translateY(calc(-100% - 2px));
   background: var(--color-rijksblauw);
   color: var(--color-text-inverse);
   padding: 0.5rem 1rem;

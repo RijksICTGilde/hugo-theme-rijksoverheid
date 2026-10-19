@@ -109,6 +109,36 @@ describe("zoekfilters (1.4.11)", () => {
   }
 });
 
+describe("skip-link", () => {
+  for (const wortel of [16, 32]) {
+    test(`staat buiten beeld tot de focus erop komt, ook bij ${wortel}px basistekst`, async () => {
+      const page = await open("/", { wortel });
+      try {
+        // De hoogte is geen heel getal: staat de onderrand precies op 0, dan toont de afronding een streep.
+        const verborgen = await page.evaluate(() => document.querySelector(".skip-link").getBoundingClientRect().bottom);
+        assert.ok(verborgen <= -1, `de onderrand staat op ${verborgen}px; verwacht minstens 1px boven het beeld`);
+        await page.keyboard.press("Tab");
+        const staat = await page.evaluate(() => {
+          const link = document.activeElement;
+          const vak = link.getBoundingClientRect();
+          const bovenaan = (x, y) => document.elementFromPoint(x, y) === link;
+          return {
+            skipLink: link.classList.contains("skip-link"),
+            links: vak.left,
+            boven: vak.top,
+            onbedekt: [[vak.left + 1, vak.top + 1], [vak.right - 1, vak.bottom - 1], [(vak.left + vak.right) / 2, (vak.top + vak.bottom) / 2]].every(([x, y]) => bovenaan(x, y)),
+          };
+        });
+        assert.ok(staat.skipLink, "de eerste Tab komt niet op de skip-link");
+        assert.ok(staat.links >= 0 && staat.boven >= 0, `de skip-link staat bij focus op ${staat.links},${staat.boven}`);
+        assert.ok(staat.onbedekt, "de skip-link wordt bij focus deels bedekt");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("zwevende vlakken (1.4.11)", () => {
   for (const schema of ["light", "dark"]) {
     test(`tooltip, themapaneel en toast hebben dezelfde rand van minstens 3:1 (${schema})`, async () => {
