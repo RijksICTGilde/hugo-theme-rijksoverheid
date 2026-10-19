@@ -142,7 +142,9 @@ menus:
 
 params:
   tagline: Zo ziet elk onderdeel van het theme eruit
-  description: Voorbeeldsite van het Hugo-theme voor de Rijksoverheid. Elke pagina laat een ander onderdeel zien, zodat we het theme kunnen testen.
+  description: >-
+    Voorbeeldsite van het Hugo-theme voor de Rijksoverheid. Elke pagina laat een ander onderdeel zien,
+    zodat we het theme kunnen testen.
   back_to_top: true
 
   afzender:

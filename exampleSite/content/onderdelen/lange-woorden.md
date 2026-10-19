@@ -24,7 +24,7 @@ Een lijst met lange woorden:
 
 [Een link met een heel lang woord: Rijksoverheidsinformatiebeveiligingsbeleidsdocumentatie](/onderdelen)
 
-Een adres zonder spaties: https://www.example.org/een/zeer/lange/url/zonder/enige/spatie/waar/de/browser/niet/zelf/een/regelbreuk/in/kan/zetten/als/we/niets/doen
+Een adres zonder spaties: <https://www.example.org/een/zeer/lange/url/zonder/enige/spatie/waar/de/browser/niet/zelf/een/regelbreuk/in/kan/zetten/als/we/niets/doen>
 
 | Lang woord | Betekenis |
 |------------|-----------|
