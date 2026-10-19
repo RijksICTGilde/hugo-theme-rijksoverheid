@@ -1,26 +1,33 @@
 {{- /* Geeft h2- en h3-koppen in HTML-content een id, zodat je ernaar kunt
        linken. Markdown-content krijgt die ids van Hugo zelf; HTML-content
        niet. Geeft de bewerkte HTML terug: {{ $html := partial "koppen-ids.html" $html }}.
-       Gebruik hem ook in index.json, zodat de zoekresultaten dezelfde ankers
-       gebruiken. */ -}}
+       inhoud.html en index.json roepen hem allebei aan op de paginainhoud,
+       zodat de zoekresultaten precies de ankers van de pagina gebruiken. */ -}}
 {{- $inhoud := . -}}
-{{- $gezien := slice -}}
+{{- /* Een nieuw id botst niet met een id dat al in de inhoud staat, en ook
+       niet met een vast id uit de templates van het theme. */ -}}
+{{- $gezien := slice "main-content" "main-nav" "mobile-menu" "toc" "page-aside-chevron" "voetnoten" "referenties" "theme-options" "weergave-systeem" "weergave-licht" "weergave-donker" "search-modal" "search-input" "search-close" "search-status" "search-results" "highlight-status" "highlight-bar" "highlight-bar-query" -}}
+{{- range findRESubmatch `\sid="([^"]+)"` $inhoud -}}
+  {{- $gezien = $gezien | append (index . 1) -}}
+{{- end -}}
 {{- range $kop := findRE `(?s)<h[23][^>]*>.*?</h[23]>` $inhoud -}}
   {{- if not (strings.Contains $kop " id=") -}}
     {{- $tekst := $kop | replaceRE `<[^>]+>` "" | htmlUnescape | strings.TrimSpace -}}
     {{- $basis := anchorize $tekst -}}
-    {{- $id := $basis -}}
-    {{- $nummer := 1 -}}
-    {{- /* Bij dezelfde koptekst een oplopend nummer, anders botsen de ids */ -}}
-    {{- range $gezien -}}
-      {{- if eq . $id -}}
-        {{- $nummer = add $nummer 1 -}}
-        {{- $id = printf "%s-%d" $basis $nummer -}}
+    {{- if $basis -}}
+      {{- $id := $basis -}}
+      {{- $nummer := 1 -}}
+      {{- /* Is het id bezet, dan een oplopend nummer erachter */ -}}
+      {{- range $gezien -}}
+        {{- if in $gezien $id -}}
+          {{- $nummer = add $nummer 1 -}}
+          {{- $id = printf "%s-%d" $basis $nummer -}}
+        {{- end -}}
       {{- end -}}
+      {{- $gezien = $gezien | append $id -}}
+      {{- $nieuw := replaceRE `^<h([23])` (printf `<h${1} id="%s"` $id) $kop -}}
+      {{- $inhoud = strings.Replace $inhoud $kop $nieuw 1 -}}
     {{- end -}}
-    {{- $gezien = $gezien | append $id -}}
-    {{- $nieuw := replaceRE `^<h([23])` (printf `<h${1} id="%s"` $id) $kop -}}
-    {{- $inhoud = strings.Replace $inhoud $kop $nieuw 1 -}}
   {{- end -}}
 {{- end -}}
 {{- /* Uitklapblokken krijgen een id uit hun summary, zodat ook die vindbaar
@@ -29,14 +36,25 @@
   {{- if not (strings.Contains (index (split $blok "<summary>") 0) " id=") -}}
     {{- /* De klasse geeft een kort anker (#roadmap); anders de summary-tekst */ -}}
     {{- $klasse := $blok | replaceRE `(?s)^<details[^>]*class="([^" ]+).*` "$1" -}}
-    {{- $id := "" -}}
+    {{- $basis := "" -}}
     {{- if ne $klasse $blok -}}
-      {{- $id = $klasse -}}
+      {{- $basis = $klasse -}}
     {{- else -}}
-      {{- $id = index (split $blok "<summary>") 1 | replaceRE `<[^>]+>` "" | htmlUnescape | strings.TrimSpace | anchorize -}}
+      {{- $basis = index (split $blok "<summary>") 1 | replaceRE `<[^>]+>` "" | htmlUnescape | strings.TrimSpace | anchorize -}}
     {{- end -}}
-    {{- $nieuw := replaceRE `^<details` (printf `<details id="%s"` $id) $blok -}}
-    {{- $inhoud = strings.Replace $inhoud $blok $nieuw 1 -}}
+    {{- if $basis -}}
+      {{- $id := $basis -}}
+      {{- $nummer := 1 -}}
+      {{- range $gezien -}}
+        {{- if in $gezien $id -}}
+          {{- $nummer = add $nummer 1 -}}
+          {{- $id = printf "%s-%d" $basis $nummer -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $gezien = $gezien | append $id -}}
+      {{- $nieuw := replaceRE `^<details` (printf `<details id="%s"` $id) $blok -}}
+      {{- $inhoud = strings.Replace $inhoud $blok $nieuw 1 -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- return $inhoud -}}
