@@ -1,0 +1,72 @@
+/* Tabel: boxed surface met afgeronde hoeken en rij-dividers. De wikkel draagt
+   de rand en schuift horizontaal (render-table.html). */
+.tabel-wrap {
+  min-width: 0;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-bg-page);
+}
+
+.tabel-wrap:focus-visible {
+  outline: 3px solid var(--color-link);
+  outline-offset: 2px;
+}
+
+.tabel-wrap table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tabel-wrap table th,
+.tabel-wrap table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabel-wrap table th.uitlijning-center,
+.tabel-wrap table td.uitlijning-center {
+  text-align: center;
+}
+
+.tabel-wrap table th.uitlijning-right,
+.tabel-wrap table td.uitlijning-right {
+  text-align: right;
+}
+
+.tabel-wrap table thead th {
+  font-weight: 700;
+  color: var(--color-text-heading);
+  background: var(--color-bg-light);
+}
+
+.tabel-wrap table tbody th {
+  font-weight: 700;
+}
+
+.tabel-wrap table tbody tr:last-child th,
+.tabel-wrap table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+@media print {
+  /* Zonder dit valt brede tabelinhoud weg uit de afdruk en de PDF. Op de
+     wikkel zou de rand bij een paginaovergang om de lege ruimte heen vallen
+     die het schuifvenster overhoudt; daarom draagt de tabel zelf de rand. */
+  .tabel-wrap {
+    overflow-x: visible;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .tabel-wrap table {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    /* Elk deel van een gebroken tabel een eigen rand, niet één om beide. */
+    box-decoration-break: clone;
+  }
+}
