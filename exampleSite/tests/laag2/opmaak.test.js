@@ -109,6 +109,23 @@ describe("zoekfilters (1.4.11)", () => {
   }
 });
 
+describe("kruimelpad in de voet", () => {
+  for (const breedte of [1280, 375]) {
+    test(`de eerste link staat op de linkerrand van de rest van de voet bij ${breedte}px`, async () => {
+      const page = await open("/onderdelen/lange-pagina/", { breedte });
+      try {
+        const x = await page.evaluate(() => ({
+          voet: document.querySelector("body > footer .page-meta").getBoundingClientRect().left,
+          link: document.querySelector("body > footer .breadcrumb a").getBoundingClientRect().left,
+        }));
+        assert.ok(Math.abs(x.link - x.voet) < 0.5, `de link staat op ${x.link}px, de voet op ${x.voet}px`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("kaarten (1.4.3)", () => {
   for (const schema of ["light", "dark"]) {
     test(`de titel van een kaart heeft de linkkleur en minstens 4,5:1 tegen de achtergrond (${schema})`, async () => {

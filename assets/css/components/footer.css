@@ -48,6 +48,12 @@ body > footer {
       margin: 0;
     }
 
+    /* Alleen het eerste item: bij de andere staat de inspringing van ol > li
+       (base.css) tussen scheidingsteken en link. */
+    li:first-child {
+      padding-left: 0;
+    }
+
     a {
       /* Als inline-block neemt de link zijn max-content-breedte en kan een
          lang woord niet afbreken. */
