@@ -15,7 +15,7 @@
   /* Huisstijlkleuren: vaste merkkleuren, niet themagevoelig */
   --color-rijksblauw: var(--primitives-color-reference-lintblauw);
   --color-rijksoranje: var(--primitives-color-reference-oranje);
-  /* Verouderd: alias voor sites die de moza-namen gebruiken, vervalt in een volgende release */
+  /* Verouderde namen: alias voor sites die ze nog gebruiken, vervalt in een volgende release */
   --color-rijks-blauw: var(--color-rijksblauw);
   --color-rijks-oranje: var(--color-rijksoranje);
 

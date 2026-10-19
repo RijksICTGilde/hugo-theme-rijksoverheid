@@ -1,5 +1,4 @@
-/* Afbeelding met bijschrift: links uitgelijnd en gedempt. De uitlijning staat
-   hier expliciet, zodat een ouder figcaption-regel in base.css niet wint. */
+/* Afbeelding met bijschrift: links uitgelijnd en gedempt. */
 figure {
   margin: 0;
 }
