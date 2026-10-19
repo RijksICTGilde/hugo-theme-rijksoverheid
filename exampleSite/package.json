@@ -13,7 +13,9 @@
     "pa11y": "node --test tests/laag2/pa11y.test.js",
     "wcag22": "node --test tests/laag2/wcag22.test.js",
     "reflow": "node --test tests/laag2/reflow.test.js",
-    "toetsenbord": "node --test tests/laag2/toetsenbord.test.js"
+    "toetsenbord": "node --test tests/laag2/toetsenbord.test.js",
+    "escape": "node --test tests/laag2/escape.test.js",
+    "opmaak": "node --test tests/laag2/opmaak.test.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

@@ -64,8 +64,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   fonts, logo, iconen en Fuse.js.
 * Tokens `--color-surface`, `--color-bg-success`, `--color-bg-warning`,
   `--color-bg-danger`, `--color-accent-info`, `--color-accent-success`,
-  `--color-accent-warning`, `--color-accent-danger`, `--color-border-strong` en
-  `--font-mono`.
+  `--color-accent-warning`, `--color-accent-danger`, `--color-border-strong`,
+  `--color-border-surface` (de rand van zwevende vlakken) en `--font-mono`.
 * Rechterkolom met inhoudsopgave, relevante links (`relevante_links`) en de
   hook `page-aside-extra.html`; leadbeeld (`lead_image`); labels onder de
   titel (`show_date`, `status`).

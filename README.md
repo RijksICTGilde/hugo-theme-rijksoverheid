@@ -203,7 +203,9 @@ uit de laatste kop in de tekst van de sectie.
   `> [!WARNING]` waarschuwing, `> [!CAUTION]` gevaar. Een titel zet je achter het
   type: `> [!WARNING] Let op`.
 - **Tabellen** staan in een eigen schuifvlak met een naam ("Tabel 1"), zodat een
-  brede tabel de pagina niet laat scrollen.
+  brede tabel de pagina niet laat scrollen. Op de regel direct onder de tabel
+  geeft `{aria-label="..."}` een eigen naam, en houdt `{print-bijeen="ja"}` de
+  tabel in de afdruk op één pagina.
 - **Code** wordt gekleurd via CSS-klassen (`noClasses: false`); een breed
   codeblok scrolt in een eigen vlak.
 - **Voetnoten** krijgen een kop "Voetnoten" en links met een naam.

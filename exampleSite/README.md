@@ -38,7 +38,8 @@ fout.
 | Laag 2 | In Chromium: pa11y (WCAG 2.1 AA) in licht en donker, axe voor WCAG 2.2 AA (doelgrootte), reflow op 320 pixels en bij 200% tekst, en bediening met het toetsenbord | `npm ci` en `npm run laag2` |
 
 Een deel van laag 2 draai je met `npm run pa11y`, `npm run wcag22`,
-`npm run reflow` of `npm run toetsenbord`. Puppeteer haalt zelf een Chrome op;
+`npm run reflow`, `npm run toetsenbord`, `npm run escape` of
+`npm run opmaak`. Puppeteer haalt zelf een Chrome op;
 met `PUPPETEER_EXECUTABLE_PATH` gebruik je een geïnstalleerde.
 
 De CI draait laag 1 en htmltest op Hugo 0.162.0 en op de nieuwste versie, en
