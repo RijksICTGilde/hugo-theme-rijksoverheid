@@ -215,6 +215,14 @@ Een callout met de variant gevaar en een hoek linksboven.
 Deze callout zet zijn titel als kop van niveau vier, omdat de kop erboven van niveau drie is.
 {{< /callout >}}
 
+## Uitklapblokken
+
+Een uitklapblok verbergt tekst tot je erop klikt. Gebruik het weinig: tekst die verborgen is, lezen mensen minder snel.
+
+{{< details summary="Wat gebeurt er met één melding?" >}}
+Een melding komt binnen bij het team. Binnen vijf werkdagen krijg je antwoord.
+{{< /details >}}
+
 ## Citaten
 
 Een gewoon citaat in de tekst:
