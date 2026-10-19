@@ -3,8 +3,9 @@
        zodat een zoekresultaat naar de juiste plek scrollt. Het zijn de
        gerenderde koppen, dus de ankers kloppen met de pagina en een regel met
        "## " in een codeblok wordt geen kop. Codeblokken zitten gewoon in de
-       tekst van hun fragment. Site-eigen items komen uit de hook
-       search-index-extra.html. */ -}}
+       tekst van hun fragment. Een pagina met zoekindex: false in de front
+       matter blijft er met haar koppen uit. Site-eigen items komen uit de
+       hook search-index-extra.html, ook voor zo'n pagina. */ -}}
 {{- $index := slice -}}
 
 {{- define "partials/clean-content" -}}
@@ -33,7 +34,7 @@
 {{- end -}}
 
 {{- range where .Site.Pages "Kind" "in" (slice "page" "section") -}}
-  {{- if and (not .Draft) .RelPermalink -}}
+  {{- if and (not .Draft) .RelPermalink (ne .Params.zoekindex false) -}}
     {{- $pageTitle := .Title -}}
     {{- $pageUrl := .RelPermalink -}}
     {{- $pageSection := .Section -}}
