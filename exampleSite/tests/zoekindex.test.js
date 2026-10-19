@@ -43,6 +43,11 @@ for (const build of builds()) {
       assert.deepEqual(bevindingen, []);
     });
 
+    test("een pagina met zoekindex: false staat er niet in, ook niet met haar koppen", () => {
+      assert.ok(existsSync(join(build.dir, "onderdelen/buiten-de-zoekindex/index.html")), "de proefpagina is niet gebouwd");
+      assert.deepEqual(index.filter((i) => i.url.startsWith("/onderdelen/buiten-de-zoekindex/")).map((i) => i.url), []);
+    });
+
     test("de inhoud bevat geen terugverwijzing van een voetnoot", () => {
       const bevindingen = index.filter((i) => i.content.includes("↩")).map((i) => i.url);
       assert.deepEqual(bevindingen, []);
