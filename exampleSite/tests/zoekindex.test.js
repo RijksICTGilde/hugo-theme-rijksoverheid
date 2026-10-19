@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { builds } from "./lib/site.js";
+import { tags } from "./lib/html.js";
 
 const BOUW_HULP = "Bouw de site eerst: `hugo --minify --panicOnWarning --destination public`, vanuit exampleSite.";
 
@@ -30,6 +31,12 @@ for (const build of builds()) {
 
     const index = JSON.parse(readFileSync(bestand, "utf8"));
     const item = (url) => index.find((i) => i.url === url);
+
+    test("het zoekvenster wijst naar deze index", () => {
+      const dialoog = tags(readFileSync(join(build.dir, "index.html"), "utf8")).find((t) => t.naam === "dialog" && t.attrs.get("id") === "search-modal");
+      assert.ok(dialoog, "geen <dialog id=search-modal> op de startpagina");
+      assert.equal(dialoog.attrs.get("data-search-index"), "/index.json");
+    });
 
     test("de inhoud bevat geen HTML-entiteiten", () => {
       const bevindingen = index.filter((i) => ENTITEIT.test(i.content)).map((i) => `${i.url}  ${i.content.match(ENTITEIT)[0]}`);
@@ -53,7 +60,7 @@ for (const build of builds()) {
         const voetnoten = item("/onderdelen/lange-pagina/#hoe-voetnoten-werken");
         assert.ok(voetnoten, "geen item voor de voetnoten van de lange pagina");
         assert.match(voetnoten.content, /Dit is de eerste voetnoot\./);
-        assert.doesNotMatch(voetnoten.content, / /);
+        assert.doesNotMatch(voetnoten.content, /\xa0/);
       });
     });
   });

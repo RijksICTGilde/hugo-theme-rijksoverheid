@@ -5,7 +5,7 @@
 {{- $threshold := cond (isset $search "threshold") $search.threshold 0.3 -}}
 {{- $maxResults := cond (isset $search "max_results") $search.max_results 10 -}}
 {{- $weights := $search.section_weights | default dict -}}
-<dialog id="search-modal" class="search-modal" aria-label="Zoeken" data-search-index="{{ "index.json" | relURL }}" data-search-priority="{{ delimit (default slice $search.priority_sections) "," }}" data-search-threshold="{{ $threshold }}" data-search-max-results="{{ $maxResults }}" data-search-weights="{{ $weights | jsonify }}">
+<dialog id="search-modal" class="search-modal" aria-label="Zoeken"{{ with site.Home.OutputFormats.Get "json" }} data-search-index="{{ .RelPermalink }}"{{ end }} data-search-priority="{{ delimit (default slice $search.priority_sections) "," }}" data-search-threshold="{{ $threshold }}" data-search-max-results="{{ $maxResults }}" data-search-weights="{{ $weights | jsonify }}">
   <div class="search-modal-content">
     <div class="search-modal-header">
       {{- partial "icon.html" "search" -}}
