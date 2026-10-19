@@ -1,245 +1,216 @@
 {{- $secondNav := .Params.second_nav | default "" -}}
-{{- $hasSecondNav := ne $secondNav "" -}}
+{{- $secondItems := cond (ne $secondNav "") (index site.Menus $secondNav) slice -}}
+{{- $home := site.Home.RelPermalink -}}
+
+{{- /* Namen en adressen uit het hoofdmenu, om in het mobiele menu een
+       sectielink met dezelfde naam maar een ander doel te onderscheiden. */ -}}
+{{- $mainUrls := slice -}}
+{{- range site.Menus.main -}}{{ $mainUrls = $mainUrls | append (dict "naam" .Name "url" .URL) }}{{- end -}}
 
 <header>
   <div class="banner">
     <div class="site-info">
       <p class="title">
-        {{ if not .IsHome }}<a href="{{ .Site.Home.RelPermalink }}">{{ end }}{{ .Site.Title }}{{ if not .IsHome }}</a>{{ end }}
+        <a href="{{ $home }}"{{ if .IsHome }} aria-current="page"{{ end }}>{{ site.Title }}</a>
       </p>
-      <p class="tagline">{{ .Site.Params.tagline }}</p>
+      {{- with site.Params.tagline }}
+      <p class="tagline">{{ . }}</p>
+      {{- end }}
     </div>
     {{- /* Optioneel via params.logo (zie README):
            - url: waar het logo heen linkt, standaard de eigen homepage;
            - woordmerk: tekst naast het lint, zoals op een briefhoofd; een
              lijst geeft één regel per item, de eerste vet;
            - label: verborgen toevoeging aan de linknaam die zegt waar de
-             link heen gaat, bijvoorbeeld "naar de website van …".
-         Zonder params.logo is de uitvoer gelijk aan eerdere versies. */ -}}
+             link heen gaat, bijvoorbeeld "naar de website van ...". */ -}}
     {{- $logo := site.Params.logo | default dict -}}
     {{- $woordmerk := $logo.woordmerk -}}
     <div class="site-logo">
       {{- with $logo.url }}
-      {{- /* Een link naar een andere site is niet overbodig naast de
-             sitetitel, dus bereikbaar voor iedereen: geen aria-hidden of
-             tabindex="-1". Met een woordmerk is dat de naam en is het lint
-             decoratief; anders draagt de alt-tekst van het lint de naam. Het
-             label staat áchter de zichtbare tekst (WCAG 2.5.3). */}}
-      <a href="{{ . }}" class="site-logo-link">
+      {{- $u := urls.Parse . -}}
+      {{- $extern := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
+      {{- $nieuwVenster := and $extern site.Params.links.nieuw_venster -}}
+      {{- /* Een link naar een andere site is niet overbodig naast de sitenaam,
+             dus bereikbaar voor iedereen. Met een woordmerk is dat de naam en
+             is het lint decoratief; anders draagt de alt-tekst van het lint
+             de naam. Het label staat achter de zichtbare tekst (WCAG 2.5.3). */}}
+      <a href="{{ . }}" class="site-logo-link"
+        {{- if $nieuwVenster }} target="_blank" rel="external noopener noreferrer"{{ else if $extern }} rel="external noreferrer"{{ end }}>
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Logo Rijksoverheid{{ end }}" />
         {{- with $woordmerk }}
         {{ partial "logo-woordmerk.html" . }}
         {{- end }}
         {{- with $logo.label }}
-        <span class="visually-hidden"> — {{ . }}</span>
+        <span class="visually-hidden">, {{ . }}</span>
+        {{- end }}
+        {{- if $nieuwVenster }}
+        <span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span>
         {{- end }}
       </a>
       {{- else }}
-      {{ if .IsHome }}
-      {{- if $woordmerk }}
-      <span class="site-logo-link">
-        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
-        {{ partial "logo-woordmerk.html" $woordmerk }}
-      </span>
-      {{- else }}
-      <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
-      {{- end }}
-      {{ else }}
-      <a href="{{ .Site.Home.RelPermalink }}"{{ if $woordmerk }} class="site-logo-link"{{ end }} tabindex="-1" aria-hidden="true">
-        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="Logo Rijksoverheid" />
+      {{- /* Dezelfde bestemming als de sitenaam ernaast, dus buiten de
+             tabvolgorde en de toegankelijkheidsboom; wel aanklikbaar. */}}
+      <a href="{{ $home }}" class="site-logo-link" tabindex="-1" aria-hidden="true">
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="" />
         {{- with $woordmerk }}
         {{ partial "logo-woordmerk.html" . }}
         {{- end }}
       </a>
-      {{ end }}
       {{- end }}
     </div>
   </div>
 
   <nav id="main-nav" class="navbar" aria-label="Hoofdnavigatie">
-    {{- if .IsHome -}}
-    <span class="title">{{ .Site.Title }}</span>
-    {{- else -}}
-    <a href="{{ .Site.Home.RelPermalink }}" class="title">{{ .Site.Title }}</a>
-    {{- end -}}
+    <a href="{{ $home }}" class="title"{{ if .IsHome }} aria-current="page"{{ end }}>{{ site.Title }}</a>
 
     <div class="menu">
+      {{- with site.Menus.main }}
       <ul>
-        {{- range .Site.Menus.main -}}
-          {{- /* Home-detectie: vergelijk met site.Home.RelPermalink (robuust
-                 voor trailing-slash en basePath verschillen). Anders zou
-                 baseURL als prefix op elke URL matchen en Home altijd
-                 actief tonen. */ -}}
-          {{- $isHomeMenu := eq .URL site.Home.RelPermalink -}}
-          {{- $isActive := false -}}
-          {{- if $isHomeMenu -}}
-            {{- $isActive = $.IsHome -}}
-          {{- else -}}
-            {{- $isActive = or (eq $.RelPermalink .URL) (hasPrefix $.RelPermalink .URL) -}}
-          {{- end -}}
-          <li>
-            <a href="{{ .URL }}" data-text="{{ .Name }}"{{ if $isActive }} class="active" aria-current="page"{{ end }}>
-              {{- .Name -}}
-            </a>
-          </li>
+        {{- range . -}}
+        {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
+        <li>
+          <a href="{{ .URL }}" data-text="{{ .Name }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ end }}>
+            {{- .Name -}}
+          </a>
+        </li>
         {{- end -}}
       </ul>
+      {{- end }}
     </div>
 
     <ul class="navbar-right">
       <li>
-        {{- /* Geen aria-label: de naam komt uit de zichtbare tekst, zodat die er
-               vanzelf in zit (WCAG 2.5.3). De icoon-knop op mobiel houdt zijn
-               label, want daar is geen tekst. */}}
-        <button class="search-trigger" aria-haspopup="dialog">
+        {{- /* Geen aria-label: de naam komt uit de zichtbare tekst (WCAG 2.5.3).
+               De hint is aria-hidden; aria-keyshortcuts meldt de toets. */}}
+        <button type="button" class="search-trigger" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
           {{- partial "icon.html" "search" -}}
-          <span class="search-trigger-text">Zoeken...</span>
+          <span class="search-trigger-text">Zoeken</span>
           <kbd class="search-shortcut" aria-hidden="true">Ctrl K</kbd>
-        </button>
-      </li>
-      <li>
-        <button id="theme-toggle" class="theme-toggle" aria-label="Wissel thema">
-          {{- partial "icon.html" "sun" -}}
-          {{- partial "icon.html" "moon" -}}
         </button>
       </li>
     </ul>
 
-    <button class="search-trigger mobile-search" aria-label="Zoeken" aria-haspopup="dialog">
+    <button type="button" class="search-trigger mobile-search" aria-label="Zoeken" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
       {{- partial "icon.html" "search" -}}
-    </button>
-
-    <button class="theme-toggle mobile-theme" aria-label="Wissel thema">
-      {{- partial "icon.html" "sun" -}}
-      {{- partial "icon.html" "moon" -}}
     </button>
 
     {{- /* Vaste naam: aria-expanded draagt de toestand al, en spraakbediening
            mikt op een naam die niet verandert. */}}
-    <button
-      class="toggle"
-      aria-label="Menu"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
+    <button type="button" class="toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
       {{- partial "icon.html" "menu" -}}
     </button>
 
-    {{- /* Geen role="navigation": dit staat al binnen <nav id="main-nav">, en
-           een tweede landmark daarin maakt de landmarklijst onbetrouwbaar
-           (WCAG 1.3.1). */}}
+    {{- /* Een div, geen nav: dit staat al binnen <nav id="main-nav">, en een
+           landmark daarin maakt de landmarklijst onbetrouwbaar (WCAG 1.3.1). */}}
     <div id="mobile-menu" class="mobile">
+      {{- with site.Menus.main }}
       <ul>
-        {{- range .Site.Menus.main -}}
-        <li><a href="{{ .URL }}"{{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) (eq $.RelPermalink .URL) }} class="active" aria-current="page"{{ end }}>{{ .Name }}</a></li>
+        {{- range . -}}
+        {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
+        <li><a href="{{ .URL }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Name }}</a></li>
         {{- end -}}
       </ul>
-      {{- if $hasSecondNav -}}
+      {{- end }}
+      {{- with $secondItems -}}
+      {{- $root := index . 0 -}}
       <ul class="mobile-second-nav">
-        {{- range $index, $item := index .Site.Menus $secondNav -}}
-        {{- $isExact := eq $.RelPermalink .URL -}}
-        {{- $isChild := and (hasPrefix $.RelPermalink .URL) (ne $.RelPermalink .URL) -}}
-        {{- $class := cond $isExact "active" (cond .Params.bold "bold" "") -}}
-        <li><a href="{{ .URL }}"{{ with $class }} class="{{ . }}"{{ end }}{{ if $isExact }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
-        {{- if and (gt $index 0) (or $isExact $isChild) -}}
-          {{- $page := .Page -}}
-          {{- $children := $page.Sections -}}
-          {{- if not $children -}}{{ $children = $page.RegularPages }}{{- end -}}
-          {{- range $children.ByWeight -}}
-          <li class="mobile-subnav-child"><a href="{{ .RelPermalink }}"{{ if eq $.RelPermalink .RelPermalink }} class="active" aria-current="page"{{ end }}>{{ .Title }}</a></li>
-          {{- end -}}
-        {{- end -}}
-        {{- end -}}
+        <li>
+          <a href="{{ $root.URL }}"{{ if eq $.RelPermalink $root.URL }} class="active" aria-current="page"{{ else if $root.Params.bold }} class="bold"{{ end }}>{{ $root.Name }}</a>
+          {{- with after 1 . }}
+          <ul>
+            {{- range . -}}
+            {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
+            {{- $kinderen := slice -}}
+            {{- with .Page }}{{ $kinderen = .Sections | default .RegularPages }}{{ end -}}
+            <li>
+              <a href="{{ .URL }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ else }}{{ if .Params.bold }} class="bold"{{ end }}{{ end }}>{{ .Name }}{{ partial "inline/kop-onderscheid.html" (dict "naam" .Name "url" .URL "hoofdmenu" $mainUrls "sectie" $root.Name) }}</a>
+              {{- with $kinderen }}
+              <ul>
+                {{- range .ByWeight -}}
+                {{- $kindStand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .RelPermalink) -}}
+                <li><a href="{{ .RelPermalink }}"{{ with $kindStand }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Title }}{{ partial "inline/kop-onderscheid.html" (dict "naam" .Title "url" .RelPermalink "hoofdmenu" $mainUrls "sectie" $root.Name) }}</a></li>
+                {{- end -}}
+              </ul>
+              {{- end }}
+            </li>
+            {{- end -}}
+          </ul>
+          {{- end }}
+        </li>
       </ul>
       {{- end -}}
-      {{- if .Site.Menus.secondary -}}
+      {{- with site.Menus.secondary -}}
       <ul>
-        {{- range .Site.Menus.secondary -}}
-        <li><a href="{{ .URL }}" target="_blank" rel="external noopener noreferrer">{{ .Name }}<span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span></a></li>
+        {{- range . -}}
+        <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
         {{- end -}}
       </ul>
       {{- end -}}
     </div>
   </nav>
 
-  {{- $hasPanelOpen := false -}}
-  {{- if $hasSecondNav -}}
-  {{- range $index, $item := index .Site.Menus $secondNav -}}
-    {{- if gt $index 0 -}}
-      {{- $isActive := eq $.RelPermalink .URL -}}
-      {{- $isChildActive := and (hasPrefix $.RelPermalink .URL) (ne $.RelPermalink .URL) -}}
-      {{- if or $isActive $isChildActive -}}{{ $hasPanelOpen = true }}{{- end -}}
-    {{- end -}}
-  {{- end -}}
-  <nav class="navbar navbar-sub" aria-label="Sectie navigatie">
+  {{- with $secondItems }}
+  <nav class="navbar navbar-sub" aria-label="Sectienavigatie">
     <ul>
-      {{- range $index, $item := index .Site.Menus $secondNav -}}
+      {{- range $index, $item := . -}}
         {{- $isActive := eq $.RelPermalink .URL -}}
-        {{- $isChildActive := and (hasPrefix $.RelPermalink .URL) (ne $.RelPermalink .URL) -}}
+        {{- $isChildActive := and (hasPrefix $.RelPermalink .URL) (not $isActive) -}}
         {{- $class := cond $isActive "active" (cond .Params.bold "bold" "") -}}
-        {{- $page := .Page -}}
-        {{- $children := $page.Sections -}}
-        {{- if not $children -}}{{ $children = $page.RegularPages }}{{- end -}}
-        {{- $hasChildren := gt (len $children) 0 -}}
-        {{- $showExpand := and $hasChildren (gt $index 0) -}}
-        {{- $showToggle := and $showExpand (not (or $isActive $isChildActive)) -}}
+        {{- $kinderen := slice -}}
+        {{- with .Page }}{{ $kinderen = .Sections | default .RegularPages }}{{ end -}}
+        {{- $showExpand := and (gt (len $kinderen) 0) (gt $index 0) -}}
         {{- $inSection := and $showExpand (or $isActive $isChildActive) -}}
+        {{- $showToggle := and $showExpand (not $inSection) -}}
         {{- $liClass := cond $showToggle "has-subnav" (cond $inSection "in-section" "") -}}
         <li{{ with $liClass }} class="{{ . }}"{{ end }}>
-          <a href="{{ .URL }}" data-text="{{ .Name }}"{{ with $class }} class="{{ . }}"{{ end }}{{ if $isActive }} aria-current="page"{{ end }}>{{ .Name }}</a>
-          {{- if $showToggle -}}
-          <button class="subnav-toggle" aria-expanded="false" aria-controls="subnav-panel-{{ $index }}" aria-label="Toon submenu voor {{ .Name }}">
-            <svg class="icon-expand" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <a href="{{ .URL }}" data-text="{{ .Name }}"{{ with $class }} class="{{ . }}"{{ end }}{{ if $isActive }} aria-current="page"{{ else if $inSection }} aria-current="true"{{ end }}>{{ .Name }}</a>
+          {{- if $showToggle }}
+          <button type="button" class="subnav-toggle" aria-expanded="false" aria-controls="subnav-panel-{{ $index }}" aria-label="Toon submenu voor {{ .Name }}">
+            {{- partial "icon.html" "chevron-down" -}}
           </button>
-          {{- end -}}
+          {{- end }}
         </li>
+        {{- /* Het paneel staat als eigen li direct achter zijn menu-item, zodat
+               de focus vanaf de knop meteen het paneel in gaat (WCAG 2.4.3).
+               Niet in dezelfde li met display: contents: dan vallen browsers
+               terug op een kapotte lijstsemantiek. */ -}}
+        {{- if $showExpand }}
+        <li class="subnav-panel" id="subnav-panel-{{ $index }}"{{ if not $inSection }} hidden{{ end }}>
+          <ul>
+            {{- range $kinderen.ByWeight -}}
+            {{- $kindStand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .RelPermalink) -}}
+            <li><a href="{{ .RelPermalink }}"{{ with $kindStand }} class="current" aria-current="{{ . }}"{{ end }}>{{ .Title }}</a></li>
+            {{- end -}}
+          </ul>
+        </li>
+        {{- end -}}
       {{- end -}}
     </ul>
   </nav>
-  {{- range $index, $item := index .Site.Menus $secondNav -}}
-    {{- if gt $index 0 -}}
-    {{- $page := .Page -}}
-    {{- $children := $page.Sections -}}
-    {{- if not $children -}}{{ $children = $page.RegularPages }}{{- end -}}
-    {{- $isActive := eq $.RelPermalink .URL -}}
-    {{- $isChildActive := and (hasPrefix $.RelPermalink .URL) (ne $.RelPermalink .URL) -}}
-    {{- $showPanel := or $isActive $isChildActive -}}
-    {{- if gt (len $children) 0 -}}
-  <div class="subnav-panel" id="subnav-panel-{{ $index }}"{{ if not $showPanel }} hidden{{ end }}>
-    <ul>
-      {{- range $children.ByWeight -}}
-      <li><a href="{{ .RelPermalink }}"{{ if eq $.RelPermalink .RelPermalink }} class="current"{{ end }}>{{ .Title }}</a></li>
-      {{- end -}}
-    </ul>
-  </div>
-    {{- end -}}
-    {{- end -}}
-  {{- end -}}
-  {{- end -}}
-
-  {{- if not .IsHome -}}
-    {{- /* Breadcrumb skipLevels: 1 (home), 2 (+ second nav), 3 (+ open panel) */ -}}
-    {{- $skipLevels := cond $hasPanelOpen 3 (cond $hasSecondNav 2 1) -}}
-    {{- $ancestors := .Ancestors.Reverse -}}
-    {{- $hasEnoughAncestors := gt (len $ancestors) $skipLevels -}}
-    {{- if $hasEnoughAncestors -}}
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <ol>
-      {{- range $index, $ancestor := $ancestors -}}
-      {{- if ge $index $skipLevels -}}
-      <li>
-        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-        <span class="separator" aria-hidden="true"></span>
-      </li>
-      {{- end -}}
-      {{- end -}}
-      <li>
-        <span class="current" aria-current="page">{{ .Title }}</span>
-      </li>
-    </ol>
-  </nav>
-    {{- else -}}
-  <div class="breadcrumb" aria-hidden="true"></div>
-    {{- end -}}
-  {{- end -}}
+  {{- end }}
 </header>
+
+{{- /* "page" als url de huidige pagina is, "true" als de huidige pagina
+       eronder valt, anders leeg. De homepage valt niet onder zichzelf: met
+       hasPrefix zou hij op elke pagina actief zijn, ook onder een subpad. */ -}}
+{{- define "_partials/inline/kop-stand.html" -}}
+  {{- $stand := "" -}}
+  {{- $url := .url -}}
+  {{- $huidig := .pagina.RelPermalink -}}
+  {{- if eq $huidig $url -}}
+    {{- $stand = "page" -}}
+  {{- else if and $url (ne $url site.Home.RelPermalink) (hasPrefix $huidig $url) -}}
+    {{- $stand = "true" -}}
+  {{- end -}}
+  {{- return $stand -}}
+{{- end -}}
+
+{{- /* Verborgen " (Sectie)" achter een link die net zo heet als een item in
+       het hoofdmenu maar ergens anders heen gaat (WCAG 2.4.4). */ -}}
+{{- define "_partials/inline/kop-onderscheid.html" -}}
+  {{- $dubbel := false -}}
+  {{- range .hoofdmenu -}}
+    {{- if and (eq .naam $.naam) (ne .url $.url) }}{{ $dubbel = true }}{{ end -}}
+  {{- end -}}
+  {{- if $dubbel -}}<span class="visually-hidden"> ({{ .sectie }})</span>{{- end -}}
+{{- end -}}
