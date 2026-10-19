@@ -1,0 +1,15 @@
+{{- /* Sectie-index voor taalmodellen. Een sectie met een eigen indeling overschrijft dit bestand. */ -}}
+# {{ .Title }}
+{{- with .Description }}
+
+> {{ . }}
+{{- end }}
+{{- if .RawContent }}
+
+{{ partial "markdown-body" . }}
+{{- end }}
+
+## Pagina's in deze sectie
+{{ range .Pages.ByWeight }}
+- [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .RelPermalink }}{{ else }}{{ .RelPermalink }}{{ end }}){{ with .Description }}: {{ . }}{{ end }}
+{{- end }}
