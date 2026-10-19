@@ -239,11 +239,16 @@ describe("themakeuze in de voet", () => {
       await knop.evaluate((el) => el.scrollIntoView());
       await knop.focus();
       await page.keyboard.press("Enter");
-      const donker = await page.evaluateHandle(() => [...document.querySelectorAll(".footer-settings button, .footer-settings [role=radio]")].find((b) => /donker/i.test(b.textContent)));
+      // De keuze Donker is een radio met een label, of een knop of role=radio met tekst.
+      const donker = await page.evaluateHandle(() => {
+        const opties = [...document.querySelectorAll('.footer-settings input[type="radio"], .footer-settings [role="radio"], .footer-settings button:not([aria-expanded])')];
+        const tekst = (el) => (el.labels?.[0]?.textContent ?? el.textContent ?? "").trim();
+        return opties.find((el) => /donker/i.test(tekst(el)));
+      });
       const element = donker.asElement();
-      assert.ok(element, "geen knop Donker in .footer-settings");
+      assert.ok(element, "geen keuze Donker (radio of knop) in .footer-settings");
       await element.focus();
-      await page.keyboard.press("Enter");
+      await page.keyboard.press("Space");
       assert.equal(await page.evaluate(() => document.documentElement.getAttribute("data-scheme")), "dark");
       const sleutels = await page.evaluate(() => Object.keys(localStorage));
       assert.deepEqual(sleutels, ["theme"]);

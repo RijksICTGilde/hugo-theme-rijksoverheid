@@ -209,6 +209,12 @@ Een callout met de variant waarschuwing en een hoek rechtsonder.
 Een callout met de variant gevaar en een hoek linksboven.
 {{< /callout >}}
 
+### Een infoblok met een eigen kopniveau
+
+{{< callout titel="Een titel op niveau vier" kopniveau="4" >}}
+Deze callout zet zijn titel als kop van niveau vier, omdat de kop erboven van niveau drie is.
+{{< /callout >}}
+
 ## Citaten
 
 Een gewoon citaat in de tekst:
