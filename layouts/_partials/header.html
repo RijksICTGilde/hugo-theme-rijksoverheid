@@ -41,7 +41,7 @@
         {{ partial "logo-woordmerk.html" . }}
         {{- end }}
         {{- with $logo.label }}
-        <span class="visually-hidden">, {{ . }}</span>
+        <span class="visually-hidden"> ({{ . }})</span>
         {{- end }}
         {{- if $nieuwVenster }}
         <span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span>
