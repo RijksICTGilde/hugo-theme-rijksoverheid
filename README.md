@@ -148,6 +148,7 @@ Alles is optioneel.
 | `second_nav` | In `_index.md`: menu voor de sectienavigatie |
 | `hero.image`, `hero.image_alt`, `hero.title`, `hero.text` | Hero op de homepage |
 | `wide` | Artikel over de volle breedte |
+| `zoekindex` | `false` houdt de pagina met haar koppen uit de zoekindex, ook via `cascade` voor een sectie; de hook `search-index-extra.html` kan er wel items voor toevoegen |
 
 ### Hooks
 

@@ -85,6 +85,7 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * Params `links.nieuw_venster`, `links.besloten`, `infoblok.kopniveau`,
   `search.threshold`, `search.max_results`, `search.section_weights`,
   `afzender`, `llms.secties` (met `tekst` en `volledig`) en `og.afbeelding`.
+* Front matter `zoekindex: false`: de pagina blijft uit de zoekindex.
 * Hooks `font-preload.html` en `head-extra.html` voor de head, en
   `markdown-extra.html` voor eigen shortcodes in de Markdown-uitvoer.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
@@ -123,6 +124,10 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   tot hooguit 4000 pixels, zonder opschalen) in plaats van altijd een van
   4000 pixels breed.
 * De RSS-feed zet het pad niet dubbel bij een baseURL met submap.
+* Het zoekvenster haalt in een meertalige site de index van de eigen taal
+  op in plaats van die van de standaardtaal.
+* Een link naar een uitklapblok met een letter als é in zijn id klapt het
+  blok weer open.
 * De bijwerkinstructie van Fuse.js verwees naar een bestand dat sinds 7.3.0
   niet meer bestaat.
 
@@ -140,6 +145,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
     `js.Build` (`lib/fuse/fuse.min.js` bestaat niet meer, de build stopt) en
     neemt `js/tooltip.js` op;
   * een eigen `search.js` vult `#search-status`;
+  * een eigen `index.json` geeft tekst zonder HTML-entiteiten
+    (`htmlUnescape` na `plainify`): `search.js` decodeert ze niet meer;
   * een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
     rechterkolom werkt alleen als `.page-aside` binnen `<article>`. Gebruik
     `page-aside.html` en voor eigen blokken de hook `page-aside-extra.html`;
