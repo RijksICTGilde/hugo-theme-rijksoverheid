@@ -1,0 +1,86 @@
+/* Syntaxkleuren voor Chroma-classes (markup.highlight.noClasses: false).
+   Zonder classes schrijft Hugo style="..." op elke token en blokkeert een
+   strikte CSP die. Elke kleur haalt minstens 4,5:1 tegen --color-bg-muted, de
+   achtergrond van <pre>, in licht en donker. */
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
+/* Een brede regel schuift in het blok zelf, niet in de pagina. */
+.highlight {
+  min-width: 0;
+  max-width: 100%;
+}
+
+pre:focus-visible {
+  outline: 3px solid var(--color-link);
+  outline-offset: 2px;
+}
+
+.chroma {
+  --code-comment: light-dark(#556273, #9aa5b5);
+  --code-keyword: light-dark(#755000, #c78d00);
+  --code-string: light-dark(#2f6318, #6fa55b);
+  --code-number: light-dark(#8c4200, #e47c2f);
+  --code-name: light-dark(#2c598b, #6c9bd2);
+  --code-error: light-dark(#a22b20, #ee7262);
+}
+
+/* Commentaar */
+.chroma :is(.c, .ch, .cm, .c1, .cs, .cp, .cpf) {
+  color: var(--code-comment);
+  font-style: italic;
+}
+
+/* Sleutelwoorden en woordoperatoren */
+.chroma :is(.k, .kc, .kd, .kn, .kp, .kr, .kt, .ow) {
+  color: var(--code-keyword);
+}
+
+/* Tekst, operatoren en toegevoegde regels */
+.chroma :is(.s, .sa, .sb, .sc, .dl, .sd, .s2, .se, .sh, .si, .sx, .sr, .s1, .ss, .o, .gi) {
+  color: var(--code-string);
+}
+
+/* Getallen */
+.chroma :is(.m, .mb, .mf, .mh, .mi, .mo, .il) {
+  color: var(--code-number);
+}
+
+/* Sleutels, tags, functies, attributen, variabelen */
+.chroma :is(.na, .nb, .nc, .nd, .ne, .nf, .fm, .nl, .nt, .nx, .nv, .vc, .vg, .vi, .vm, .py, .bp) {
+  color: var(--code-name);
+}
+
+/* Fouten en verwijderde regels */
+.chroma :is(.err, .gd) {
+  color: var(--code-error);
+}
+
+.chroma .ge {
+  font-style: italic;
+}
+
+.chroma .gs {
+  font-weight: bold;
+}
+
+/* Regelnummers (lineNos: inline) en gemarkeerde regels (hl_lines). De
+   markering is een lichte tint plus een balk in de marge van de <pre>, zodat
+   kleur niet de enige drager is. De tint blijft binnen 4,5:1 voor elke
+   tokenkleur; 8% wordt in donker 4,3:1. */
+.chroma :is(.ln, .lnt) {
+  margin-inline-end: 0.75rem;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.chroma .hl {
+  display: block;
+  margin-inline-start: -0.5rem;
+  padding-inline-start: 0.5rem;
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  box-shadow: inset 0.25rem 0 0 var(--color-text-muted);
+}

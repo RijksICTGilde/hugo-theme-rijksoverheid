@@ -1,0 +1,17 @@
+/* Klein label voor een datum of status. De status staat altijd als tekst in het
+   label ("Status: Concept"); de achtergrond is alleen ondersteuning. */
+.tag {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.25rem 0 0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.25rem;
+  background: var(--color-bg-light);
+  color: var(--color-text);
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.tag-status {
+  background: var(--color-bg-info);
+}
