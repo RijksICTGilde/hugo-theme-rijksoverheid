@@ -1,0 +1,7 @@
+User-agent: *
+
+Sitemap: {{ absURL "sitemap.xml" }}
+{{- with site.Home.OutputFormats.Get "llms" }}
+
+# Voor taalmodellen: {{ .Permalink }}
+{{- end }}
