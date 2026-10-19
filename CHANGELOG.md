@@ -43,7 +43,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * **Kop en voet.** Het kruimelpad en "laatst bijgewerkt" staan in de voet. De
   keuze voor licht of donker is een menu "Weergave" in de voet met Systeem,
   Licht en Donker, in plaats van de zon-en-maanknop in de kop. De zoekknop is
-  een menu-item. De sitenaam is altijd een link.
+  een menu-item. De sitenaam is altijd een link; het logo is alleen een link
+  met `params.logo.url`.
 * **Paginatitel** volgens NLDD: `Pagina · Site`, op de homepage
   `Site: tagline`.
 * **Links** zijn onderstreept in lopende tekst, niet in navigatie en kaarten.
@@ -116,7 +117,15 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * Voetnoten hebben een kop en links met een naam; de rol `doc-endnotes` is weg.
 * Het icoon in een infoblok is decoratief in plaats van een afbeelding met de
   Engelse alt "Info icon" (WCAG 1.1.1). Een infoblok zonder titel noemt zijn
-  type in verborgen tekst (WCAG 1.4.1).
+  type in verborgen tekst, ook met de shortcode `callout` (WCAG 1.4.1).
+* Een bronterm (`reftext.html`) is een knop met de bron als beschrijving, in
+  plaats van een focusbare `span` zonder rol (WCAG 4.1.2), en de stippellijn
+  eronder haalt 3:1. Een `$` in de brontekst of de URL blijft staan.
+* Het woordmerk naast het lint is leesbaar voor hulptechnologie; zonder
+  `params.logo.url` stond het in een verborgen link (WCAG 1.3.1).
+* De melding boven de pagina is een regio "Melding" in plaats van een
+  `role="status"` die bij het laden niets meldt.
+* Zonder JavaScript staan er geen zoekknoppen meer die niets doen.
 * De meta-description begint niet meer met een kop.
 * De 404-pagina heet "Pagina niet gevonden" in plaats van "404 Page not
   found", ook in de titel en de deelgegevens.

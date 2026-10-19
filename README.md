@@ -115,7 +115,7 @@ Alles is optioneel.
 |---|---|---|
 | `tagline` | | Ondertitel naast de sitenaam; ook in de titel van de homepage |
 | `description` | | Beschrijving voor pagina's zonder eigen `description` |
-| `logo.url`, `logo.woordmerk`, `logo.label` | eigen homepage | Woordmerk naast het lint en een logolink naar een andere site |
+| `logo.url`, `logo.woordmerk`, `logo.label` | geen link | Woordmerk naast het lint, en een logolink naar een andere site met een verborgen label |
 | `footer.tagline`, `footer.links`, `footer.rechts` | | Tekst in de voet en de koppen van de twee linkkolommen |
 | `afzender.naam`, `afzender.url`, `afzender.tekst` | | Regel in de voet met de organisatie achter de site |
 | `links.nieuw_venster` | `false` | `true` opent externe links in een nieuw venster, met melding en icoon |

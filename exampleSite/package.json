@@ -15,7 +15,8 @@
     "reflow": "node --test tests/laag2/reflow.test.js",
     "toetsenbord": "node --test tests/laag2/toetsenbord.test.js",
     "escape": "node --test tests/laag2/escape.test.js",
-    "opmaak": "node --test tests/laag2/opmaak.test.js"
+    "opmaak": "node --test tests/laag2/opmaak.test.js",
+    "a11y-review": "node --test tests/laag2/a11y-review.test.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",
