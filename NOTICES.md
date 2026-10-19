@@ -24,6 +24,7 @@ Volledige gebruiksvoorwaarden: <https://www.rijkshuisstijl.nl/basiselementen/typ
 Bestanden:
 
 - `static/images/logo-rijksoverheid.svg`
+- de favicons met het lint: `static/favicon.ico`, `static/favicon-32x32.png`, `static/favicon-192x192.png` en `static/apple-touch-icon.png`
 - de huisstijlkleuren en het lint in `assets/css/nldd-primitives.css` en de stijlen van de kop en de voet
 
 Het rijkslogo en de huisstijl zijn **uitsluitend bestemd voor gebruik door de Rijksoverheid**, of door partijen die een opdracht voor de Rijksoverheid uitvoeren en daarvoor gebruik mogen maken van de huisstijl en het logo. In alle andere gevallen is ieder gebruik verboden. De Staat der Nederlanden (Ministerie van Algemene Zaken) heeft auteursrecht voorbehouden op het ontwerp van het rijkslogo en de huisstijl, conform de [Regeling voorbehouden auteursrecht beeldmerk en huisstijl herkenbare Rijksoverheid](https://wetten.overheid.nl/BWBR0024004/2008-08-07) (Stcrt. 2008, nr. 115) en artikel 15b van de Auteurswet 1912. Voor toestemming kun je terecht bij de Rijksvoorlichtingsdienst.
@@ -41,6 +42,6 @@ Bron: [`@nldd/design-system`](https://github.com/NederlandseDigitaleDienst/desig
 
 ## Fuse.js
 
-Bestand: `assets/lib/fuse/fuse.min.js`
+Bestand: `assets/lib/fuse/fuse.min.mjs`, ongewijzigd uit het npm-pakket `fuse.js` 7.5.0.
 
-Fuse.js 7.3.0, [fusejs.io](https://www.fusejs.io/), gelicentieerd onder de **Apache License 2.0** (<https://www.apache.org/licenses/LICENSE-2.0>).
+Fuse.js, [fusejs.io](https://www.fusejs.io/), copyright Kiro Risk, gelicentieerd onder de **Apache License 2.0**. De licentietekst staat in [`assets/lib/fuse/LICENSE`](./assets/lib/fuse/LICENSE).
