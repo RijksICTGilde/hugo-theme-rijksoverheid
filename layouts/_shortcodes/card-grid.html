@@ -1,4 +1,4 @@
-{{- /* Kaarten voor de pagina's in een sectie.
+{{- /* Kaarten voor de pagina's in een sectie; een lege sectie geeft niets.
 
   Params:
     section  - pad van de sectie (verplicht)
@@ -35,9 +35,11 @@
   {{- end -}}
 {{- end -}}
 {{- with site.GetPage $section -}}
+  {{- with .Pages.ByWeight -}}
 <section>
-  {{ partial "card-grid.html" (dict "paginas" .Pages.ByWeight "niveau" $niveau "klassen" ($.Get "klassen")) }}
+  {{ partial "card-grid.html" (dict "paginas" . "niveau" $niveau "klassen" ($.Get "klassen")) }}
 </section>
+  {{- end -}}
 {{- else -}}
   {{- errorf "card-grid shortcode: sectie %q niet gevonden" $section -}}
 {{- end -}}

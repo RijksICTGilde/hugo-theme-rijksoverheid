@@ -1,7 +1,8 @@
 {{- /* Kaartenraster als lijst. Aanroepen met een slice pagina's (koppen h2)
        of met een dict:
          (dict "paginas" .Pages "niveau" 3 "klassen" "boxed clickable")
-       klassen: boxed, clickable en/of columns-2.
+       klassen: boxed, clickable en/of columns-2. Rendert niets zonder
+       pagina's.
        role="list" blijft nodig: Safari laat de lijstrol vallen bij
        list-style: none. */ -}}
 {{- $paginas := . -}}
@@ -12,8 +13,10 @@
   {{- $niveau = int (.niveau | default 2) -}}
   {{- $klassen = .klassen | default "" -}}
 {{- end -}}
+{{- with $paginas -}}
 <ul class="card-grid{{ with $klassen }} {{ . }}{{ end }}" role="list">
-  {{- range $paginas -}}
+  {{- range . -}}
   <li>{{- partial "card.html" (dict "pagina" . "niveau" $niveau) -}}</li>
   {{- end -}}
 </ul>
+{{- end -}}
