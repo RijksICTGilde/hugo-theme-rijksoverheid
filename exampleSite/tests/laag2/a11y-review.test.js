@@ -7,11 +7,13 @@
  *   - bronterm (4.1.2): een knop met de term als naam en de brontekst als
  *     beschrijving, met unieke id's, ook als dezelfde bron vaker voorkomt en
  *     reftext.html vaker op een pagina draait. Zonder woord ervoor is het
- *     nummer de term.
+ *     nummer de term;
+ *   - infoblok zonder titel (1.4.1): de shortcode callout krijgt dezelfde
+ *     verborgen typenaam als de alerts; andere alerttypen blijven neutraal.
  *
- * Een logo zonder url en een bron die vaker voorkomt, staan niet in de
- * voorbeeldsite. Daarvoor bouwt deze test een kleine proefsite met het theme
- * in tmp/a11y-review; daar is hugo voor nodig.
+ * Een logo zonder url, een bron die vaker voorkomt en infoblokken zonder
+ * titel staan niet in de voorbeeldsite. Daarvoor bouwt deze test een kleine
+ * proefsite met het theme in tmp/a11y-review; daar is hugo voor nodig.
  */
 
 import { test, before, after, describe } from "node:test";
@@ -56,6 +58,42 @@ En verder {{< bronnen >}}weer{ref:1} en tweede{ref:2}{{< /bronnen >}}.
 Tot slot {{< bronnen >}}**vet**{ref:2}{{< /bronnen >}}.
 `,
   "layouts/_shortcodes/bronnen.html": '{{- partial "reftext.html" (dict "tekst" .Inner "page" .Page) -}}\n',
+  "content/infoblokken.md": `---
+title: Infoblokken
+---
+
+{{< callout variant="success" >}}Variant gelukt.{{< /callout >}}
+
+{{< callout variant="warning" >}}Variant waarschuwing.{{< /callout >}}
+
+{{< callout variant="danger" >}}Variant gevaar.{{< /callout >}}
+
+{{< callout variant="info" >}}Variant info.{{< /callout >}}
+
+{{< callout variant="muted" >}}Variant gedempt.{{< /callout >}}
+
+{{< callout >}}Zonder variant.{{< /callout >}}
+
+{{< callout titel="Let op" variant="warning" >}}Met titel.{{< /callout >}}
+
+> [!TIP]
+> Alert tip.
+
+> [!IMPORTANT]
+> Alert belangrijk.
+
+> [!CAUTION]
+> Alert pas op.
+
+> [!NOTE]
+> Alert notitie.
+
+> [!SUCCESS]
+> Ander alerttype.
+
+> [!DANGER]
+> Nog een ander alerttype.
+`,
 };
 
 let browser;
@@ -237,6 +275,35 @@ describe("bronterm (4.1.2)", () => {
         };
       });
       assert.deepEqual(ids, { dubbel: [], ankers: ["refback-1", "refback-2"] });
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("infoblok zonder titel (1.4.1)", () => {
+  test("callouts krijgen de typenaam van de alert met dezelfde kleur, in de tekst ervoor", async () => {
+    const page = await open(proef, "/infoblokken/");
+    try {
+      const blokken = await page.$$eval(".callout", (lijst) => lijst.map((el) => [el.className, el.querySelector(".content").textContent]));
+      assert.deepEqual(
+        blokken.map(([klasse, tekst]) => [klasse, normaal(tekst)]),
+        [
+          ["callout success", "Tip: Variant gelukt."],
+          ["callout warning", "Waarschuwing: Variant waarschuwing."],
+          ["callout danger", "Pas op: Variant gevaar."],
+          ["callout info", "Variant info."],
+          ["callout muted", "Variant gedempt."],
+          ["callout", "Zonder variant."],
+          ["callout warning", "Met titel."],
+          ["callout success", "Tip: Alert tip."],
+          ["callout warning", "Belangrijk: Alert belangrijk."],
+          ["callout danger", "Pas op: Alert pas op."],
+          ["callout info", "Alert notitie."],
+          ["callout", "Ander alerttype."],
+          ["callout", "Nog een ander alerttype."],
+        ],
+      );
     } finally {
       await page.close();
     }

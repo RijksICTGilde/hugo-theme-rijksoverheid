@@ -13,7 +13,6 @@
        important, warning en caution dan een verborgen typenaam (WCAG 1.4.1). */ -}}
 {{- if eq .Type "alert" -}}
 {{- $varianten := dict "note" "info" "info" "info" "tip" "success" "important" "warning" "warning" "warning" "caution" "danger" -}}
-{{- $typenamen := dict "tip" "Tip" "important" "Belangrijk" "warning" "Waarschuwing" "caution" "Pas op" -}}
 {{- $variant := index $varianten .AlertType -}}
 {{- $niveau := 3 -}}
 {{- with site.Params.infoblok -}}
@@ -34,10 +33,7 @@
   {{- end }}
   {{- $tekst := .Text }}
   {{- if not .AlertTitle }}
-    {{- with index $typenamen .AlertType }}
-      {{- /* In de eerste alinea, zodat de typenaam en de tekst samen worden voorgelezen. */}}
-      {{- $tekst = replaceRE `^\s*(<p>)?` (printf `${1}<span class="visually-hidden">%s: </span>` .) $tekst 1 | safeHTML }}
-    {{- end }}
+    {{- $tekst = partial "infoblok-typenaam.html" (dict "alert" .AlertType "tekst" $tekst) }}
   {{- end }}
   <div class="content">
     {{ $tekst }}

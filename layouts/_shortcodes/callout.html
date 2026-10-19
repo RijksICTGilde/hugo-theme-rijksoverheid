@@ -42,7 +42,11 @@
     {{- with $titel }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
   </header>
   {{- end }}
+  {{- $tekst := .Inner | markdownify }}
+  {{- if not $titel }}
+    {{- $tekst = partial "infoblok-typenaam.html" (dict "variant" $variant "tekst" $tekst) }}
+  {{- end }}
   <div class="content">
-    {{ .Inner | markdownify }}
+    {{ $tekst }}
   </div>
 </div>
