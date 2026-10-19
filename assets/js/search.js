@@ -123,14 +123,17 @@
         return response.json();
       })
       .then(function (data) {
-        var searchData = data.map(function (item) {
-          return {
-            title: item.title,
-            url: item.url,
-            content: item.content || '',
-            section: item.section
-          };
-        });
+        // Items uit search-index-extra.html kunnen een veld missen.
+        var searchData = data
+          .filter(function (item) { return item && item.url; })
+          .map(function (item) {
+            return {
+              title: item.title || '',
+              url: item.url,
+              content: item.content || '',
+              section: item.section
+            };
+          });
 
         return new Fuse(searchData, fuseOptions);
       })
@@ -209,7 +212,7 @@
       }
 
       displayResults(results, query, total);
-    }, function () {
+    }).catch(function () {
       if (seq !== searchSeq) return;
       showMessage('Zoeken lukt nu niet. Probeer het later opnieuw.');
     });

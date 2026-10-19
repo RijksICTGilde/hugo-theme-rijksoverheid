@@ -325,3 +325,68 @@ describe("hash met een niet-ASCII id (referenties.js)", () => {
     }
   });
 });
+
+describe("zoekindex met afwijkende items (search-index-extra.html)", () => {
+  const MELDING = "Zoeken lukt nu niet. Probeer het later opnieuw.";
+  const EXTRA = [
+    { title: "Beleid van de dienst", url: "/gewoon/", content: "Tekst over beleid.", section: "x" },
+    { content: "alleen inhoud over beleid" },
+    { title: "Beleid zonder url", content: "heeft geen url" },
+    { url: "/zonder-titel/", content: "beleid zonder titel" },
+    { title: "Beleid zonder inhoud", url: "/zonder-inhoud/" },
+  ];
+
+  /** Opent de startpagina met een eigen antwoord op index.json en opent het zoekvenster. */
+  async function metIndex(antwoord, status = 200) {
+    const fouten = [];
+    const page = await browser.newPage();
+    page.on("pageerror", (fout) => fouten.push(fout.message));
+    await page.setViewport(BREED);
+    await page.setRequestInterception(true);
+    page.on("request", (verzoek) => {
+      if (new URL(verzoek.url()).pathname !== "/index.json") return verzoek.continue();
+      return verzoek.respond({ status, contentType: "application/json", body: JSON.stringify(antwoord) });
+    });
+    await page.goto(`${baseUrl}/`, { waitUntil: "load" });
+    await zoekvenster.open(page);
+    await pauze(300);
+    return { page, fouten };
+  }
+  const resultaten = (page) => page.$$eval("#search-results li", (lis) => lis.map((li) => li.querySelector("a")?.getAttribute("href") ?? li.textContent));
+
+  test("items zonder titel, url of inhoud breken het zoeken niet, items zonder url vallen weg", async () => {
+    const { page, fouten } = await metIndex(EXTRA);
+    try {
+      await page.type("#search-input", "beleid");
+      assert.ok(await wacht(async () => (await resultaten(page)).length > 0), "geen resultaten");
+      assert.deepEqual((await resultaten(page)).sort(), ["/gewoon/?q=beleid", "/zonder-inhoud/?q=beleid", "/zonder-titel/?q=beleid"]);
+      assert.deepEqual(fouten, []);
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een index die niet laadt geeft de melding", async () => {
+    const { page, fouten } = await metIndex("niet gevonden", 500);
+    try {
+      await page.type("#search-input", "beleid");
+      assert.ok(await wacht(async () => (await resultaten(page)).includes(MELDING)), "geen melding");
+      assert.deepEqual(fouten, []);
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een fout bij het verwerken geeft de melding en geen onverwerkte fout", async () => {
+    const { page, fouten } = await metIndex(EXTRA);
+    try {
+      await page.evaluate(() => { Fuse.prototype.search = () => { throw new Error("kapot"); }; });
+      await page.type("#search-input", "beleid");
+      assert.ok(await wacht(async () => (await resultaten(page)).includes(MELDING)), "geen melding");
+      assert.deepEqual(fouten, []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
