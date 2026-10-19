@@ -237,6 +237,37 @@ describe("externe links in de afdruk", () => {
   });
 });
 
+describe("rechterkolom naast de tekst", () => {
+  // Het breekpunt zelf staat hier niet vast: staat de kolom onder de tekst, dan is er niets te meten.
+  for (const breedte of [960, 1024, 1100, 1280, 1440]) {
+    test(`is minstens 14rem breed en laat de tekstkolom intact bij ${breedte}px`, async () => {
+      const page = await open("/onderdelen/lange-pagina/", { breedte });
+      try {
+        const m = await page.evaluate(() => {
+          const wortel = document.documentElement;
+          const rem = parseFloat(getComputedStyle(wortel).fontSize);
+          const aside = document.querySelector("main > article > .page-aside").getBoundingClientRect();
+          const tekst = document.querySelector("main > article > .artikel-tekst").getBoundingClientRect();
+          return {
+            rem,
+            aside: aside.width,
+            tekst: tekst.width,
+            maxTekst: parseFloat(getComputedStyle(wortel).getPropertyValue("--article-max-width")),
+            naast: aside.left >= tekst.right - 1,
+            overloop: wortel.scrollWidth - wortel.clientWidth,
+          };
+        });
+        assert.ok(m.overloop <= 1, `horizontale overloop van ${m.overloop}px`);
+        if (breedte >= 1100) assert.ok(m.naast, "de kolom staat niet naast de tekst");
+        if (m.naast) assert.ok(m.aside >= 14 * m.rem - 0.5, `de kolom is ${m.aside}px (${(m.aside / m.rem).toFixed(1)}rem)`);
+        if (breedte >= 1280) assert.equal(m.tekst, m.maxTekst, "de tekstkolom is niet meer zo breed als --article-max-width");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("diagram in de afdruk", () => {
   const welke = (page) =>
     page.evaluate(() => {
