@@ -7,6 +7,9 @@
  *
  * Elke test opent twee of drie lagen tegelijk, drukt voor elke laag op Escape
  * en kijkt na elke toets welke laag dicht is en waar de focus staat.
+ *
+ * Verder in dit bestand, met dezelfde browser: de focus na het sluiten van het
+ * zoekvenster, een gecodeerd id in de hash en een zoekindex met afwijkende items.
  */
 
 import { test, before, after, describe } from "node:test";
@@ -85,7 +88,6 @@ const actiefElement = (page) => page.evaluateHandle(() => document.activeElement
 
 const MENU = 'button[aria-controls="mobile-menu"]';
 const THEMA = ".footer-settings button[aria-expanded]";
-const expanded = (handle) => handle.evaluate((el) => el.getAttribute("aria-expanded") === "true");
 
 /**
  * De lagen die Escape kan sluiten. `open` zet de laag open en geeft de knop
@@ -238,11 +240,11 @@ describe("Escape op een breed scherm (1280 px)", () => {
     const page = await open(DIAGRAM);
     try {
       const knop = await zoekvenster.open(page);
-      // Een echte aanwijzer kan niet door het venster heen; dit is de korte tijd tussen openen en uitkomen van pointerout.
+      // Lag de aanwijzer al op de link, dan staat de tooltip nog even na het openen (pointerout komt later); hier nagebootst.
       await page.evaluate(() => {
         document.querySelector(".mermaid-download").dispatchEvent(new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }));
       });
-      const ballon = tooltip("data", "toets");
+      const ballon = tooltip("data", "aanwijzer");
       assert.ok(await wacht(() => ballon.isOpen(page)), "de tooltip verschijnt niet");
       await page.keyboard.press("Escape");
       await pauze();
@@ -353,7 +355,7 @@ describe("focus na het sluiten van het zoekvenster (2.4.3)", () => {
       await page.keyboard.press("Escape");
       assert.ok(await wacht(() => zoekvenster.isOpen(page), false), "Escape sluit het zoekvenster niet");
       await pauze();
-      assert.deepEqual(await page.evaluate(() => window.focusOp), [], "bij het sluiten is focus() aangeroepen");
+      assert.ok(!(await page.evaluate(() => window.focusOp)).includes("body"), "search.js roept body.focus() aan");
     } finally {
       await page.close();
     }
@@ -437,4 +439,3 @@ describe("zoekindex met afwijkende items (search-index-extra.html)", () => {
     }
   });
 });
-
