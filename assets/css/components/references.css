@@ -1,4 +1,4 @@
-/* Referenties — accordeon-overzicht onderaan een pagina, met inline
+/* Referenties: accordeon-overzicht onderaan een pagina, met inline
    tooltip-marker (.ref-wrapper) op elke verwijzing in de body-tekst.
    Activeer een ref via {ref:N} marker in markdown; consumer-partial
    (reftext.html) doet de substitutie. */
