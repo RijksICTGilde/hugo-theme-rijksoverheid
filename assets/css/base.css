@@ -125,7 +125,9 @@ a {
   text-decoration: underline;
 }
 
-a[rel~="external"]::after {
+/* Het externe-link-icoon hoort alleen bij links die in een nieuw venster
+   openen (params.links.nieuw_venster); besloten links tonen het slot. */
+a[target="_blank"][rel~="external"]:not([rel~="private"])::after {
   content: "";
   display: inline-block;
   width: 0.75em;
@@ -138,25 +140,17 @@ a[rel~="external"]::after {
   vertical-align: inherit;
 }
 
-a[href^="mailto:"]::after {
+a[rel~="private"]::after {
   content: "";
   display: inline-block;
-  width: 0.95em;
-  height: 0.95em;
-  margin-left: 0.25em;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.1em;
   background-color: currentColor;
-  mask-image: url("{{ relURL "images/icons/mail.svg" }}");
+  mask-image: url("{{ relURL "images/icons/lock.svg" }}");
   mask-size: contain;
   mask-repeat: no-repeat;
-  vertical-align: -0.12em;
-}
-
-a[rel~="private"]::after {
-  width: 1em;
-  height: 1em;
-  margin-left: 0.1em;
-  vertical-align: -0.15em;
-  mask-image: url("{{ relURL "images/icons/lock.svg" }}");
+  vertical-align: -0.1em;
 }
 
 p + ul,
