@@ -1,0 +1,59 @@
+/* Eigen tooltip (tooltip.js). De browser-tooltip uit `title` is niet met het
+   toetsenbord te bereiken, niet aanwijsbaar en niet te sluiten; deze wel (WCAG
+   1.4.13). De rand haalt 3:1 tegen pagina en vlak, de tekst 4,5:1 tegen
+   --color-surface. */
+.tooltip {
+  position: fixed;
+  z-index: 40;
+  width: max-content;
+  max-width: min(16rem, calc(100vw - 1rem));
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-text-muted);
+  border-radius: 0.25rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.tooltip[hidden] {
+  display: none;
+}
+
+/* Vult de ruimte tussen element en ballon (RUIMTE in tooltip.js), zodat de
+   aanwijzer er zonder onderbreking naartoe kan. */
+.tooltip::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 6px;
+}
+
+.tooltip-boven::before {
+  top: 100%;
+  bottom: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tooltip {
+    animation: tooltip-in 120ms ease-out;
+  }
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media print {
+  .tooltip {
+    display: none !important;
+  }
+}
