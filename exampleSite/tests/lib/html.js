@@ -13,9 +13,13 @@ const VOID = new Set([
 
 /** Haalt commentaar en de inhoud van script, style en template weg. De tags blijven staan. */
 function schoon(html) {
-  return html
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/(<(script|style|template|textarea)\b[^>]*>)[\s\S]*?(<\/\2>)/gi, "$1$3");
+  // Herhalen tot er niets meer verandert: na één ronde kan "<!<!---->--" nog "<!--" opleveren.
+  let vorige;
+  do {
+    vorige = html;
+    html = html.replace(/<!--[\s\S]*?-->/g, "");
+  } while (html !== vorige);
+  return html.replace(/(<(script|style|template|textarea)\b[^>]*>)[\s\S]*?(<\/\2>)/gi, "$1$3");
 }
 
 /** Leest de attributen van een openingstag. Namen in kleine letters; een attribuut zonder waarde is "". */

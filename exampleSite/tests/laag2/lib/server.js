@@ -59,8 +59,9 @@ function startServer(root) {
       res.setHeader("Content-Type", type);
       res.end(body);
     } catch (err) {
+      console.error(err);
       res.statusCode = 500;
-      res.end(String(err));
+      res.end("Serverfout");
     }
   });
   return new Promise((resolve) => {
