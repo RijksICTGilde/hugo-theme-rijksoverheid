@@ -119,6 +119,7 @@ Alles is optioneel.
 | `footer.tagline`, `footer.links`, `footer.rechts` | | Tekst in de voet en de koppen van de twee linkkolommen |
 | `afzender.naam`, `afzender.url`, `afzender.tekst` | | Regel in de voet met de organisatie achter de site |
 | `links.nieuw_venster` | `false` | `true` opent externe links in een nieuw venster, met melding en icoon |
+| `links.besloten` | `samenwerkruimten.nl`, `digilab.overheid.nl/chat` | Hosts waarvan links besloten zijn (slot en melding), eventueel met een pad; geldt ook voor subdomeinen en paden eronder. Een lege lijst zet het uit |
 | `infoblok.kopniveau` | `3` | Kopniveau van de titel van een infoblok (2 tot en met 6) |
 | `search.enable` | aan als er een JSON-index is | `false` zet zoeken uit |
 | `search.filters` | | Filters in het zoekvenster, als lijst met `label` en `section` |
@@ -159,6 +160,7 @@ Partials die een site met hetzelfde pad in `layouts/_partials/` vervangt.
 | `head-extra.html` | leeg | Extra elementen in de `<head>`, na de CSS van het theme |
 | `og-image.html` | `params.og.afbeelding` | Deelafbeelding per pagina; geeft een pad terug |
 | `llm-instructies.html` | leeg | Eigen tekst boven in `llms.txt` |
+| `markdown-extra.html` | tekst ongewijzigd | Eigen shortcodes omzetten in de Markdown-uitvoer; krijgt `tekst` en `page` en geeft de tekst terug |
 | `page-aside-extra.html` | leeg | Extra blok in de rechterkolom, bijvoorbeeld downloads |
 | `search-index-extra.html` | leeg | Extra items in de zoekindex |
 
@@ -192,7 +194,9 @@ uit de laatste kop in de tekst van de sectie.
   verborgen melding en een icoon. Een link naar een besloten omgeving krijgt
   een slot en een verborgen melding. Markeer hem met de linktitel `besloten`:
   `[Werkruimte](https://... "besloten")`. Links naar samenwerkruimten.nl en
-  de chat op digilab.overheid.nl herkent het theme zelf.
+  de chat op digilab.overheid.nl herkent het theme zelf; met
+  `params.links.besloten` geef je een eigen lijst met hosts, eventueel met
+  een pad (`intranet.example.nl`, `example.org/intern`).
 - **Infoblokken.** GitHub-alerts worden een infoblok met een echte kop:
   `> [!NOTE]` en `> [!INFO]` worden info, `> [!TIP]` succes, `> [!IMPORTANT]` en
   `> [!WARNING]` waarschuwing, `> [!CAUTION]` gevaar. Een titel zet je achter het
@@ -207,10 +211,13 @@ uit de laatste kop in de tekst van de sectie.
   een eigen layout of shortcode; de bronnen staan in `referenties` in de front
   matter, de lijst verschijnt met `show_referenties: true`. De voorbeeldsite
   heeft een shortcode `bron`.
-- **Mermaid.** Het theme toont voorgerenderde SVG's in een licht en een donker
-  versie; het rendert zelf niets. Het pad en de naam van de SVG staan bovenin
-  `layouts/_markup/render-codeblock-mermaid.html`. Geef elk diagram een
-  `accTitle` (de alt-tekst) en een `accDescr` (de beschrijving).
+- **Mermaid.** Het theme rendert zelf geen diagrammen. De site maakt vóór de
+  build van elk `mermaid`-blok twee SVG's, voor het lichte en het donkere
+  thema: `static/images/render/<pad van het contentbestand>/<slug>-light.svg`
+  en `-dark.svg`. De slug komt uit `accTitle` (zonder `accTitle`:
+  `diagram-<n>`); ontbreekt een SVG, dan stopt de build. `accTitle` wordt de
+  alt-tekst, `accDescr` een verborgen beschrijving. De precieze naamregels
+  staan bovenin `layouts/_markup/render-codeblock-mermaid.html`.
 
 Een eigen layout die `.Content` toont, stuurt die door
 `partial "inhoud.html" .Content`. Anders missen voetnoten, tabellen en

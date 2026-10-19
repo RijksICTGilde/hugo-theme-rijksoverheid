@@ -82,10 +82,11 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `kopniveau`; `card-grid` heeft `niveau` en `klassen`, zodat `boxed`,
   `clickable` en `columns-2` ook via de shortcode werken
   ([#27](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/27)).
-* Params `links.nieuw_venster`, `infoblok.kopniveau`, `search.threshold`,
-  `search.max_results`, `search.section_weights`, `afzender`, `llms.secties`
-  (met `tekst` en `volledig`) en `og.afbeelding`.
-* Hooks `font-preload.html` en `head-extra.html` voor de head.
+* Params `links.nieuw_venster`, `links.besloten`, `infoblok.kopniveau`,
+  `search.threshold`, `search.max_results`, `search.section_weights`,
+  `afzender`, `llms.secties` (met `tekst` en `volledig`) en `og.afbeelding`.
+* Hooks `font-preload.html` en `head-extra.html` voor de head, en
+  `markdown-extra.html` voor eigen shortcodes in de Markdown-uitvoer.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. `doc.go`, zodat Dependabot een site met dit
   theme kan bijwerken. `module.hugoVersion.min`.
