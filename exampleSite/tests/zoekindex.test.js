@@ -48,6 +48,27 @@ for (const build of builds()) {
       assert.deepEqual(bevindingen, []);
     });
 
+    describe("koppen zonder eigen tekst", () => {
+      test("een h2 direct voor een h3 staat in de index met de koptitel als inhoud", () => {
+        for (const [anker, kop] of [["tabellen", "Tabellen"], ["code-in-meerdere-talen", "Code in meerdere talen"]]) {
+          const kopItem = item(`/onderdelen/lange-pagina/#${anker}`);
+          assert.ok(kopItem, `geen item voor #${anker}`);
+          assert.equal(kopItem.content, kop);
+          assert.ok(kopItem.title.endsWith(`: ${kop}`), `de titel noemt de kop niet: ${kopItem.title}`);
+        }
+      });
+
+      test("een kop met eigen tekst houdt die tekst als inhoud", () => {
+        const kopItem = item("/onderdelen/lange-pagina/#tekst-en-lijsten");
+        assert.ok(kopItem, "geen item voor #tekst-en-lijsten");
+        assert.match(kopItem.content, /^Een alinea bestaat uit zinnen/);
+      });
+
+      test("geen enkel item met een anker heeft lege inhoud", () => {
+        assert.deepEqual(index.filter((i) => i.url.includes("#") && !i.content).map((i) => i.url), []);
+      });
+    });
+
     describe("dekking: de controles zien echt materiaal", () => {
       test("de tekens zelf staan in de index: aanhalingsteken, kleiner dan en apostrof", () => {
         const html = item("/onderdelen/lange-pagina/#html");

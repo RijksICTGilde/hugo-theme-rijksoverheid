@@ -46,7 +46,10 @@
         {{- $id := replaceRE `(?s)^<h[23] id="([^"]+)".*` "$1" $stuk -}}
         {{- $kop := $stuk | replaceRE `(?s)^<h[23][^>]*>(.*?)</h[23]>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
         {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)^<h[23][^>]*>.*?</h[23]>` "" $stuk) -}}
-        {{- if gt (len $tekst) 10 -}}
+        {{- /* Een kop met (bijna) geen eigen tekst, zoals een h2 direct voor een h3,
+               blijft vindbaar op zijn titel. */ -}}
+        {{- if le (len $tekst) 10 -}}{{- $tekst = $kop -}}{{- end -}}
+        {{- if $tekst -}}
           {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
         {{- end -}}
       {{- end -}}
