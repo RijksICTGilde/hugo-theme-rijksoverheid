@@ -78,6 +78,7 @@
       {{- end }}
     </div>
 
+    {{- if partial "zoeken-aan.html" . }}
     <ul class="navbar-right">
       <li>
         {{- /* Geen aria-label: de naam komt uit de zichtbare tekst (WCAG 2.5.3).
@@ -93,6 +94,7 @@
     <button type="button" class="search-trigger mobile-search" aria-label="Zoeken" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K">
       {{- partial "icon.html" "search" -}}
     </button>
+    {{- end }}
 
     {{- /* Vaste naam: aria-expanded draagt de toestand al, en spraakbediening
            mikt op een naam die niet verandert. */}}

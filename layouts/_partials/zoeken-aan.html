@@ -1,0 +1,4 @@
+{{- /* Zoeken staat aan zodra de homepage een JSON-index maakt (outputs.home
+       met JSON). Zonder index zou de knop een leeg venster openen.
+       params.search.enable: false zet het expliciet uit. */ -}}
+{{- return and (ne site.Params.search.enable false) (site.Home.OutputFormats.Get "json") -}}
