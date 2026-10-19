@@ -13,9 +13,12 @@ blockquote.quote {
   font-style: italic;
 }
 
-blockquote.callout {
+/* Infoblok: <div class="callout"> uit render-blockquote.html en de
+   callout-shortcode. */
+.callout {
   display: flex;
   flex-direction: column;
+  margin-top: 1rem;
   margin-bottom: 2rem;
   padding: 1rem;
   padding-bottom: 0;
@@ -25,9 +28,11 @@ blockquote.callout {
   &.corner-bottom-right {
     border-radius: var(--radius-bottom-right);
   }
+
   &.corner-bottom-left {
     border-radius: var(--radius-bottom-left);
   }
+
   &.corner-upper-left {
     border-radius: var(--radius-upper-left);
   }
@@ -37,12 +42,19 @@ blockquote.callout {
     align-items: center;
     gap: 0.5rem;
 
-    img {
+    svg {
+      flex-shrink: 0;
       width: 24px;
       height: 24px;
+      color: var(--color-accent-info);
     }
 
+    /* Flexitem naast het icoon: zonder min-width: 0 krimpt een lange kop
+       niet en loopt hij bij grote tekst buiten de pagina (WCAG 1.4.10). */
     .title {
+      margin: 0;
+      min-width: 0;
+      overflow-wrap: break-word;
       font-size: 1.7rem;
       font-weight: 600;
     }
@@ -53,6 +65,8 @@ blockquote.callout {
        gesplit kunnen worden door <mark>-highlights zonder dat elk
        fragment een eigen anonymous flex-item-rij wordt. */
     display: block;
+    min-width: 0;
+    overflow-wrap: break-word;
     padding-top: 0.5rem;
     padding-bottom: 1rem;
 
@@ -77,22 +91,40 @@ blockquote.callout {
   &:not(:has(header)) .content {
     padding-top: 0;
   }
+
+  /* Alleen een icoon, geen titel: icoon naast de tekst. */
+  &:has(header):not(:has(.title)) {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+
+    header {
+      flex-shrink: 0;
+      margin-top: calc((1lh - 24px) / 2);
+    }
+
+    .content {
+      flex: 1;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
 }
 
-/* Callout-varianten — opt-in via extra utility class.
-   Default callout = hemelblauw (--color-bg-info). */
-blockquote.callout.muted {
+/* Varianten: .callout.info is gelijk aan de standaard. */
+.callout.muted {
   background-color: var(--color-bg-muted);
 }
 
-blockquote.callout.warning {
-  background-color: light-dark(#fff8e1, #3a3219);
+.callout.success {
+  background-color: var(--color-bg-success);
 }
 
-blockquote.callout.success {
-  background-color: light-dark(#dcfce7, #14361f);
+.callout.warning {
+  background-color: var(--color-bg-warning);
 }
 
-blockquote.callout.danger {
-  background-color: light-dark(#fee2e2, #3a1a1a);
+.callout.danger {
+  background-color: var(--color-bg-danger);
 }

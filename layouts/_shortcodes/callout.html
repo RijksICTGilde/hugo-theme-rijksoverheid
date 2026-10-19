@@ -1,19 +1,22 @@
-{{- /* Callout: gestyleerd info-blok.
+{{- /* Callout: infoblok met dezelfde opmaak als een alert (> [!NOTE]).
 
   Usage:
     {{< callout titel="Leeswijzer" >}}body{{< /callout >}}
-    {{< callout titel="Let op" variant="warning" corner="bottom-right" >}}body{{< /callout >}}
+    {{< callout titel="Let op" variant="warning" corner="bottom-right" kopniveau="2" >}}body{{< /callout >}}
 
   Params:
-    titel    optioneel
-    variant  optioneel — muted | warning | success | danger
-    corner   optioneel — bottom-right | bottom-left | upper-left
-             (default = upper-right)
+    titel     optioneel
+    variant   optioneel: info | muted | warning | success | danger
+              (zonder variant de info-kleur; het info-icoon alleen bij info)
+    corner    optioneel: bottom-right | bottom-left | upper-left
+              (standaard upper-right)
+    kopniveau optioneel: 2 tot en met 6, standaard params.infoblok.kopniveau
+              of 3
 */ -}}
 {{- $titel := .Get "titel" -}}
 {{- $variant := .Get "variant" -}}
 {{- $corner := .Get "corner" -}}
-{{- $validVariant := slice "muted" "warning" "success" "danger" -}}
+{{- $validVariant := slice "info" "muted" "warning" "success" "danger" -}}
 {{- $validCorner := slice "bottom-right" "bottom-left" "upper-left" -}}
 {{- if and $variant (not (in $validVariant $variant)) -}}
   {{- errorf "callout: variant %q ongeldig (kies: %s)" $variant (delimit $validVariant ", ") -}}
@@ -21,11 +24,25 @@
 {{- if and $corner (not (in $validCorner $corner)) -}}
   {{- errorf "callout: corner %q ongeldig (kies: %s)" $corner (delimit $validCorner ", ") -}}
 {{- end -}}
-<blockquote class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
-  {{- with $titel }}
-  <header><span class="title">{{ . }}</span></header>
+{{- $niveau := 3 -}}
+{{- with site.Params.infoblok -}}
+  {{- with .kopniveau -}}{{ $niveau = int . }}{{- end -}}
+{{- end -}}
+{{- with .Get "kopniveau" -}}{{ $niveau = int . }}{{- end -}}
+{{- if or (lt $niveau 2) (gt $niveau 6) -}}
+  {{- errorf "callout: kopniveau %d ongeldig (kies 2 tot en met 6)" $niveau -}}
+{{- end -}}
+{{- $icoon := eq $variant "info" -}}
+<div class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
+  {{- if or $icoon $titel }}
+  <header>
+    {{- if $icoon }}
+    {{- partial "icon.html" "info" -}}
+    {{- end }}
+    {{- with $titel }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
+  </header>
   {{- end }}
   <div class="content">
     {{ .Inner | markdownify }}
   </div>
-</blockquote>
+</div>
