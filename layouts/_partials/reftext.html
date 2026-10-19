@@ -14,10 +14,12 @@
 {{- $page := .page -}}
 {{- range $i, $ref := $page.Params.referenties -}}
   {{- $num := add $i 1 -}}
-  {{- $textEsc := $ref.tekst | htmlEscape -}}
+  {{- /* replaceRE leest een $ in de vervanging als groep: "$5" en "?a=$1"
+         moeten letterlijk blijven, dus $$. */ -}}
+  {{- $textEsc := replace ($ref.tekst | htmlEscape) "$" "$$" -}}
   {{- $linkHTML := "" -}}
   {{- with $ref.url -}}
-    {{- $linkHTML = partial "render-link.html" (dict "href" . "text" "Bekijk bron") -}}
+    {{- $linkHTML = replace (partial "render-link.html" (dict "href" . "text" "Bekijk bron")) "$" "$$" -}}
   {{- end -}}
   {{- $pattern := printf "([^\\s<>]*)(\\s*)\\{ref:%d\\}" $num -}}
   {{- /* De teller per bron staat op de pagina: elk voorkomen krijgt een eigen
