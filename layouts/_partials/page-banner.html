@@ -12,7 +12,7 @@
 */}}
 {{- $b := site.Params.page_banner -}}
 {{- if and $b $b.text -}}
-<div class="page-banner page-banner--{{ $b.type | default "info" }}" role="status">
+<div class="page-banner page-banner--{{ $b.type | default "info" }}" role="region" aria-label="Melding">
   <p>{{ with $b.strong }}<strong>{{ . }}</strong> {{ end }}{{ $b.text }}</p>
 </div>
 {{- end -}}
