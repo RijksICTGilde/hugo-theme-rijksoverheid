@@ -1,6 +1,6 @@
 /* Syntaxkleuren voor Chroma-classes (markup.highlight.noClasses: false).
-   Zonder classes schrijft Hugo style="..." op elke token en blokkeert een
-   strikte CSP die. Elke kleur haalt minstens 4,5:1 tegen --color-bg-muted, de
+   Zonder classes schrijft Hugo een style-attribuut op elke token en blokkeert
+   een strikte CSP die. Elke kleur haalt minstens 4,5:1 tegen --color-bg-muted, de
    achtergrond van <pre>, in licht en donker. */
 
 code,
@@ -83,4 +83,12 @@ pre:focus-visible {
   padding-inline-start: 0.5rem;
   background: color-mix(in srgb, var(--color-text) 5%, transparent);
   box-shadow: inset 0.25rem 0 0 var(--color-text-muted);
+}
+
+/* Papier schuift niet: lange regels lopen door in plaats van af te knippen. */
+@media print {
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 }

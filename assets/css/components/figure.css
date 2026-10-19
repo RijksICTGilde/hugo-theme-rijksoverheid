@@ -18,3 +18,9 @@ figcaption {
   color: var(--color-text-muted);
   overflow-wrap: break-word;
 }
+
+@media print {
+  figure {
+    break-inside: avoid;
+  }
+}
