@@ -50,7 +50,9 @@
   <li>
     <article class="card">
       <header>{{ printf "<%s>" $kop | safeHTML }}{{ .title }}{{ printf "</%s>" $kop | safeHTML }}</header>
-      {{ .body | markdownify }}
+      {{- /* Als blok renderen: dan staat de tekst in een <p>, en krijgt een link
+             erin de onderstreping uit base.css (WCAG 1.4.1). */}}
+      {{ with .body }}{{ $.Page.RenderString (dict "display" "block") . }}{{ end }}
     </article>
   </li>
   {{- end }}
