@@ -15,7 +15,11 @@
     {{- $item := . -}}
     {{- $href := $item.url -}}
     {{- with $item.pagina -}}
-      {{- with site.GetPage . -}}{{- $href = .RelPermalink -}}{{- end -}}
+      {{- with site.GetPage . -}}
+        {{- $href = .RelPermalink -}}
+      {{- else -}}
+        {{- warnf "Relevante link '%s' op pagina %s wijst naar %s, maar die pagina bestaat niet." ($item.titel | default .) $.Path . -}}
+      {{- end -}}
     {{- end -}}
     {{- with $href }}
     <li>{{ partial "render-link.html" (dict "href" . "text" ($item.titel | default .)) }}</li>
