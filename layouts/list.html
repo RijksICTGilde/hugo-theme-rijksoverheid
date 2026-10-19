@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{- /* hide_tiles is de naam die moza-site gebruikt. */ -}}
+{{- /* hide_tiles is een andere naam voor manual_layout. */ -}}
 {{ if or .Params.manual_layout .Params.hide_tiles }}
   {{- partial "article.html" . -}}
 {{ else }}

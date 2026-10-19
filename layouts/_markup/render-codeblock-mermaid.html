@@ -1,9 +1,16 @@
 {{- /* Mermaid-diagram als voorgerenderde SVG's.
 
-  Contract met het renderscript (het theme rendert zelf niets):
+  Contract met het renderscript van de site: het theme rendert zelf niets.
+  Voor de build maakt de site van elk mermaid-blok twee SVG's, een voor
+  het lichte en een voor het donkere thema (de download is de lichte):
 
     static/images/render/<subpad>/<slug>-light.svg
     static/images/render/<subpad>/<slug>-dark.svg
+
+  Het pad is relatief aan de projectmap (of de map van een module).
+  Ontbreekt een van de twee, dan stopt de build met beide verwachte
+  paden. De lichte SVG heeft een viewBox nodig: daaruit komen width en
+  height tegen verspringen.
 
   subpad  het pad van het contentbestand ten opzichte van content/, zonder
           extensie; bij index.md en _index.md alleen de map.
@@ -17,11 +24,9 @@
           onder alle mermaid-blokken op de pagina (met en zonder accTitle),
           vanaf 1.
 
-  Dit volgt scripts/render-mermaid.js van moza-site. De SVG heeft een
-  viewBox nodig: daaruit komen width en height tegen verspringen.
-
-  Tekstalternatief: accTitle wordt de alt, accDescr een verborgen
-  beschrijving na de afbeeldingen. Zonder accTitle is accDescr de alt.
+  Tekstalternatief: accTitle wordt de alt, accDescr (op een regel of als
+  accDescr { ... }) een verborgen beschrijving na de afbeeldingen. Zonder
+  accTitle is accDescr de alt; zonder beide waarschuwt de build.
 */ -}}
 {{- $inner := .Inner -}}
 {{- $accTitle := "" -}}
