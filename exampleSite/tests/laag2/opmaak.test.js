@@ -229,3 +229,29 @@ describe("externe links in de afdruk", () => {
     }
   });
 });
+
+describe("tabellen in de afdruk", () => {
+  test("een tabel met data-print-bijeen breekt niet over een paginagrens, een andere wel", async () => {
+    const page = await open("/", { afdruk: true });
+    try {
+      const breekt = await page.evaluate(() => {
+        // De exampleSite heeft geen tabel met dit attribuut; zo'n tabel zet render-table.html
+        // of de shortcode table-without-header neer.
+        const zetTabel = (id, bijeen) => {
+          const wikkel = document.createElement("div");
+          wikkel.className = "tabel-wrap";
+          const tabel = document.createElement("table");
+          tabel.id = id;
+          if (bijeen) tabel.setAttribute("data-print-bijeen", "");
+          wikkel.append(tabel);
+          document.querySelector("main").append(wikkel);
+          return getComputedStyle(tabel).breakInside;
+        };
+        return { bijeen: zetTabel("bijeen", true), gewoon: zetTabel("gewoon", false) };
+      });
+      assert.deepEqual(breekt, { bijeen: "avoid", gewoon: "auto" });
+    } finally {
+      await page.close();
+    }
+  });
+});

@@ -17,6 +17,9 @@
   {{- $regel := trim . " " -}}
   {{- if hasPrefix $regel "|" -}}
     {{- if findRE `^\|[\s:|-]+\|$` $regel -}}
+      {{- if not $regels -}}
+        {{- errorf "table-without-header: de scheidingsregel `%s` staat op de eerste regel; zet er een koprij boven of haal hem weg, op pagina %s" $regel $.Page.File.Path -}}
+      {{- end -}}
       {{- $koprij = index (last 1 $regels) 0 -}}
     {{- else -}}
       {{- $regels = $regels | append $regel -}}

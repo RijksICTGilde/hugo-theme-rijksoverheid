@@ -72,4 +72,10 @@
     /* Elk deel van een gebroken tabel een eigen rand, niet één om beide. */
     box-decoration-break: clone;
   }
+
+  /* Alleen zinvol voor een tabel die op een pagina past; past hij niet, dan
+     breekt de browser alsnog. */
+  .tabel-wrap table[data-print-bijeen] {
+    break-inside: avoid;
+  }
 }

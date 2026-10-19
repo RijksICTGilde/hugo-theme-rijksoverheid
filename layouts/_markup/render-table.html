@@ -2,10 +2,11 @@
        2.1.1). "Tabel" zonder nummer: inhoud.html nummert de wikkels in
        documentvolgorde, want een shortcode en een render hook draaien niet in
        die volgorde. Een eigen naam kan met {aria-label="..."} op de regel
-       direct onder de tabel. */ -}}
+       direct onder de tabel; {print-bijeen="ja"} op diezelfde regel houdt de
+       tabel in de afdruk op één pagina. */ -}}
 {{- $label := or (index .Attributes "aria-label") "Tabel" -}}
 <div class="tabel-wrap" role="region" tabindex="0" aria-label="{{ $label }}">
-<table>
+<table{{ with index .Attributes "print-bijeen" }} data-print-bijeen{{ end }}>
   {{- with .THead }}
   <thead>
     {{- range . }}
