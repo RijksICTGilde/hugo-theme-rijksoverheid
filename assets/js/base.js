@@ -128,15 +128,20 @@
     });
   });
 
-  // Escape sluit wat het laatst openging en zet de focus terug op de knop
-  // ervan, zodat toetsenbordgebruikers niet op een verdwenen element
-  // achterblijven. Staat er een dialoog open (het zoekvenster), dan is de
-  // Escape voor die dialoog.
+  // Eén Escape sluit één ding, het binnenste eerst: het zoekvenster, een
+  // tooltip, de themakeuze, het mobiele menu, de zoekmarkering. Wie Escape
+  // gebruikt roept preventDefault aan; elke andere Escape-handler op document
+  // slaat een gebruikte Escape over. De tooltips (tooltip.js, referenties.js)
+  // staan in de capture-fase, omdat deze handler eerder in de bundel zit. De
+  // focus gaat terug naar de knop van wat sluit, zodat toetsenbordgebruikers
+  // niet op een verdwenen element achterblijven. Staat er een dialoog open
+  // (het zoekvenster), dan is de Escape voor die dialoog.
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
     if (document.querySelector('dialog[open]')) return;
 
     if (themePanelOpen()) {
+      e.preventDefault();
       setThemePanel(false);
       themeButton.focus();
       return;
@@ -144,6 +149,7 @@
 
     const openToggle = document.querySelector('.navbar .toggle[aria-expanded="true"]');
     if (openToggle) {
+      e.preventDefault();
       openToggle.setAttribute('aria-expanded', 'false');
       openToggle.focus();
       return;
@@ -152,6 +158,7 @@
     const subnav = document.querySelector('.navbar-sub');
     const openSubnav = document.querySelector('.subnav-toggle[aria-expanded="true"]');
     if (openSubnav && subnav && subnav.contains(document.activeElement)) {
+      e.preventDefault();
       openSubnav.click();
       openSubnav.focus();
     }

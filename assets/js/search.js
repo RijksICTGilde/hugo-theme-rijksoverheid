@@ -569,6 +569,7 @@
 
   function handleHighlightEscape(e) {
     if (e.key === 'Escape' && !e.defaultPrevented && !(searchModal && searchModal.open)) {
+      e.preventDefault();
       hideHighlights(false);
     }
   }

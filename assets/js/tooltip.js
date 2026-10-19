@@ -103,12 +103,15 @@
     if (actief === el && !opDeAanwijzer) verberg();
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape" || ballon.hidden) return;
+  // Capture-fase: deze Escape komt voor die van base.js, die eerder in de bundel zit.
+  const sluitMetEscape = (e) => {
+    if (e.key !== "Escape" || e.defaultPrevented || ballon.hidden) return;
+    if (document.querySelector("dialog[open]")) return;
     gesloten = actief;
     verberg();
-    e.stopPropagation();
-  });
+    e.preventDefault();
+  };
+  document.addEventListener("keydown", sluitMetEscape, { capture: true });
 
   const herplaats = () => {
     if (actief && !ballon.hidden) plaats(actief);
