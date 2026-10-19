@@ -2,8 +2,19 @@
 <div class="hero">
   {{ with .Params.hero }}
   {{ $hero := resources.Get .image }}
-  {{ $heroWebp := $hero.Resize "4000x webp q80" }}
-  <img src="{{ $heroWebp.RelPermalink }}" alt="{{ .image_alt }}" width="{{ $heroWebp.Width }}" height="{{ $heroWebp.Height }}">
+  {{- /* Niet opschalen: de breedste variant heeft de breedte van de bron, met
+         4000 pixels als grens. */ -}}
+  {{- $varianten := slice -}}
+  {{- range slice 800 1600 2400 3200 -}}
+    {{- if lt . $hero.Width -}}
+      {{- $varianten = $varianten | append ($hero.Resize (printf "%dx webp q80" .)) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $varianten = $varianten | append ($hero.Resize (printf "%dx webp q80" (math.Min $hero.Width 4000 | int))) -}}
+  {{- $srcset := slice -}}
+  {{- range $varianten }}{{ $srcset = $srcset | append (printf "%s %dw" .RelPermalink .Width) }}{{ end -}}
+  {{- $standaard := index $varianten (math.Min 1 (sub (len $varianten) 1) | int) }}
+  <img src="{{ $standaard.RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="100vw" alt="{{ .image_alt }}" width="{{ $standaard.Width }}" height="{{ $standaard.Height }}" fetchpriority="high">
   <div class="content">
     <h1>{{ .title }}</h1>
     <p>{{ .text }}</p>

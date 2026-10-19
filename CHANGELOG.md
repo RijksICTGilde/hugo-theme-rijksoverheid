@@ -118,6 +118,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * De meta-description begint niet meer met een kop.
 * De 404-pagina heet "Pagina niet gevonden" in plaats van "404 Page not
   found", ook in de titel en de deelgegevens.
+* De hero haalt een afbeelding op die past bij het scherm (`srcset` van 800
+  tot hooguit 4000 pixels, zonder opschalen) in plaats van altijd een van
+  4000 pixels breed.
 * De RSS-feed zet het pad niet dubbel bij een baseURL met submap.
 * De bijwerkinstructie van Fuse.js verwees naar een bestand dat sinds 7.3.0
   niet meer bestaat.
