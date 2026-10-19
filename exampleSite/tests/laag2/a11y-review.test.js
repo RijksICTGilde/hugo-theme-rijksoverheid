@@ -3,11 +3,15 @@
  * browser en in de toegankelijkheidsboom van Chromium:
  *   - woordmerk (1.3.1, 2.5.3): de naam naast het lint staat in de boom.
  *     Zonder params.logo.url is het logo geen link; met url is het een
- *     gewone link waarvan de naam de zichtbare tekst bevat.
+ *     gewone link waarvan de naam de zichtbare tekst bevat;
+ *   - bronterm (4.1.2): een knop met de term als naam en de brontekst als
+ *     beschrijving, met unieke id's, ook als dezelfde bron vaker voorkomt en
+ *     reftext.html vaker op een pagina draait. Zonder woord ervoor is het
+ *     nummer de term.
  *
- * Een logo zonder url staat niet in de voorbeeldsite. Daarvoor bouwt deze
- * test een kleine proefsite met het theme in tmp/a11y-review; daar is hugo
- * voor nodig.
+ * Een logo zonder url en een bron die vaker voorkomt, staan niet in de
+ * voorbeeldsite. Daarvoor bouwt deze test een kleine proefsite met het theme
+ * in tmp/a11y-review; daar is hugo voor nodig.
  */
 
 import { test, before, after, describe } from "node:test";
@@ -37,6 +41,21 @@ params:
       - Directie Proeven
 `,
   "content/_index.md": "---\ntitle: Proefsite\n---\n\nDe homepage.\n",
+  "content/bronnen.md": `---
+title: Bronnen
+referenties:
+  - tekst: Eerste bron
+    url: https://example.org/eerste
+  - tekst: Tweede bron, zonder link
+---
+
+Een zin met {{< bronnen >}}eerste{ref:1} en nog eens eerste{ref:1}{{< /bronnen >}}.
+
+En verder {{< bronnen >}}weer{ref:1} en tweede{ref:2}{{< /bronnen >}}.
+
+Tot slot {{< bronnen >}}**vet**{ref:2}{{< /bronnen >}}.
+`,
+  "layouts/_shortcodes/bronnen.html": '{{- partial "reftext.html" (dict "tekst" .Inner "page" .Page) -}}\n',
 };
 
 let browser;
@@ -141,6 +160,83 @@ describe("woordmerk naast het lint (1.3.1, 2.5.3)", () => {
       const [knoop] = await knopen(page, ".site-logo a");
       assert.equal(knoop.role, "link");
       assert.ok(normaal(knoop.name).startsWith(zichtbaar), `naam "${knoop.name}" begint niet met de zichtbare tekst "${zichtbaar}"`);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("bronterm (4.1.2)", () => {
+  /** Rol, naam en beschrijving van elke term, met het doel van aria-describedby. */
+  async function termen(page) {
+    const uit = [];
+    for (const term of await page.$$(".ref-term")) {
+      const knoop = await page.accessibility.snapshot({ root: term, interestingOnly: false });
+      const doel = await term.evaluate((el) => {
+        const ids = (el.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean);
+        const doelen = ids.map((id) => document.querySelectorAll(`[id="${CSS.escape(id)}"]`));
+        const vak = el.getBoundingClientRect();
+        return {
+          tag: el.tagName.toLowerCase(),
+          zichtbaar: vak.width > 0 && vak.height > 0,
+          gevonden: doelen.map((lijst) => lijst.length),
+          doelRol: doelen[0]?.[0]?.getAttribute("role") ?? null,
+          tekst: doelen[0]?.[0]?.textContent.trim() ?? null,
+        };
+      });
+      uit.push({ rol: knoop.role, naam: knoop.name, beschrijving: knoop.description ?? "", ...doel });
+    }
+    return uit;
+  }
+
+  test("op de lange pagina is elke term een knop met de bron als beschrijving", async () => {
+    const page = await open(site, "/onderdelen/lange-pagina/");
+    try {
+      const lijst = await termen(page);
+      assert.ok(lijst.length >= 2, `verwacht minstens twee termen, gevonden ${lijst.length}`);
+      for (const t of lijst) {
+        assert.equal(t.tag, "button", `term "${t.naam}" is geen <button>`);
+        assert.equal(t.rol, "button");
+        assert.ok(t.naam, "term zonder naam");
+        assert.ok(t.zichtbaar, `term "${t.naam}" heeft geen afmeting`);
+        assert.deepEqual(t.gevonden, [1], `aria-describedby van "${t.naam}" wijst niet naar precies één element`);
+        assert.equal(t.doelRol, "tooltip", `aria-describedby van "${t.naam}" wijst niet naar een role="tooltip"`);
+        assert.ok(t.beschrijving, `term "${t.naam}" zonder beschrijving`);
+        assert.equal(t.beschrijving, t.tekst, `beschrijving van "${t.naam}" is niet de brontekst`);
+      }
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("dezelfde bron in één en in twee aanroepen geeft unieke id's en één anker per bron, en zonder woord een nummer", async () => {
+    const page = await open(proef, "/bronnen/");
+    try {
+      const lijst = await termen(page);
+      assert.deepEqual(
+        lijst.map((t) => [t.rol, t.naam, t.beschrijving]),
+        [
+          ["button", "eerste", "Eerste bron"],
+          ["button", "eerste", "Eerste bron"],
+          ["button", "weer", "Eerste bron"],
+          ["button", "tweede", "Tweede bron, zonder link"],
+          ["button", "Bron 2", "Tweede bron, zonder link"],
+        ],
+      );
+      for (const t of lijst) {
+        assert.equal(t.tag, "button", `term "${t.naam}" is geen <button>`);
+        assert.ok(t.zichtbaar, `term "${t.naam}" heeft geen afmeting`);
+        assert.deepEqual(t.gevonden, [1], `aria-describedby van "${t.naam}" wijst niet naar precies één element`);
+        assert.equal(t.doelRol, "tooltip", `aria-describedby van "${t.naam}" wijst niet naar een role="tooltip"`);
+      }
+      const ids = await page.evaluate(() => {
+        const alle = [...document.querySelectorAll("[id]")].map((el) => el.id);
+        return {
+          dubbel: [...new Set(alle.filter((id, i) => alle.indexOf(id) !== i))],
+          ankers: alle.filter((id) => id.startsWith("refback-")).sort(),
+        };
+      });
+      assert.deepEqual(ids, { dubbel: [], ankers: ["refback-1", "refback-2"] });
     } finally {
       await page.close();
     }
