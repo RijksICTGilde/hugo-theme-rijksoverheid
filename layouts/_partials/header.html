@@ -18,7 +18,7 @@
       {{- end }}
     </div>
     {{- /* Optioneel via params.logo (zie README):
-           - url: waar het logo heen linkt, standaard de eigen homepage;
+           - url: waar het logo heen linkt; zonder url is het logo geen link;
            - woordmerk: tekst naast het lint, zoals op een briefhoofd; een
              lijst geeft één regel per item, de eerste vet;
            - label: verborgen toevoeging aan de linknaam die zegt waar de
@@ -48,14 +48,13 @@
         {{- end }}
       </a>
       {{- else }}
-      {{- /* Dezelfde bestemming als de sitenaam ernaast, dus buiten de
-             tabvolgorde en de toegankelijkheidsboom; wel aanklikbaar. */}}
-      <a href="{{ $home }}" class="site-logo-link" tabindex="-1" aria-hidden="true">
+      {{- /* Geen link: de sitenaam ernaast gaat al naar de homepage. */}}
+      <span class="site-logo-link">
         <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="" />
         {{- with $woordmerk }}
         {{ partial "logo-woordmerk.html" . }}
         {{- end }}
-      </a>
+      </span>
       {{- end }}
     </div>
   </div>
