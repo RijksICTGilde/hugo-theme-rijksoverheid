@@ -58,7 +58,52 @@
 {{- $content = replaceRE `\{\{<\s*emoji\s[^>]*?teken="([^"]+)"[^>]*>\}\}` "$1" $content -}}
 {{- $content = replaceRE `\{\{<[^>]+>\}\}` "" $content -}}
 {{- $content = replaceRE `\{\{%[^%]+%\}\}` "" $content -}}
-{{- $content = replaceRE `>\s*\[!(NOTE|WARNING|TIP|IMPORTANT|INFO|CAUTION)\]` "" $content -}}
+
+{{- /* Regel voor regel, met de binnenkant van codeblokken met hekken
+       ongemoeid: een alert wordt een citaat met de typenaam vet vooraan,
+       {ref:N} en de attribuutlijsten van Goldmark ({#id}, {.klasse},
+       {naam="..."}) vallen weg. De typenamen zijn die van
+       render-blockquote.html; note en info hebben er geen. */ -}}
+{{- $typenamen := dict "tip" "Tip" "important" "Belangrijk" "warning" "Waarschuwing" "caution" "Pas op" -}}
+{{- $attributen := `\{[ \t]*(?:[#.][^{}\n]*|[A-Za-z_:][\w:.-]*[ \t]*=[^{}\n]*)\}` -}}
+{{- $losseAttributen := printf `^[ \t>]*%s[ \t]*$` $attributen -}}
+{{- $kopAttributen := printf `^([ \t>]*#{1,6}[ \t].*?)[ \t]*%s[ \t]*$` $attributen -}}
+{{- $regels := split $content "\n" -}}
+{{- $uit := slice -}}
+{{- $hek := "" -}}
+{{- range $i, $regel := $regels -}}
+  {{- $streep := "" -}}
+  {{- with findRESubmatch `^[ \t>]*(\x60{3,}|~{3,})` $regel 1 }}{{ $streep = index . 0 1 }}{{ end -}}
+  {{- if $hek -}}
+    {{- /* Het blok sluit met alleen hetzelfde teken, minstens zo vaak. */ -}}
+    {{- if and $streep (eq (trim $regel " \t>") $streep) (hasPrefix $streep $hek) }}{{ $hek = "" }}{{ end -}}
+  {{- else if $streep -}}
+    {{- $hek = $streep -}}
+  {{- else -}}
+    {{- $regel = replaceRE `[ \t]*\{ref:\d+\}` "" $regel -}}
+    {{- if findRE $losseAttributen $regel 1 }}{{ continue }}{{ end -}}
+    {{- $regel = replaceRE $kopAttributen "$1" $regel -}}
+    {{- /* Alleen de eerste regel van een citaat kan een alert openen. */ -}}
+    {{- $eerste := true -}}
+    {{- if gt $i 0 }}{{ $eerste = not (findRE `^[ \t]*>` (index $regels (sub $i 1)) 1) }}{{ end -}}
+    {{- with and $eerste (findRESubmatch `^([ \t]*>[ \t>]*)\[!([A-Za-z]+)\][+-]?[ \t]*(.*?)[ \t]*$` $regel 1) -}}
+      {{- $prefix := index . 0 1 -}}
+      {{- $titel := index . 0 3 -}}
+      {{- $kop := "" -}}
+      {{- with index $typenamen (lower (index . 0 2)) }}{{ $kop = printf "**%s:**" . }}{{ end -}}
+      {{- with $titel }}{{ $kop = cond (eq $kop "") (printf "**%s**" .) (printf "%s %s" $kop .) }}{{ end -}}
+      {{- if not $kop }}{{ continue }}{{ end -}}
+      {{- $regel = printf "%s%s" $prefix $kop -}}
+      {{- /* Na een titel begint de tekst een eigen alinea, zoals onder een kop. */ -}}
+      {{- if and $titel (lt (add $i 1) (len $regels)) (findRE `^[ \t]*>[ \t>]*\S` (index $regels (add $i 1)) 1) -}}
+        {{- $uit = $uit | append $regel -}}
+        {{- $regel = strings.TrimRight " \t" $prefix -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $uit = $uit | append $regel -}}
+{{- end -}}
+{{- $content = delimit $uit "\n" -}}
 
 {{- /* Word en Windows kappen een hyperlink af op 2083 tekens en melden het
        document daarna als beschadigd. In de uitvoer voor buiten de site wijst
