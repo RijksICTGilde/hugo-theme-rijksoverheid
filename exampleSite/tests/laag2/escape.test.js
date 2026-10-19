@@ -236,27 +236,32 @@ describe("Escape op een breed scherm (1280 px)", () => {
     test(`eerst ${namen.join(", dan ")} (${route})`, () => sluitBinnenNaarBuiten(route, BREED, lagen));
   }
 
-  test("het zoekvenster gaat voor een tooltip die er nog staat", async () => {
-    const page = await open(DIAGRAM);
-    try {
-      const knop = await zoekvenster.open(page);
-      // Lag de aanwijzer al op de link, dan staat de tooltip nog even na het openen (pointerout komt later); hier nagebootst.
-      await page.evaluate(() => {
-        document.querySelector(".mermaid-download").dispatchEvent(new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }));
-      });
-      const ballon = tooltip("data", "aanwijzer");
-      assert.ok(await wacht(() => ballon.isOpen(page)), "de tooltip verschijnt niet");
-      await page.keyboard.press("Escape");
-      await pauze();
-      assert.equal(await zoekvenster.isOpen(page), false, "Escape sluit het zoekvenster niet");
-      assert.ok(await ballon.isOpen(page), "dezelfde Escape sluit ook de tooltip");
-      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de zoekknop");
-      await page.keyboard.press("Escape");
-      assert.ok(await wacht(() => ballon.isOpen(page), false), "de tweede Escape sluit de tooltip niet");
-    } finally {
-      await page.close();
-    }
-  });
+  // In het zoekveld sluit search.js het venster zelf; op de sluitknop doet de browser dat na de keydown, en
+  // alleen als niemand de toets heeft gebruikt.
+  for (const [waar, selector] of [["het zoekveld", "#search-input"], ["de sluitknop", "#search-close"]]) {
+    test(`het zoekvenster gaat voor een tooltip die er nog staat, met de focus op ${waar}`, async () => {
+      const page = await open(DIAGRAM);
+      try {
+        const knop = await zoekvenster.open(page);
+        await page.focus(selector);
+        // Lag de aanwijzer al op de link, dan staat de tooltip nog even na het openen (pointerout komt later); hier nagebootst.
+        await page.evaluate(() => {
+          document.querySelector(".mermaid-download").dispatchEvent(new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" }));
+        });
+        const ballon = tooltip("data", "aanwijzer");
+        assert.ok(await wacht(() => ballon.isOpen(page)), "de tooltip verschijnt niet");
+        await page.keyboard.press("Escape");
+        await pauze();
+        assert.equal(await zoekvenster.isOpen(page), false, "Escape sluit het zoekvenster niet");
+        assert.ok(await ballon.isOpen(page), "dezelfde Escape sluit ook de tooltip");
+        assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de zoekknop");
+        await page.keyboard.press("Escape");
+        assert.ok(await wacht(() => ballon.isOpen(page), false), "de tweede Escape sluit de tooltip niet");
+      } finally {
+        await page.close();
+      }
+    });
+  }
 });
 
 describe("hash met een niet-ASCII id (referenties.js)", () => {
