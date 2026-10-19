@@ -52,6 +52,27 @@ async function open(route, { build = 0, breedte = 1280, hoogte = 900, wortel, af
   return page;
 }
 
+describe("zoekmarkering (1.3.1, 4.1.2)", () => {
+  test("gegenereerde tekst komt niet in de naam van een kop of link", async () => {
+    const page = await open("/onderdelen/links/?q=pagina");
+    try {
+      await page.waitForSelector("mark[data-search-highlight]");
+      const cdp = await page.createCDPSession();
+      const { nodes } = await cdp.send("Accessibility.getFullAXTree");
+      const namen = nodes
+        .filter((node) => !node.ignored && ["heading", "link"].includes(node.role?.value))
+        .map((node) => node.name?.value ?? "");
+      assert.ok(
+        namen.some((naam) => /pagina/i.test(naam)),
+        "geen kop of link met de zoekterm: de controle ziet de markering niet",
+      );
+      assert.deepEqual(namen.filter((naam) => /gemarkeerd/i.test(naam)), []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("zoekvenster bij vergrote tekst (1.4.4)", () => {
   for (const breedte of [320, 360, 412]) {
     test(`veld en sluitknop blijven in beeld bij ${breedte}px breed met 16 tot 32px basistekst`, async () => {

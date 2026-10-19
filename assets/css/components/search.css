@@ -218,19 +218,6 @@ mark[data-search-highlight] {
   color: var(--color-highlight-text);
 }
 
-/* Chrome en Safari geven <mark> geen rol, dus een schermlezer hoort de
-   markering niet. Verborgen gegenereerde tekst meldt hem wel, en blijft uit
-   een kopie van de tekst. */
-mark[data-search-highlight]::before {
-  content: "gemarkeerd: ";
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 .search-no-results {
   padding: 2rem 1rem;
   color: var(--color-text);
