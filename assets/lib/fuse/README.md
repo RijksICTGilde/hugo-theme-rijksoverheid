@@ -16,8 +16,8 @@ consumer-sites hun Content Security Policy strikt kunnen houden (geen externe
 Fuse levert geen kant-en-klaar browserscript meer (sinds 7.3.0 alleen ESM en
 CommonJS). `assets/js/fuse-global.js` importeert het bestand en zet `Fuse` op
 `window`; `scripts.html` bouwt dat met `js.Build` tot een gewoon script
-(`format: iife`, `target: es2020`, `minify`). Daar is Hugo Extended genoeg voor,
-Node is alleen nodig om te bijwerken.
+(`format: iife`, `target: es2020`, `minify`). Daarvoor volstaat de
+standaardeditie van Hugo; Node is alleen nodig om bij te werken.
 
 ## Bijwerken
 
