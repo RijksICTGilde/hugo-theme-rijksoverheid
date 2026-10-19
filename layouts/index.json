@@ -13,10 +13,11 @@
   {{- $content = replace $content " (opent in een nieuw venster)" "" -}}
   {{- $content = replace $content ", opent in een nieuw venster" "" -}}
   {{- $content = replace $content " (besloten omgeving)" "" -}}
-  {{- /* De terugverwijzing in voetnoten is een pijl, geen tekst. */ -}}
+  {{- /* De terugverwijzing in voetnoten is een pijl, geen tekst. De spatie
+         ervoor is een niet-afbrekende (&nbsp;) en telt als gewone spatie. */ -}}
   {{- $content = replace $content "↩︎" "" -}}
   {{- $content = replace $content "↩" "" -}}
-  {{- $content = replaceRE `[ \t]+` " " $content -}}
+  {{- $content = replaceRE `[ \t\x{00a0}]+` " " $content -}}
   {{- $content = replaceRE `\s*\n\s*` "\n" $content -}}
   {{- return ($content | strings.TrimSpace) -}}
 {{- end -}}
@@ -28,7 +29,7 @@
   {{- $html = replaceRE `<li[^>]*>` "\n· " $html -}}
   {{- $html = replaceRE `</t[dh]>` " " $html -}}
   {{- $html = replaceRE `</(?:p|li|tr|div|dd|dt|h[1-6]|blockquote|summary|figcaption|table|ul|ol)>|<br\s*/?>` "\n" $html -}}
-  {{- return (partial "clean-content" ($html | plainify)) -}}
+  {{- return (partial "clean-content" ($html | plainify | htmlUnescape)) -}}
 {{- end -}}
 
 {{- range where .Site.Pages "Kind" "in" (slice "page" "section") -}}

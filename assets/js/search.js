@@ -127,7 +127,7 @@
           return {
             title: item.title,
             url: item.url,
-            content: decodeHtmlEntities(item.content),
+            content: item.content || '',
             section: item.section
           };
         });
@@ -284,13 +284,6 @@
   function hideResults() {
     searchResults.textContent = '';
     announce('');
-  }
-
-  // De index kan HTML-entiteiten bevatten (&amp;). DOMParser haalt ze weg
-  // zonder dat er iets laadt of draait.
-  function decodeHtmlEntities(text) {
-    if (!text || text.indexOf('&') === -1) return text || '';
-    return new DOMParser().parseFromString(text, 'text/html').body.textContent || '';
   }
 
   function getSnippet(content, query) {
