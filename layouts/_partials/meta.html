@@ -2,6 +2,10 @@
        Gedeeld door head.html en layouts die een eigen <head> hebben. */ -}}
 {{- $pageTitle := .Site.Title -}}
 {{- $metaTitle := or .Params.page_title .Title -}}
+{{- if eq .Kind "404" -}}
+  {{- /* Hugo noemt deze pagina "404 Page not found", op een Nederlandse site. */ -}}
+  {{- $metaTitle = "Pagina niet gevonden" -}}
+{{- end -}}
 {{- if .IsHome -}}
   {{- with .Site.Params.tagline -}}
     {{- $pageTitle = printf "%s: %s" $.Site.Title . -}}
@@ -11,6 +15,9 @@
 {{- end -}}
 <title>{{ $pageTitle }}</title>
 {{- $description := .Description -}}
+{{- if eq .Kind "404" -}}
+  {{- $description = "Deze pagina bestaat niet of is verplaatst." -}}
+{{- end -}}
 {{- if not $description -}}
   {{- if .Content -}}
     {{- /* Zonder koppen: .Plain begint anders met de eerste kop, waardoor een
