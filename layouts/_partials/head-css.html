@@ -9,6 +9,9 @@
 
   De bundel gaat door ExecuteAsTemplate: gebruik in CSS geen dubbele accolades
   behalve voor relURL.
+
+  Geen minify: de minifier van Hugo haalt in geneste CSS de spaties rond + in
+  calc() weg (calc(50% - x / 2+1rem)), en dan vervalt de hele declaratie.
 */ -}}
 {{- $vast := slice "nldd-primitives.css" "tokens.css" "fonts.css" "base.css" "layout.css" -}}
 {{- $lijst := slice -}}

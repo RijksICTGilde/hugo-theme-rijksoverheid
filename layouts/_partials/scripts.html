@@ -9,5 +9,7 @@
   {{- $fuseJs := resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020") -}}
   {{- $lijst = $lijst | append $fuseJs (resources.Get "js/search.js") -}}
 {{- end -}}
-{{- $js := $lijst | resources.Concat "js/bundle.js" | fingerprint "md5" -}}
+{{- $js := $lijst | resources.Concat "js/bundle.js" -}}
+{{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
+{{- $js = $js | fingerprint "md5" -}}
 <script src="{{ $js.RelPermalink }}"></script>
