@@ -170,6 +170,15 @@ a[rel~="private"]::after {
   vertical-align: -0.1em;
 }
 
+/* Hoog contrast zet currentColor als achtergrond op de paginakleur, waardoor
+   het masker onzichtbaar wordt; een systeemkleur blijft staan. */
+@media (forced-colors: active) {
+  a[target="_blank"][rel~="external"]:not([rel~="private"])::after,
+  a[rel~="private"]::after {
+    background-color: CanvasText;
+  }
+}
+
 p + ul,
 p + ol {
   margin-top: -0.5rem;

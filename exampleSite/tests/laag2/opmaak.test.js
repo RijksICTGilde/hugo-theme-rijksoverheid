@@ -151,6 +151,37 @@ describe("zwevende vlakken (1.4.11)", () => {
   }
 });
 
+describe("iconen van links bij geforceerde kleuren (1.4.1)", () => {
+  test("het slot en het externe-linkicoon blijven zichtbaar in forced-colors", async () => {
+    const nieuwVenster = BUILDS.findIndex((build) => build.nieuwVenster);
+    assert.notEqual(nieuwVenster, -1, "geen build met nieuw_venster: true");
+    const page = await open("/onderdelen/links/", { build: nieuwVenster });
+    try {
+      await page.emulateMediaFeatures([{ name: "forced-colors", value: "active" }]);
+      const uitslag = await page.evaluate(() => {
+        const achtergrond = (selector) => {
+          const link = document.querySelector(selector);
+          return link ? getComputedStyle(link, "::after").backgroundColor : null;
+        };
+        const tekst = getComputedStyle(document.body);
+        return {
+          pagina: tekst.backgroundColor,
+          tekst: tekst.color,
+          slot: achtergrond('main a[rel~="private"]'),
+          extern: achtergrond('main a[target="_blank"][rel~="external"]:not([rel~="private"])'),
+        };
+      });
+      assert.ok(uitslag.slot && uitslag.extern, "geen besloten of externe link op de pagina");
+      for (const icoon of ["slot", "extern"]) {
+        assert.notEqual(uitslag[icoon], uitslag.pagina, `het ${icoon}icoon heeft de kleur van de pagina (${uitslag.pagina})`);
+        assert.equal(uitslag[icoon], uitslag.tekst, `het ${icoon}icoon heeft niet de tekstkleur van het systeem`);
+      }
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("zoekmarkering (1.3.1, 4.1.2)", () => {
   test("gegenereerde tekst komt niet in de naam van een kop of link", async () => {
     const page = await open("/onderdelen/links/?q=pagina");
