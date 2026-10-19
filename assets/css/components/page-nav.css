@@ -30,8 +30,11 @@
 .page-nav-prev {
   text-align: start;
 
+  /* De tweede regel houdt de pijl uit de naam van de link; een browser die
+     "/ alt" niet kent, valt terug op de eerste. */
   .page-nav-label::before {
     content: "← ";
+    content: "← " / "";
   }
 }
 
@@ -41,6 +44,7 @@
 
   .page-nav-label::after {
     content: " →";
+    content: " →" / "";
   }
 }
 
