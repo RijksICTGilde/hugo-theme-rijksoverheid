@@ -2,7 +2,7 @@
   <header>
     <h1>{{ .Title }}</h1>
     {{- if and .Params.show_date .Date }}
-    <time class="tag" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+    <time class="tag" datetime="{{ .Date.Format "2006-01-02" }}"><span class="visually-hidden">Gepubliceerd op </span>{{ .Date | time.Format ":date_long" }}</time>
     {{- end }}
     {{- with .Params.status }}
     <p class="tag tag-status">Status: {{ . }}</p>
