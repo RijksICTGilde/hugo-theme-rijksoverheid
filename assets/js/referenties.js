@@ -5,7 +5,10 @@
 (function () {
   function openDetailsFor(hash) {
     if (!hash || hash.charAt(0) !== '#') return;
-    var el = document.getElementById(hash.slice(1));
+    var id = hash.slice(1);
+    // location.hash is percent-gecodeerd; een los procentteken is een URIError.
+    try { id = decodeURIComponent(id); } catch (e) {}
+    var el = document.getElementById(id);
     if (!el) return;
     var d = el.closest('details');
     if (d && !d.open) {

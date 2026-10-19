@@ -256,3 +256,72 @@ describe("Escape op een breed scherm (1280 px)", () => {
     }
   });
 });
+
+describe("hash met een niet-ASCII id (referenties.js)", () => {
+  const BLOKKEN =
+    '<details id="één-vraag"><summary>Eén vraag</summary><p>Antwoord</p></details>' +
+    '<details id="een-vraag"><summary>Een vraag</summary><p>Antwoord</p></details>';
+
+  /** Opent de lange pagina met twee extra uitklapblokken in <main>, zoals een kennisbank ze heeft. */
+  async function metUitklapblokken(hash, viewport = BREED) {
+    const page = await browser.newPage();
+    await page.setViewport(viewport);
+    await page.setRequestInterception(true);
+    page.on("request", async (verzoek) => {
+      if (!verzoek.isNavigationRequest()) return verzoek.continue();
+      const html = await (await fetch(verzoek.url())).text();
+      return verzoek.respond({ status: 200, contentType: "text/html; charset=utf-8", body: html.replace("</main>", `${BLOKKEN}</main>`) });
+    });
+    await page.goto(baseUrl + LANG + hash, { waitUntil: "load" });
+    return page;
+  }
+  const isOpen = (page, id) => page.evaluate((i) => document.getElementById(i).open, id);
+
+  for (const [naam, viewport] of [["breed scherm", BREED], ["smal scherm", SMAL]]) {
+    test(`een gedeelde link met een gecodeerd id opent het uitklapblok (${naam})`, async () => {
+      const page = await metUitklapblokken("#%C3%A9%C3%A9n-vraag", viewport);
+      try {
+        assert.equal(await isOpen(page, "een-vraag"), false, "het blok zonder link staat al open");
+        assert.equal(await isOpen(page, "één-vraag"), true, "#%C3%A9%C3%A9n-vraag opent <details id=één-vraag> niet");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+
+  test("een hashchange naar een gecodeerd id opent het uitklapblok", async () => {
+    const page = await metUitklapblokken("");
+    try {
+      assert.equal(await isOpen(page, "één-vraag"), false);
+      await page.evaluate(() => { location.hash = "#%C3%A9%C3%A9n-vraag"; });
+      assert.ok(await wacht(() => isOpen(page, "één-vraag")), "een hashchange naar #%C3%A9%C3%A9n-vraag opent het blok niet");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een id met alleen ASCII opent zijn uitklapblok nog steeds", async () => {
+    const page = await metUitklapblokken("#een-vraag");
+    try {
+      assert.equal(await isOpen(page, "een-vraag"), true);
+      assert.equal(await isOpen(page, "één-vraag"), false);
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een hash met een los procentteken geeft geen fout", async () => {
+    const fouten = [];
+    const page = await browser.newPage();
+    page.on("pageerror", (fout) => fouten.push(fout.message));
+    await page.setViewport(BREED);
+    await page.goto(`${baseUrl}${LANG}#100%`, { waitUntil: "load" });
+    try {
+      await page.evaluate(() => { location.hash = "#%E0%A4%A"; });
+      await pauze();
+      assert.deepEqual(fouten, []);
+    } finally {
+      await page.close();
+    }
+  });
+});
