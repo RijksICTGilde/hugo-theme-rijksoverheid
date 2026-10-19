@@ -54,6 +54,9 @@ outputs:
 markup:
   highlight:
     noClasses: false        # codekleuring via CSS, nodig onder een strikte CSP
+
+build:
+  noJSConfigInAssets: true  # anders schrijft het zoeken assets/jsconfig.json in de site
 ```
 
 Start daarna `hugo server`.
@@ -64,9 +67,14 @@ Start daarna `hugo server`.
 
 Hugo neemt uit een theme-module `params` over (diep samengevoegd) en `menus`,
 `outputFormats` en `mediaTypes` (alleen sleutels die de site zelf niet heeft).
-`outputs`, `markup`, `security`, `permalinks` en `enableRobotsTXT` neemt Hugo
-niet over: die staan altijd in de config van de site. Bron: de
+`outputs`, `markup`, `build`, `disableKinds`, `security`, `permalinks` en
+`enableRobotsTXT` neemt Hugo niet over: die staan altijd in de config van de
+site. Bron: de
 [merge strategy](https://gohugo.io/configuration/introduction/) van Hugo.
+
+Het theme heeft geen eigen pagina's voor taxonomieën. Gebruikt de site geen
+labels of categorieën, zet dan `disableKinds: [taxonomy, term]`; anders maakt
+Hugo lege pagina's "Tags" en "Categories" die ook in de sitemap staan.
 
 Het theme definieert de uitvoerformaten `llms`, `llmsfull` en `markdown`. Wil
 je ze, zet ze dan aan in `outputs`:
@@ -91,11 +99,11 @@ markup:
 
 | Menu | Plek | Doel |
 |---|---|---|
-| `main` | kop | Hoofdnavigatie; submenu's via `parent` |
+| `main` | kop | Hoofdnavigatie, één niveau |
 | `secondary` | mobiel menu | Extra links, zoals naar een andere site |
 | `footer-links` | voet, links | Bijvoorbeeld contact en sitemap |
 | `footer-rechts` | voet, rechts | Bijvoorbeeld privacy en toegankelijkheid |
-| `<naam>` | sectienavigatie | Activeer met `second_nav: <naam>` in de front matter van de sectie |
+| `<naam>` | sectienavigatie | Activeer met `second_nav: <naam>` in de front matter van de sectie. Een item met pagina's eronder krijgt een submenu met die pagina's |
 
 Gebruik `pageRef:` voor eigen pagina's en `url:` voor andere sites.
 
@@ -139,7 +147,6 @@ Alles is optioneel.
 | `second_nav` | In `_index.md`: menu voor de sectienavigatie |
 | `hero.image`, `hero.image_alt`, `hero.title`, `hero.text` | Hero op de homepage |
 | `wide` | Artikel over de volle breedte |
-| `show_referenties`, `referenties` | Bronnenlijst met tooltips |
 
 ### Hooks
 
@@ -162,8 +169,8 @@ Vervang liever een hook dan een groot partial: een eigen kopie van
 
 ### Kop en voet
 
-De kop heeft de sitenaam (altijd een link), het hoofdmenu met submenu's en de
-zoekknop. Het mobiele menu sluit met Escape en geeft de focus terug aan de
+De kop heeft de sitenaam (altijd een link), het hoofdmenu, de zoekknop en,
+binnen een sectie met `second_nav`, de sectienavigatie met submenu's. Het mobiele menu sluit met Escape en geeft de focus terug aan de
 knop. De voet heeft het kruimelpad, "laatst bijgewerkt", de linkkolommen, de
 afzender en de keuze voor de weergave: Systeem, Licht of Donker. Die keuze
 werkt met JavaScript; zonder JavaScript volgt de site de instelling van het
@@ -195,6 +202,11 @@ uit de laatste kop in de tekst van de sectie.
 - **Code** wordt gekleurd via CSS-klassen (`noClasses: false`); een breed
   codeblok scrolt in een eigen vlak.
 - **Voetnoten** krijgen een kop "Voetnoten" en links met een naam.
+- **Bronnen.** `referenties.html` (een bronnenlijst) en `reftext.html` (een
+  woord met `{ref:N}` erachter krijgt de bron als tooltip) zijn partials voor
+  een eigen layout of shortcode; de bronnen staan in `referenties` in de front
+  matter, de lijst verschijnt met `show_referenties: true`. De voorbeeldsite
+  heeft een shortcode `bron`.
 - **Mermaid.** Het theme toont voorgerenderde SVG's in een licht en een donker
   versie; het rendert zelf niets. Het pad en de naam van de SVG staan bovenin
   `layouts/_markup/render-codeblock-mermaid.html`. Geef elk diagram een
@@ -256,6 +268,44 @@ icoon door een bestand met dezelfde naam in `static/images/icons/`. RijksSans
 en het Rijkslogo zijn alleen voor de Rijksoverheid; zie
 [NOTICES.md](NOTICES.md).
 
+## Buiten de Rijksoverheid
+
+RijksSans, het Rijkslogo en de favicons met het lint zijn alleen voor de
+Rijksoverheid en wie in haar opdracht werkt. Een andere organisatie publiceert
+ze niet en sluit ze uit bij de import van het theme:
+
+```yaml
+module:
+  imports:
+    - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
+      mounts:
+        - source: layouts
+          target: layouts
+        - source: assets
+          target: assets
+        - source: static
+          target: static
+          excludeFiles:
+            - fonts/RijksSans*
+            - images/logo-rijksoverheid.svg
+            - favicon*
+            - apple-touch-icon.png
+```
+
+Zet er daarna eigen bestanden voor in de plaats:
+
+- **Lettertype:** een eigen `assets/css/fonts.css` met de `@font-face`-regels,
+  `--font-sans` op `:root` in de CSS van de site, en een eigen of lege
+  `layouts/_partials/font-preload.html`.
+- **Logo:** een eigen `static/images/logo-rijksoverheid.svg` (de naam blijft
+  zo), met de naam van de organisatie in `params.logo.woordmerk`.
+- **Favicons:** eigen bestanden in `static/` en, bij andere namen, een eigen
+  `layouts/_partials/favicons.html`.
+- **Kleuren:** de tokens op `:root`, zoals hierboven.
+
+Met `excludeFiles` laat elke site ook bestanden van het theme weg die ze niet
+gebruikt, zoals `images/icons/arrow-up.svg` zonder `back_to_top`.
+
 ## Toegankelijkheid
 
 Het theme mikt op WCAG 2.2 niveau AA. Wat het zelf regelt:
@@ -275,15 +325,34 @@ linkteksten en taal op B1-niveau. Automatische controles vinden maar een deel
 van de problemen; toets ook met een toetsenbord en een schermlezer, en houd
 een toegankelijkheidsverklaring bij.
 
-## Content Security Policy
+Het theme is Nederlandstalig: `<html lang="nl">` en de teksten van de
+interface staan vast. Geef een passage in een andere taal een eigen `lang`,
+zoals `<span lang="en">`.
+
+## Publiceren: HTTPS en headers
+
+Het theme levert HTML, CSS en JavaScript; de rest regelt de hosting. HTTPS met
+HSTS, TLS en security.txt staan op de lijst "pas toe of leg uit" van het
+[Forum Standaardisatie](https://www.forumstandaardisatie.nl/open-standaarden/verplicht).
+Regel bij de hosting:
+
+- HTTPS met een redirect vanaf HTTP, en `Strict-Transport-Security` met een
+  `max-age` van minstens een jaar;
+- `/.well-known/security.txt` volgens RFC 9116, met `Contact` en `Expires`;
+- de headers `Content-Security-Policy` (hieronder),
+  `X-Content-Type-Options: nosniff` en `Referrer-Policy: same-origin`;
+- `text/markdown; charset=utf-8` als type voor `.md` en
+  `text/plain; charset=utf-8` voor `.txt`.
+
+Controleer het resultaat met [internet.nl](https://internet.nl/). Hugo zet in
+elke pagina een `<meta name="generator">` met zijn versie;
+`disableHugoGeneratorInject: true` laat die weg.
 
 Het theme heeft geen inline scripts, geen `<style>`-blokken en geen
 `style`-attributen. Deze policy werkt:
 
 ```http
-Content-Security-Policy: default-src 'self'; img-src 'self'; font-src 'self';
-  style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self';
-  form-action 'none'; frame-ancestors 'none'
+Content-Security-Policy: default-src 'self'; img-src 'self'; font-src 'self'; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
 ```
 
 Zet daarvoor `markup.highlight.noClasses: false`; anders schrijft Hugo de

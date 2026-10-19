@@ -14,6 +14,11 @@ module:
   imports:
     - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
 
+build:
+  # Anders schrijft js.Build (Fuse voor het zoeken) assets/jsconfig.json in de
+  # site. Hugo neemt build niet over uit een module; elke site zet dit zelf.
+  noJSConfigInAssets: true
+
 markup:
   goldmark:
     extensions:
@@ -70,25 +75,8 @@ menus:
       pageRef: /
       weight: 1
     - name: Onderdelen
-      identifier: onderdelen
       pageRef: /onderdelen
       weight: 2
-    - name: Lange pagina
-      parent: onderdelen
-      pageRef: /onderdelen/lange-pagina
-      weight: 1
-    - name: Diagram
-      parent: onderdelen
-      pageRef: /onderdelen/diagram
-      weight: 2
-    - name: Links
-      parent: onderdelen
-      pageRef: /onderdelen/links
-      weight: 3
-    - name: Lange woorden
-      parent: onderdelen
-      pageRef: /onderdelen/lange-woorden
-      weight: 4
     - name: Nieuws
       pageRef: /nieuws
       weight: 3
