@@ -109,6 +109,41 @@ describe("zoekfilters (1.4.11)", () => {
   }
 });
 
+describe("kaarten (1.4.3)", () => {
+  for (const schema of ["light", "dark"]) {
+    test(`de titel van een kaart heeft de linkkleur en minstens 4,5:1 tegen de achtergrond (${schema})`, async () => {
+      const page = await open(`/?scheme=${schema}`);
+      try {
+        const kleuren = await page.evaluate(() => {
+          const titel = document.querySelector(".card header a");
+          if (!titel) return null;
+          // Een gewone link in de tekst is de maat voor "de linkkleur".
+          const proef = document.createElement("a");
+          proef.href = "#";
+          document.querySelector("main").append(proef);
+          const link = getComputedStyle(proef).color;
+          proef.remove();
+          let achtergrond = "";
+          for (let el = titel; el; el = el.parentElement) {
+            const kleur = getComputedStyle(el).backgroundColor;
+            if (kleur !== "rgba(0, 0, 0, 0)") {
+              achtergrond = kleur;
+              break;
+            }
+          }
+          return { titel: getComputedStyle(titel).color, link, achtergrond };
+        });
+        assert.ok(kleuren, "geen kaart op de homepage");
+        assert.equal(kleuren.titel, kleuren.link, "de kaarttitel heeft niet de kleur van een gewone link");
+        const verhouding = await contrast(page, kleuren.titel, kleuren.achtergrond);
+        assert.ok(verhouding >= 4.5, `${verhouding.toFixed(2)}:1`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("skip-link", () => {
   for (const wortel of [16, 32]) {
     test(`staat buiten beeld tot de focus erop komt, ook bij ${wortel}px basistekst`, async () => {

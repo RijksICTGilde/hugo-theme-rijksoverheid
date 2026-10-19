@@ -59,7 +59,7 @@
 }
 
 .card header a {
-  color: var(--color-primary);
+  color: var(--color-link);
 }
 
 .card {
