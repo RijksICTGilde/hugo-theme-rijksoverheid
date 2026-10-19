@@ -4,6 +4,7 @@ description: Een pagina met zeer lange Nederlandse samenstellingen, om te contro
 card_title: Verantwoordelijkheidsverdelingsonderzoeksrapportage
 card_description: Een kaart met zeer lange woorden, zoals aansprakelijkheidsverzekeringspremieberekeningsmodellen.
 weight: 4
+toc_tot_en_met: 3
 ---
 
 In het Nederlands plak je woorden aan elkaar. Daardoor zijn sommige woorden erg lang. Zo'n woord mag nooit buiten het scherm lopen, ook niet als je de tekst groter zet of als je een kleine telefoon hebt.

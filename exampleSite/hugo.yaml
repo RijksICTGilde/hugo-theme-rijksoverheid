@@ -92,9 +92,12 @@ menus:
     - name: Nieuws
       pageRef: /nieuws
       weight: 3
+    - name: Handleiding
+      pageRef: /handleiding
+      weight: 4
     - name: Over deze site
       pageRef: /over
-      weight: 4
+      weight: 5
 
   onderdelen_nav:
     - name: Alle onderdelen
@@ -158,6 +161,8 @@ params:
     rechts: Over deze site
 
   logo:
+    url: https://www.rijksoverheid.nl/
+    label: naar de website van de Rijksoverheid
     woordmerk:
       - Ministerie van Voorbeeldzaken
       - Directie Digitale Voorbeelden

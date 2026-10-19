@@ -1,5 +1,6 @@
 ---
 title: We hebben de toegankelijkheid getest
+page_title: Toegankelijkheid getest
 description: Een team heeft de site getest met een schermlezer en met alleen het toetsenbord.
 date: 2026-10-02
 show_date: true
