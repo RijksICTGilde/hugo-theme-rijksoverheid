@@ -85,6 +85,7 @@
   main a[target="_blank"][rel~="external"]:not([rel~="private"])::after {
     content: " (" attr(href) ")";
     display: inline;
+    vertical-align: baseline;
     width: auto;
     height: auto;
     margin: 0;
