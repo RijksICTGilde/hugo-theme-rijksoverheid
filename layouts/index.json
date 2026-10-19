@@ -1,70 +1,68 @@
-{{- /* Bouwt search-index voor de Fuse-search-modal.
-
-  Per pagina:
-   - Index de pagina zelf (titel + content tot eerste ## heading).
-   - Index elke ## sectie als losse entry met anchor, zodat zoekresultaten
-     direct naar de juiste sectie scrollen.
-
-  Drafts en non-page kinds (lists, taxonomies) worden overgeslagen.
-*/ -}}
-{{- $pages := where .Site.RegularPages "Kind" "page" -}}
+{{- /* Zoekindex voor search.js. Per pagina (ook sectiepagina's) een item voor de
+       pagina zelf en een item per h2, h3 en uitklapblok, met het anker erbij,
+       zodat een zoekresultaat naar de juiste plek scrollt. Het zijn de
+       gerenderde koppen, dus de ankers kloppen met de pagina en een regel met
+       "## " in een codeblok wordt geen kop. Codeblokken zitten gewoon in de
+       tekst van hun fragment. Site-eigen items komen uit de hook
+       search-index-extra.html. */ -}}
 {{- $index := slice -}}
-
-{{- define "partials/anchor-id" -}}
-  {{- return (. | anchorize) -}}
-{{- end -}}
 
 {{- define "partials/clean-content" -}}
   {{- $content := . -}}
-  {{- /* Verborgen nieuw-venster-melding van render-link hoort niet in de index. */ -}}
+  {{- /* De verborgen meldingen van render-link horen niet in de index. */ -}}
   {{- $content = replace $content " (opent in een nieuw venster)" "" -}}
-  {{- $content = replace $content ", opent in een nieuw venster)" ")" -}}
-  {{- $content = replaceRE `^#+\s*` "" $content -}}
-  {{- $content = replaceRE `\n#+\s*` "\n" $content -}}
-  {{- $content = replaceRE `>\s*\[!(?:NOTE|WARNING|TIP|IMPORTANT)\][^\n]*` "" $content -}}
-  {{- $content = replaceRE `^>\s*` "" $content -}}
-  {{- $content = replaceRE `\n>\s*` "\n" $content -}}
-  {{- $content = replaceRE `\[([^\]]+)\]\([^)]+\)` "$1" $content -}}
-  {{- $content = replaceRE `\*\*([^*]+)\*\*` "$1" $content -}}
-  {{- $content = replaceRE `\*([^*]+)\*` "$1" $content -}}
-  {{- $content = replaceRE `^\d+\.\s+` "" $content -}}
-  {{- $content = replaceRE `\n\d+\.\s+` "\n· " $content -}}
-  {{- $content = replaceRE `^[-*]\s+` "" $content -}}
-  {{- $content = replaceRE `\n[-*]\s+` "\n· " $content -}}
+  {{- $content = replace $content ", opent in een nieuw venster" "" -}}
+  {{- $content = replace $content " (besloten omgeving)" "" -}}
+  {{- /* De terugverwijzing in voetnoten is een pijl, geen tekst. */ -}}
+  {{- $content = replace $content "↩︎" "" -}}
+  {{- $content = replace $content "↩" "" -}}
   {{- $content = replaceRE `[ \t]+` " " $content -}}
-  {{- $content = replaceRE `\n[ \t]+` "\n" $content -}}
-  {{- $content = replaceRE `\n{2,}` "\n" $content -}}
+  {{- $content = replaceRE `\s*\n\s*` "\n" $content -}}
   {{- return ($content | strings.TrimSpace) -}}
 {{- end -}}
 
-{{- range $pages -}}
-  {{- if not .Draft -}}
+{{- /* plainify plakt tekst van aangrenzende blokken aan elkaar; zet er een
+       regeleinde, of bij een cel een spatie, tussen. */ -}}
+{{- define "partials/html-naar-tekst" -}}
+  {{- $html := . -}}
+  {{- $html = replaceRE `<li[^>]*>` "\n· " $html -}}
+  {{- $html = replaceRE `</t[dh]>` " " $html -}}
+  {{- $html = replaceRE `</(?:p|li|tr|div|dd|dt|h[1-6]|blockquote|summary|figcaption|table|ul|ol)>|<br\s*/?>` "\n" $html -}}
+  {{- return (partial "clean-content" ($html | plainify)) -}}
+{{- end -}}
+
+{{- range where .Site.Pages "Kind" "in" (slice "page" "section") -}}
+  {{- if and (not .Draft) .RelPermalink -}}
     {{- $pageTitle := .Title -}}
     {{- $pageUrl := .RelPermalink -}}
     {{- $pageSection := .Section -}}
-    {{- $rawContent := .RawContent -}}
-    {{- $sections := split $rawContent "\n## " -}}
-    {{- if eq (len $sections) 1 -}}
-      {{- $content := partial "clean-content" .Plain -}}
-      {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" $content "section" $pageSection) -}}
-    {{- else -}}
-      {{- /* Pagina zelf indexeren voor zoeken op titel */ -}}
-      {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" "" "section" $pageSection) -}}
-      {{- range $i, $sec := $sections -}}
-        {{- if gt $i 0 -}}
-          {{- $lines := split $sec "\n" -}}
-          {{- $heading := index $lines 0 -}}
-          {{- $heading = replaceRE `\s*{#[^}]+}\s*$` "" $heading -}}
-          {{- $heading = strings.TrimSpace $heading -}}
-          {{- $anchor := partial "anchor-id" $heading -}}
-          {{- $sectionRaw := delimit (after 1 $lines) "\n" -}}
-          {{- $sectionContent := partial "clean-content" $sectionRaw -}}
-          {{- if gt (len $sectionContent) 10 -}}
-            {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $heading) "url" (printf "%s#%s" $pageUrl $anchor) "content" $sectionContent "section" $pageSection) -}}
-          {{- end -}}
+    {{- $inhoud := partial "koppen-ids.html" .Content -}}
+    {{- $stukken := split (replaceRE `<h([23]) id="` "|||KOP|||<h${1} id=\"" $inhoud) "|||KOP|||" -}}
+    {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" (partial "html-naar-tekst" (index $stukken 0)) "section" $pageSection) -}}
+    {{- range $i, $stuk := $stukken -}}
+      {{- if gt $i 0 -}}
+        {{- $id := replaceRE `(?s)^<h[23] id="([^"]+)".*` "$1" $stuk -}}
+        {{- $kop := $stuk | replaceRE `(?s)^<h[23][^>]*>(.*?)</h[23]>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
+        {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)^<h[23][^>]*>.*?</h[23]>` "" $stuk) -}}
+        {{- if gt (len $tekst) 10 -}}
+          {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
         {{- end -}}
       {{- end -}}
     {{- end -}}
+    {{- /* Een uitklapblok heeft een summary, geen kop, maar mensen zoeken er wel op. */ -}}
+    {{- range $blok := findRE `(?s)<details id="[^"]+"[^>]*>.*?</details>` $inhoud -}}
+      {{- $id := replaceRE `(?s)^<details id="([^"]+)".*` "$1" $blok -}}
+      {{- $kop := $blok | replaceRE `(?s)^.*?<summary[^>]*>(.*?)</summary>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
+      {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)<summary[^>]*>.*?</summary>` "" $blok) -}}
+      {{- if gt (len $tekst) 10 -}}
+        {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
+{{- end -}}
+
+{{- $extra := partial "search-index-extra.html" . -}}
+{{- if reflect.IsSlice $extra -}}
+  {{- $index = $index | append $extra -}}
 {{- end -}}
 {{ $index | jsonify }}
