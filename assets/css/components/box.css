@@ -1,22 +1,23 @@
-/* .box = neutraal panel (subtiele grijze bg).
-   Variants voor semantische betekenis (compound class):
-   - .box.info     : hemelblauw accent (info/key fact, zoals "kern van …")
-   - .box.warning  : geel/oranje accent (let-op melding)
-   - .box.success  : groen accent (afgeronde stap / OK)
-   - .box.danger   : rood accent (fout / kritieke melding)
-   Kleur-overrides via consumer main.css indien gewenst. */
+/* .box = vlak paneel met rand.
+   Varianten voor semantische betekenis (compound class), met een accentrand
+   links en een getinte achtergrond:
+   - .box.info     : info/kernpunt
+   - .box.warning  : let-op melding
+   - .box.success  : afgeronde stap / OK
+   - .box.danger   : fout / kritieke melding
+   De kleur is nooit de enige drager: zet de betekenis ook in de kop. */
 .box {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-border);
   border-radius: 0.5rem;
-  background-color: var(--color-bg-muted);
+  background-color: var(--color-bg-page);
 
   header {
     margin-bottom: 1rem;
 
-    h2 {
+    h2,
+    h3 {
       font-size: 1.8rem;
       margin: 0;
 
@@ -33,7 +34,7 @@
       padding-left: 1.4rem;
     }
 
-    h2 {
+    :is(h2, h3, h4, h5) {
       font-size: 1.5rem;
 
       &:first-child {
@@ -58,23 +59,55 @@
   }
 }
 
-/* Variants — accent-border + tinted bg per type. */
+/* Afbeelding die een .box-kaart vult: tot de randen met afgeronde bovenhoeken die op de kaartrand aansluiten. */
+.box-image {
+  display: block;
+  margin: -1.5rem -1.5rem 1rem;
+}
+
+.box-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: calc(0.5rem - 1px) calc(0.5rem - 1px) 0 0;
+}
+
+@media (max-width: 600px) {
+  .box {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .box-image {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+}
+
+/* Varianten: accentrand plus getinte achtergrond. */
+.box.info,
+.box.warning,
+.box.success,
+.box.danger {
+  border-left-width: 4px;
+}
+
 .box.info {
-  border-left-color: var(--color-primary);
+  border-left-color: var(--color-accent-info);
   background-color: var(--color-bg-info);
 }
 
 .box.warning {
-  border-left-color: #fbb900;
-  background-color: light-dark(#fff8e1, #3a3219);
+  border-left-color: var(--color-accent-warning);
+  background-color: var(--color-bg-warning);
 }
 
 .box.success {
-  border-left-color: light-dark(#16a34a, #4ade80);
-  background-color: light-dark(#dcfce7, #14361f);
+  border-left-color: var(--color-accent-success);
+  background-color: var(--color-bg-success);
 }
 
 .box.danger {
-  border-left-color: light-dark(#dc2626, #f87171);
-  background-color: light-dark(#fee2e2, #3a1a1a);
+  border-left-color: var(--color-accent-danger);
+  background-color: var(--color-bg-danger);
 }
