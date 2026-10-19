@@ -396,10 +396,19 @@ header {
     }
 
     /* Zonder JavaScript gaat de menuknop niet open; dan staat het menu
-       gewoon uitgeklapt. */
+       gewoon uitgeklapt. De zoekknoppen openen dan ook niets; van de lijst
+       rechts blijft zonder knop alleen een leeg lijstitem over. Zonder knoppen
+       naast de titel vraagt die zelf ruimte, anders deelt hij de regel met
+       het menu en krimpt hij tot nul. */
     @media (scripting: none) {
-      .toggle {
+      .toggle,
+      .navbar-right,
+      .mobile-search {
         display: none;
+      }
+
+      .title {
+        flex-basis: auto;
       }
 
       .mobile {

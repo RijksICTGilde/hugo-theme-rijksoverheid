@@ -9,7 +9,8 @@
  *     reftext.html vaker op een pagina draait. Zonder woord ervoor is het
  *     nummer de term;
  *   - infoblok zonder titel (1.4.1): de shortcode callout krijgt dezelfde
- *     verborgen typenaam als de alerts; andere alerttypen blijven neutraal.
+ *     verborgen typenaam als de alerts; andere alerttypen blijven neutraal;
+ *   - zoekknoppen: zonder JavaScript openen ze niets, dus staan ze er niet.
  *
  * Een logo zonder url, een bron die vaker voorkomt en infoblokken zonder
  * titel staan niet in de voorbeeldsite. Daarvoor bouwt deze test een kleine
@@ -308,4 +309,41 @@ describe("infoblok zonder titel (1.4.1)", () => {
       await page.close();
     }
   });
+});
+
+describe("zoekknoppen zonder JavaScript", () => {
+  const meet = (page) =>
+    page.evaluate(() => {
+      const zichtbaar = (el) => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+      const titel = document.querySelector("#main-nav > .title");
+      const menu = document.getElementById("mobile-menu");
+      return {
+        knoppen: [...document.querySelectorAll(".search-trigger")].filter(zichtbaar).length,
+        lijstRechts: zichtbaar(document.querySelector(".navbar-right")),
+        // Zonder JavaScript staat het mobiele menu open; het hoort onder de titel, niet ernaast.
+        menuOnderTitel: !zichtbaar(titel) || !zichtbaar(menu) || menu.getBoundingClientRect().top >= titel.getBoundingClientRect().bottom - 1,
+      };
+    });
+
+  for (const [naam, viewport] of [["smal scherm", SMAL], ["breed scherm", BREED]]) {
+    test(`zonder JavaScript staat er geen zoekknop (${naam})`, async () => {
+      const page = await open(site, "/", viewport, { javascript: false });
+      try {
+        assert.deepEqual(await meet(page), { knoppen: 0, lijstRechts: false, menuOnderTitel: true });
+        const knoppen = (await knopen(page, "#main-nav", true)).filter((k) => k.role === "button").map((k) => k.name);
+        assert.deepEqual(knoppen, [], "knoppen in de navigatie zonder JavaScript");
+      } finally {
+        await page.close();
+      }
+    });
+
+    test(`met JavaScript staat er één zoekknop (${naam})`, async () => {
+      const page = await open(site, "/", viewport);
+      try {
+        assert.equal((await meet(page)).knoppen, 1);
+      } finally {
+        await page.close();
+      }
+    });
+  }
 });
