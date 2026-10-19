@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" width="520" height="160" font-family="sans-serif" font-size="14">
+  <defs>
+    <marker id="pijl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#154273"/>
+    </marker>
+  </defs>
+  <rect width="520" height="160" fill="#ffffff"/>
+  <rect x="10" y="55" width="110" height="50" rx="4" fill="#e5f1fa" stroke="#154273" stroke-width="2"/>
+  <text x="65" y="85" text-anchor="middle" fill="#1a1a1a">Aanvraag</text>
+  <path d="M120 80H165" stroke="#154273" stroke-width="2" marker-end="url(#pijl)"/>
+  <path d="M215 45L265 80L215 115L165 80z" fill="#e5f1fa" stroke="#154273" stroke-width="2"/>
+  <text x="215" y="85" text-anchor="middle" fill="#1a1a1a">Compleet?</text>
+  <path d="M265 80H335" stroke="#154273" stroke-width="2" marker-end="url(#pijl)"/>
+  <text x="300" y="72" text-anchor="middle" fill="#1a1a1a">Ja</text>
+  <rect x="340" y="55" width="110" height="50" rx="4" fill="#e5f1fa" stroke="#154273" stroke-width="2"/>
+  <text x="395" y="85" text-anchor="middle" fill="#1a1a1a">Besluit</text>
+  <path d="M215 115V135H215" stroke="#154273" stroke-width="2" fill="none"/>
+  <text x="228" y="132" fill="#1a1a1a">Nee: extra gegevens vragen</text>
+</svg>

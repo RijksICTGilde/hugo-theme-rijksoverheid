@@ -1,0 +1,5 @@
+# Tweede bouw: bouw met `--environment nieuw-venster`. Zet het oude gedrag van
+# externe links terug, zodat de tests ook dat pad raken.
+params:
+  links:
+    nieuw_venster: true
