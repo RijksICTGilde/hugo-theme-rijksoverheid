@@ -47,8 +47,8 @@
         {{- $kop := $stuk | replaceRE `(?s)^<h[23][^>]*>(.*?)</h[23]>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
         {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)^<h[23][^>]*>.*?</h[23]>` "" $stuk) -}}
         {{- /* Een kop met (bijna) geen eigen tekst, zoals een h2 direct voor een h3,
-               blijft vindbaar op zijn titel. */ -}}
-        {{- if le (len $tekst) 10 -}}{{- $tekst = $kop -}}{{- end -}}
+               blijft vindbaar op zijn titel; een korte tekst ("Ja.") blijft erachter. */ -}}
+        {{- if le (len $tekst) 10 -}}{{- $tekst = strings.TrimSpace (printf "%s %s" $kop $tekst) -}}{{- end -}}
         {{- if $tekst -}}
           {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
         {{- end -}}
@@ -59,7 +59,8 @@
       {{- $id := replaceRE `(?s)^<details id="([^"]+)".*` "$1" $blok -}}
       {{- $kop := $blok | replaceRE `(?s)^.*?<summary[^>]*>(.*?)</summary>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
       {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)<summary[^>]*>.*?</summary>` "" $blok) -}}
-      {{- if gt (len $tekst) 10 -}}
+      {{- if le (len $tekst) 10 -}}{{- $tekst = strings.TrimSpace (printf "%s %s" $kop $tekst) -}}{{- end -}}
+      {{- if $tekst -}}
         {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
       {{- end -}}
     {{- end -}}
