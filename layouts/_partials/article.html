@@ -1,29 +1,21 @@
-{{- $toc := .TableOfContents -}}
-{{- $hasToc := and $toc (ne .Params.toc false) (gt (len (findRE "<li>" $toc)) 0) -}}
 <article{{ if .Params.wide }} class="wide"{{ end }}>
   <header>
     <h1>{{ .Title }}</h1>
-    {{- if $hasToc -}}
-    <button class="toc-toggle" aria-expanded="false" aria-controls="toc">
-      {{- partial "icon.html" "toc-open" -}}
-      {{- partial "icon.html" "toc-close" -}}
-      <span class="visually-hidden">Inhoudsopgave tonen</span>
-    </button>
-    {{- end -}}
+    {{- if and .Params.show_date .Date }}
+    <time class="tag" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+    {{- end }}
+    {{- with .Params.status }}
+    <p class="tag tag-status">Status: {{ . }}</p>
+    {{- end }}
   </header>
-  {{ .Content }}
-  {{- $pageNav := partial "page-nav.html" . -}}
-  {{- $lastmod := partial "lastmod.html" . -}}
-  {{- if or (trim $lastmod " \n\t") (trim $pageNav " \n\t") -}}
+  {{- partial "page-aside.html" (dict "page" . "showToc" true) }}
+  <div class="artikel-tekst">
+  {{ partial "lead-image.html" . }}
+  {{ partial "inhoud.html" .Content }}
+  {{- with partial "page-nav.html" . }}
   <footer>
-    {{- $lastmod -}}
-    {{- $pageNav -}}
+    {{ . }}
   </footer>
-  {{- end -}}
+  {{- end }}
+  </div>
 </article>
-{{- if $hasToc -}}
-<aside id="toc" class="toc">
-  <h2>Op deze pagina</h2>
-  {{ $toc }}
-</aside>
-{{- end -}}
