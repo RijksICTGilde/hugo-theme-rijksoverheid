@@ -458,7 +458,7 @@ describe("externe links in de afdruk", () => {
 });
 
 describe("tabellen in de afdruk", () => {
-  test("een tabel met data-print-bijeen breekt niet over een paginagrens, een andere wel", async () => {
+  test("een tabel met data-print-bijeen krijgt break-inside: avoid in de afdruk, een andere tabel niet", async () => {
     const page = await open("/", { afdruk: true });
     try {
       const breekt = await page.evaluate(() => {
