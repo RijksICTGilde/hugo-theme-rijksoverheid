@@ -3,8 +3,11 @@
 {{- $tocJs := resources.Get "js/toc.js" -}}
 {{- $referentiesJs := resources.Get "js/referenties.js" -}}
 {{- $tooltipJs := resources.Get "js/tooltip.js" -}}
-{{- /* Fuse is ESM; esbuild maakt er een klassiek script van (zet window.Fuse). */ -}}
-{{- $fuseJs := resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020") -}}
-{{- $searchJs := resources.Get "js/search.js" -}}
-{{- $js := slice $baseJs $tocJs $referentiesJs $tooltipJs $fuseJs $searchJs | resources.Concat "js/bundle.js" | fingerprint "md5" -}}
+{{- $lijst := slice $baseJs $tocJs $referentiesJs $tooltipJs -}}
+{{- if partial "zoeken-aan.html" . -}}
+  {{- /* Fuse is ESM; esbuild maakt er een klassiek script van (zet window.Fuse). */ -}}
+  {{- $fuseJs := resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020") -}}
+  {{- $lijst = $lijst | append $fuseJs (resources.Get "js/search.js") -}}
+{{- end -}}
+{{- $js := $lijst | resources.Concat "js/bundle.js" | fingerprint "md5" -}}
 <script src="{{ $js.RelPermalink }}"></script>
