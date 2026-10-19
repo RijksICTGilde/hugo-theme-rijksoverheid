@@ -151,7 +151,10 @@ jobs:
 
       - name: Bouw de voorbeeldsite
         working-directory: exampleSite
-        run: hugo --minify --panicOnWarning --destination public
+        run: |
+          set -euo pipefail
+          hugo --minify --panicOnWarning --destination public
+          hugo --minify --panicOnWarning --environment nieuw-venster --destination public-nieuw-venster
 
       - name: Laag 2 (pa11y, WCAG 2.2, reflow en toetsenbord)
         run: npm run --prefix exampleSite laag2
