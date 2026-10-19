@@ -26,6 +26,9 @@ repos:
     hooks:
       - id: markdownlint
         args: [--fix]
+        # Proefinhoud voor tests/markdown.test.js, met opzet afwijkend: een
+        # codeblok met tildes en attribuutlijsten van Goldmark.
+        exclude: ^exampleSite/content/onderdelen/proef-ankers-markdown/
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.35.1
