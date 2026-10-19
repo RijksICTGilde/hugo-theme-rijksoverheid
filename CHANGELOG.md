@@ -84,7 +84,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   ([#27](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/27)).
 * Params `links.nieuw_venster`, `infoblok.kopniveau`, `search.threshold`,
   `search.max_results`, `search.section_weights`, `afzender`, `llms.secties`
-  en `og.afbeelding`.
+  (met `tekst` en `volledig`) en `og.afbeelding`.
+* Hooks `font-preload.html` en `head-extra.html` voor de head.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. `doc.go`, zodat Dependabot een site met dit
   theme kan bijwerken. `module.hugoVersion.min`.
@@ -115,6 +116,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   Engelse alt "Info icon" (WCAG 1.1.1). Een infoblok zonder titel noemt zijn
   type in verborgen tekst (WCAG 1.4.1).
 * De meta-description begint niet meer met een kop.
+* De 404-pagina heet "Pagina niet gevonden" in plaats van "404 Page not
+  found", ook in de titel en de deelgegevens.
 * De RSS-feed zet het pad niet dubbel bij een baseURL met submap.
 * De bijwerkinstructie van Fuse.js verwees naar een bestand dat sinds 7.3.0
   niet meer bestaat.
@@ -128,11 +131,24 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 ### Overstappen
 
 * Heb je eigen versies van `article.html`, `lastmod.html`, `scripts.html`,
-  `index.json` of `search.js`, vergelijk ze dan met deze versie. Een eigen
-  `search.js` moet `#search-status` vullen; een eigen `scripts.html` moet Fuse
-  laden via `js/fuse-global.js` met `js.Build`.
-* CSS op `blockquote.callout` wordt `.callout`; CSS op `.card-grid > article`
-  wordt `.card-grid > li`; CSS op `[data-theme]` wordt `[data-scheme]`.
+  `index.json` of `search.js`, vergelijk ze dan met deze versie:
+  * een eigen `scripts.html` laadt Fuse via `js/fuse-global.js` met
+    `js.Build` (`lib/fuse/fuse.min.js` bestaat niet meer, de build stopt) en
+    neemt `js/tooltip.js` op;
+  * een eigen `search.js` vult `#search-status`;
+  * een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
+    rechterkolom werkt alleen als `.page-aside` binnen `<article>`. Gebruik
+    `page-aside.html` en voor eigen blokken de hook `page-aside-extra.html`;
+  * `footer.html` toont "laatst bijgewerkt" nu zelf; haal een eigen aanroep
+    van `lastmod.html` in de artikelvoet weg, anders staat de zin er twee
+    keer.
+* Een eigen layout die `icon.html` aanroept met `toc-open`, `toc-close`,
+  `mail`, `sun` of `moon` stopt met een fout. Haal de aanroep weg of zet het
+  icoon in `static/images/icons/` van de site.
+* CSS op `blockquote.callout` wordt `.callout`; CSS op `[data-theme]` wordt
+  `[data-scheme]`. De kaartstijlen hangen aan `.card`: eigen kaart-markup
+  (`.card-grid > article`) krijgt `<article class="card">`. De opmaak van
+  `article > footer p` en `section > footer p` (gedempt en cursief) is weg.
 * Zet `markup.highlight.noClasses: false` en, voor de nieuwe uitvoer, de
   `outputs` uit de README. Gebruik `locale` in plaats van het verouderde
   `languageCode`.
