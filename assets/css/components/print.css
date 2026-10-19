@@ -79,8 +79,10 @@
   }
 
   /* Papier heeft geen link om op te klikken: toon waar een externe link heen
-     gaat. Het icoon van de scherm-weergave (masker) maakt plaats voor de URL. */
-  main a[rel~="external"]::after {
+     gaat. Het icoon van de scherm-weergave (masker) maakt plaats voor de URL.
+     Elke selector wint van een iconregel in base.css door de main ervoor. */
+  main a[rel~="external"]::after,
+  main a[target="_blank"][rel~="external"]:not([rel~="private"])::after {
     content: " (" attr(href) ")";
     display: inline;
     width: auto;

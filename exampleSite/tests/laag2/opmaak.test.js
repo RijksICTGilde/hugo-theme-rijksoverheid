@@ -166,3 +166,66 @@ describe("zoekvenster bij vergrote tekst (1.4.4)", () => {
     });
   }
 });
+
+describe("externe links in de afdruk", () => {
+  const linksOp = (page) =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("main a[href]")].map((a) => {
+        const stijl = getComputedStyle(a, "::after");
+        return {
+          href: a.getAttribute("href"),
+          rel: a.getAttribute("rel") ?? "",
+          content: stijl.content,
+          mask: stijl.maskImage,
+          display: stijl.display,
+        };
+      }),
+    );
+  const isExtern = (link) => /\bexternal\b/.test(link.rel);
+  const isBesloten = (link) => /\bprivate\b/.test(link.rel);
+
+  for (const [i, build] of BUILDS.entries()) {
+    test(`een externe of besloten link toont zijn URL zonder icoon (${build.naam})`, async () => {
+      const page = await open("/onderdelen/links/", { build: i, afdruk: true });
+      try {
+        const links = await linksOp(page);
+        const extern = links.filter(isExtern);
+        assert.ok(extern.some((link) => !isBesloten(link)), "geen gewone externe link op de pagina");
+        assert.ok(extern.some(isBesloten), "geen besloten link op de pagina");
+        const bevindingen = [];
+        for (const link of extern) {
+          if (link.content !== `" (${link.href})"`) bevindingen.push(`${link.href}: content ${link.content}`);
+          if (link.mask !== "none") bevindingen.push(`${link.href}: icoon (mask-image) blijft staan`);
+          if (link.display !== "inline") bevindingen.push(`${link.href}: display ${link.display}`);
+        }
+        assert.deepEqual(bevindingen, []);
+      } finally {
+        await page.close();
+      }
+    });
+
+    test(`een interne link krijgt geen URL achter zich (${build.naam})`, async () => {
+      const page = await open("/onderdelen/links/", { build: i, afdruk: true });
+      try {
+        const intern = (await linksOp(page)).filter((link) => !isExtern(link));
+        assert.ok(intern.length > 0, "geen interne links op de pagina");
+        assert.deepEqual(intern.filter((link) => link.content !== "none" && link.content !== "normal").map((link) => link.href), []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+
+  test("op het scherm houdt een externe link in een nieuw venster zijn icoon", async () => {
+    const nieuwVenster = BUILDS.findIndex((build) => build.nieuwVenster);
+    assert.notEqual(nieuwVenster, -1, "geen build met nieuw_venster: true");
+    const page = await open("/onderdelen/links/", { build: nieuwVenster });
+    try {
+      const extern = (await linksOp(page)).filter((link) => isExtern(link) && !isBesloten(link));
+      assert.ok(extern.length > 0, "geen gewone externe link op de pagina");
+      assert.deepEqual(extern.filter((link) => link.mask === "none").map((link) => link.href), []);
+    } finally {
+      await page.close();
+    }
+  });
+});
