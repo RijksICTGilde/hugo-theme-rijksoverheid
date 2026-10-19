@@ -8,7 +8,7 @@
 
        Gebruik: {{ $tekst = partial "infoblok-typenaam.html" (dict "alert" .AlertType "tekst" $tekst) }}
        of:      {{ $tekst = partial "infoblok-typenaam.html" (dict "variant" $variant "tekst" $tekst) }} */ -}}
-{{- $typenamen := dict "tip" "Tip" "important" "Belangrijk" "warning" "Waarschuwing" "caution" "Pas op" -}}
+{{- $typenamen := partial "infoblok-typenamen.html" . -}}
 {{- $soort := .alert -}}
 {{- with .variant -}}
   {{- $soort = index (dict "success" "tip" "warning" "warning" "danger" "caution") . -}}

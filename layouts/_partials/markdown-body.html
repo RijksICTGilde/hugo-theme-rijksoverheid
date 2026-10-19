@@ -62,9 +62,9 @@
 {{- /* Regel voor regel, met de binnenkant van codeblokken met hekken
        ongemoeid: een alert wordt een citaat met de typenaam vet vooraan,
        {ref:N} en de attribuutlijsten van Goldmark ({#id}, {.klasse},
-       {naam="..."}) vallen weg. De typenamen zijn die van
-       render-blockquote.html; note en info hebben er geen. */ -}}
-{{- $typenamen := dict "tip" "Tip" "important" "Belangrijk" "warning" "Waarschuwing" "caution" "Pas op" -}}
+       {naam="..."}) vallen weg. De typenamen zijn die van de HTML; note en
+       info hebben er geen. */ -}}
+{{- $typenamen := partial "infoblok-typenamen.html" . -}}
 {{- $attributen := `\{[ \t]*(?:[#.][^{}\n]*|[A-Za-z_:][\w:.-]*[ \t]*=[^{}\n]*)\}` -}}
 {{- $losseAttributen := printf `^[ \t>]*%s[ \t]*$` $attributen -}}
 {{- $kopAttributen := printf `^([ \t>]*#{1,6}[ \t].*?)[ \t]*%s[ \t]*$` $attributen -}}

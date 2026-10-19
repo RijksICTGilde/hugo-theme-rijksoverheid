@@ -17,11 +17,11 @@ const PROEF = "onderdelen/proef-ankers-markdown";
 
 const bron = (pad) => readFileSync(join(EXAMPLE_DIR, "content", pad, "index.md"), "utf8");
 
-/** De typenamen uit render-blockquote.html, zodat de Markdown en de HTML dezelfde namen gebruiken. */
+/** De typenamen uit infoblok-typenamen.html, de tabel van zowel de HTML als de Markdown. */
 function typenamen() {
-  const template = readFileSync(join(THEME_DIR, "layouts/_markup/render-blockquote.html"), "utf8");
-  const dict = template.match(/\$typenamen := dict ((?:"[^"]*"\s*)+)/);
-  assert.ok(dict, "geen $typenamen in render-blockquote.html");
+  const template = readFileSync(join(THEME_DIR, "layouts/_partials/infoblok-typenamen.html"), "utf8");
+  const dict = template.match(/return dict ((?:"[^"]*"\s*)+)/);
+  assert.ok(dict, "geen dict met typenamen in infoblok-typenamen.html");
   return Object.fromEntries([...dict[1].matchAll(/"([^"]*)"\s+"([^"]*)"/g)].map((m) => [m[1], m[2]]));
 }
 
@@ -64,7 +64,7 @@ for (const build of builds()) {
       return readFileSync(bestand, "utf8");
     };
 
-    test("een alert wordt een citaat met de typenaam uit render-blockquote.html", () => {
+    test("een alert wordt een citaat met de typenaam uit infoblok-typenamen.html", () => {
       const namen = typenamen();
       assert.ok(Object.keys(namen).length >= 4, "verwacht minstens vier typenamen");
       const regels = lees(LANGE_PAGINA).split("\n");
