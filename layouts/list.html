@@ -1,12 +1,20 @@
 {{ define "main" }}
-{{ if .Params.manual_layout }}
+{{- /* hide_tiles is de naam die moza-site gebruikt. */ -}}
+{{ if or .Params.manual_layout .Params.hide_tiles }}
   {{- partial "article.html" . -}}
 {{ else }}
 <section>
   <h1>{{ .Title }}</h1>
-  {{ .Content }}
+  {{ partial "inhoud.html" .Content }}
   {{ with .Pages.ByWeight }}
-  {{ partial "card-grid.html" . }}
+  {{- /* De kaartkoppen komen een niveau onder de laatste kop in de tekst;
+         de voetnoten tellen niet mee. */ -}}
+  {{- $inhoud := index (split $.Content `<div class="footnotes"`) 0 -}}
+  {{- $niveau := 2 -}}
+  {{- with findRE `<h[1-6][ >]` $inhoud -}}
+    {{- $niveau = int (math.Min 6 (add 1 (int (substr (index . (sub (len .) 1)) 2 1)))) -}}
+  {{- end -}}
+  {{ partial "card-grid.html" (dict "paginas" . "niveau" $niveau) }}
   {{ end }}
 </section>
 {{ end }}

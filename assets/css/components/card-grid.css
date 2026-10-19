@@ -1,26 +1,36 @@
+/* minmax(0, 1fr) in plaats van 1fr: een lang woord mag een kolom niet breder
+   maken dan het raster (WCAG 1.4.10). */
 .card-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0;
   padding-top: 1rem;
   padding-bottom: 1rem;
+  padding-inline: 0;
+  list-style: none;
+
+  > li {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+  }
 
   @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (min-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .card-grid.columns-2 {
   @media (min-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.card-grid.boxed > article,
 .card-grid.boxed .card {
   padding: 1rem 1.5rem;
   background-color: var(--color-bg-page);
@@ -29,38 +39,33 @@
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.card-grid.boxed > article:hover,
-.card-grid.boxed > article:focus-within,
 .card-grid.boxed .card:hover,
 .card-grid.boxed .card:focus-within {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border-color: var(--color-primary);
 }
 
-.card-grid.clickable > article,
 .card-grid.clickable .card {
   position: relative;
 
-  header h2 {
+  header :is(h2, h3, h4, h5, h6) {
     position: static;
   }
 }
 
-.card-grid.clickable > article:hover header h2 a,
-.card-grid.clickable > article:focus-within header h2 a,
-.card-grid.clickable .card:hover header h2 a,
-.card-grid.clickable .card:focus-within header h2 a {
+.card-grid.clickable .card:hover header a,
+.card-grid.clickable .card:focus-within header a {
   text-decoration: underline;
 }
 
-.card-grid > article header h2 a,
-.card header h2 a {
+.card header a {
   color: var(--color-primary);
 }
 
-.card-grid > article,
 .card {
   width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
 
   header {
     img {
@@ -68,7 +73,7 @@
       object-fit: contain;
     }
 
-    h2 {
+    :is(h2, h3, h4, h5, h6) {
       position: relative;
       margin: 0;
       font-size: 1.1em;
