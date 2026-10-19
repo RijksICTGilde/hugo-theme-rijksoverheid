@@ -56,6 +56,8 @@
   --color-border: light-dark(var(--theme-neutral-75), var(--theme-neutral-200));
   /* Rand van een bedieningselement (bijvoorbeeld een invoerveld): minstens 3:1 tegen de pagina */
   --color-border-strong: var(--theme-neutral-500);
+  /* Rand van een zwevend vlak (tooltip, themapaneel, toast): minstens 3:1 tegen de pagina en het vlak zelf */
+  --color-border-surface: var(--color-text-muted);
 
   /* Markering van de zoekterm, NLDD's mark-semantiek (donkergeel) */
   --color-highlight: light-dark(var(--primitives-color-mark-100), var(--primitives-color-mark-200));

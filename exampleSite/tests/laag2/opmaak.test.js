@@ -109,6 +109,48 @@ describe("zoekfilters (1.4.11)", () => {
   }
 });
 
+describe("zwevende vlakken (1.4.11)", () => {
+  for (const schema of ["light", "dark"]) {
+    test(`tooltip, themapaneel en toast hebben dezelfde rand van minstens 3:1 (${schema})`, async () => {
+      // Het diagram heeft een knop met data-tooltip; zonder zo'n element maakt tooltip.js geen ballon.
+      const page = await open(`/onderdelen/diagram/?scheme=${schema}`);
+      try {
+        const vlakken = await page.evaluate(() => {
+          const stijl = (selector) => {
+            const element = document.querySelector(selector);
+            if (!element) return null;
+            const s = getComputedStyle(element);
+            return { rand: s.borderTopColor, breedte: s.borderTopWidth, vlak: s.backgroundColor };
+          };
+          return {
+            tooltip: stijl(".tooltip"),
+            themapaneel: stijl(".theme-options"),
+            toast: stijl(".toast"),
+            pagina: getComputedStyle(document.body).backgroundColor,
+          };
+        });
+        const bevindingen = [];
+        for (const naam of ["tooltip", "themapaneel", "toast"]) {
+          const vlak = vlakken[naam];
+          if (!vlak) {
+            bevindingen.push(`${naam}: niet in de pagina`);
+            continue;
+          }
+          if (vlak.breedte === "0px") bevindingen.push(`${naam}: geen rand`);
+          if (vlak.rand !== vlakken.tooltip?.rand) bevindingen.push(`${naam}: rand ${vlak.rand} wijkt af van de tooltip`);
+          for (const [tegen, kleur] of [["het vlak", vlak.vlak], ["de pagina", vlakken.pagina]]) {
+            const verhouding = await contrast(page, vlak.rand, kleur);
+            if (verhouding < 3) bevindingen.push(`${naam}: rand tegen ${tegen} ${verhouding.toFixed(2)}:1`);
+          }
+        }
+        assert.deepEqual(bevindingen, []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("zoekmarkering (1.3.1, 4.1.2)", () => {
   test("gegenereerde tekst komt niet in de naam van een kop of link", async () => {
     const page = await open("/onderdelen/links/?q=pagina");
