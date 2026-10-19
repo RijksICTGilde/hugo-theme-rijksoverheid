@@ -54,4 +54,14 @@
   .mermaid-download {
     display: none;
   }
+
+  /* Papier is wit, ook bij het donkere thema. !important wint van de
+     schermregels voor donker, die specifieker zijn. */
+  .mermaid-diagram .mermaid-img--light {
+    display: block !important;
+  }
+
+  .mermaid-diagram .mermaid-img--dark {
+    display: none !important;
+  }
 }

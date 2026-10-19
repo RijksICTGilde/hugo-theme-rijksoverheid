@@ -39,14 +39,21 @@ after(async () => {
  * van de browser (niet `html { font-size }`): een mediaquery in rem rekent
  * ertegen en schaalt dus mee.
  */
-async function open(route, { build = 0, breedte = 1280, hoogte = 900, wortel, afdruk = false } = {}) {
+async function open(route, { build = 0, breedte = 1280, hoogte = 900, wortel, afdruk = false, voorkeur } = {}) {
   const page = await browser.newPage();
   if (wortel) {
     const cdp = await page.createCDPSession();
     await cdp.send("Page.setFontSizes", { fontSizes: { standard: wortel, fixed: wortel } });
   }
   await page.setViewport({ width: breedte, height: hoogte });
-  if (afdruk) await page.emulateMediaType("print");
+  if (afdruk || voorkeur) {
+    // Via CDP in één keer: emulateMediaType en emulateMediaFeatures van puppeteer heffen elkaar op.
+    const cdp = await page.createCDPSession();
+    await cdp.send("Emulation.setEmulatedMedia", {
+      media: afdruk ? "print" : "",
+      features: voorkeur ? [{ name: "prefers-color-scheme", value: voorkeur }] : [],
+    });
+  }
   await page.goto(baseUrls[build] + route, { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
   return page;
@@ -224,6 +231,42 @@ describe("externe links in de afdruk", () => {
       const extern = (await linksOp(page)).filter((link) => isExtern(link) && !isBesloten(link));
       assert.ok(extern.length > 0, "geen gewone externe link op de pagina");
       assert.deepEqual(extern.filter((link) => link.mask === "none").map((link) => link.href), []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("diagram in de afdruk", () => {
+  const welke = (page) =>
+    page.evaluate(() => {
+      const toon = (selector) => [...document.querySelectorAll(selector)].map((img) => getComputedStyle(img).display);
+      return { licht: toon(".mermaid-img--light"), donker: toon(".mermaid-img--dark") };
+    });
+
+  for (const [naam, route, voorkeur] of [
+    ["data-scheme dark", "/onderdelen/diagram/?scheme=dark", null],
+    ["prefers-color-scheme dark", "/onderdelen/diagram/", "dark"],
+  ]) {
+    test(`toont altijd de lichte variant, ook bij ${naam}`, async () => {
+      const page = await open(route, { afdruk: true, voorkeur });
+      try {
+        const { licht, donker } = await welke(page);
+        assert.ok(licht.length > 0, "geen diagram op de pagina");
+        assert.deepEqual([...new Set(licht)], ["block"], "de lichte variant is verborgen");
+        assert.deepEqual([...new Set(donker)], ["none"], "de donkere variant staat zichtbaar");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+
+  test("op het scherm volgt het diagram wel het donkere schema", async () => {
+    const page = await open("/onderdelen/diagram/?scheme=dark");
+    try {
+      const { licht, donker } = await welke(page);
+      assert.deepEqual([...new Set(licht)], ["none"]);
+      assert.deepEqual([...new Set(donker)], ["block"]);
     } finally {
       await page.close();
     }
