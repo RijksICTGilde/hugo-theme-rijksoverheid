@@ -52,6 +52,56 @@ async function open(route, { build = 0, breedte = 1280, hoogte = 900, wortel, af
   return page;
 }
 
+/**
+ * Contrastverhouding (WCAG) van twee CSS-kleuren. De browser zet ze zelf om
+ * naar sRGB, dus ook oklch en light-dark() uit de tokens.
+ */
+function contrast(page, voor, achter) {
+  return page.evaluate(
+    (a, b) => {
+      const canvas = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+      const luminantie = (kleur) => {
+        canvas.clearRect(0, 0, 1, 1);
+        canvas.fillStyle = kleur;
+        canvas.fillRect(0, 0, 1, 1);
+        const [r, g, b] = Array.from(canvas.getImageData(0, 0, 1, 1).data.slice(0, 3), (n) => {
+          const c = n / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const [licht, donker] = [luminantie(a), luminantie(b)].sort((x, y) => y - x);
+      return (licht + 0.05) / (donker + 0.05);
+    },
+    voor,
+    achter,
+  );
+}
+
+describe("zoekfilters (1.4.11)", () => {
+  for (const schema of ["light", "dark"]) {
+    test(`de rand van een filterknop haalt 3:1 tegen het zoekvenster (${schema})`, async () => {
+      const page = await open(`/?scheme=${schema}`);
+      try {
+        const kleuren = await page.evaluate(() => {
+          const filter = document.querySelector(".search-filter:not(.active)");
+          const stijl = getComputedStyle(filter);
+          return {
+            rand: stijl.borderTopColor,
+            randBreedte: stijl.borderTopWidth,
+            venster: getComputedStyle(document.querySelector(".search-modal-content")).backgroundColor,
+          };
+        });
+        assert.notEqual(kleuren.randBreedte, "0px", "de filterknop heeft geen rand");
+        const verhouding = await contrast(page, kleuren.rand, kleuren.venster);
+        assert.ok(verhouding >= 3, `rand ${kleuren.rand} tegen ${kleuren.venster}: ${verhouding.toFixed(2)}:1`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("zoekmarkering (1.3.1, 4.1.2)", () => {
   test("gegenereerde tekst komt niet in de naam van een kop of link", async () => {
     const page = await open("/onderdelen/links/?q=pagina");

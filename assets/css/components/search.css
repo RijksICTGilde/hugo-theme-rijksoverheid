@@ -63,7 +63,7 @@
   font-weight: normal;
   white-space: nowrap;
   background-color: var(--color-bg-muted);
-  border-color: var(--color-bg-muted);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
 }
 
