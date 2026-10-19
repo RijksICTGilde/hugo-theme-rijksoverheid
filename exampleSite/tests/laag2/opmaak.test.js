@@ -109,6 +109,40 @@ describe("zoekfilters (1.4.11)", () => {
   }
 });
 
+describe("knoppen en de volgorde van de bestanden", () => {
+  test("een klasse met toestand wint van de hover van een kale button, ook als zijn regel eerder in de bundel staat", async () => {
+    const page = await open("/");
+    try {
+      await page.evaluate(() => {
+        // Voor de bundel: bij gelijke specificiteit zou de basisregel in button.css winnen.
+        const stijl = document.createElement("style");
+        stijl.textContent =
+          ".proef:hover { background-color: rgb(1, 2, 3); } .proef.actief { background-color: rgb(4, 5, 6); }";
+        document.head.insertBefore(stijl, document.head.querySelector('link[rel="stylesheet"]'));
+        for (const klasse of ["proef", "proef actief"]) {
+          const knop = document.createElement("button");
+          knop.type = "button";
+          knop.className = klasse;
+          knop.textContent = klasse;
+          document.querySelector("main").append(knop);
+        }
+      });
+      const bij = async (selector, verwacht) => {
+        await page.hover(selector);
+        // De basis heeft een overgang van 0,15s; wacht tot de kleur is aangekomen.
+        await page
+          .waitForFunction((s, kleur) => getComputedStyle(document.querySelector(s)).backgroundColor === kleur, { timeout: 800 }, selector, verwacht)
+          .catch(() => {});
+        return page.evaluate((s) => getComputedStyle(document.querySelector(s)).backgroundColor, selector);
+      };
+      assert.equal(await bij("button.proef:not(.actief)", "rgb(1, 2, 3)"), "rgb(1, 2, 3)", "de hover van de klasse verliest van de basis");
+      assert.equal(await bij("button.proef.actief", "rgb(4, 5, 6)"), "rgb(4, 5, 6)", "de klasse met toestand verliest van de hover van de basis");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("kruimelpad in de voet", () => {
   for (const breedte of [1280, 375]) {
     test(`de eerste link staat op de linkerrand van de rest van de voet bij ${breedte}px`, async () => {
