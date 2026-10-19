@@ -1,5 +1,6 @@
 {{- /* llms.txt: hoofdpagina's uit het menu main, de secties uit params.llms.secties
-       (lijst met sectie, kop en optioneel limiet) en het menu footer-rechts. */ -}}
+       (lijst met sectie, kop en optioneel limiet, tekst en volledig) en het menu
+       footer-rechts. */ -}}
 # {{ .Site.Title }}
 
 > {{ .Site.Params.description | default .Site.Title }}
@@ -19,6 +20,10 @@
 {{- with .limiet }}{{ $paginas = first . $paginas }}{{ end }}
 
 ## {{ .kop | default .sectie }}
+{{- with .tekst }}
+
+{{ . }}
+{{ end }}
 {{- range $paginas }}
 - [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .RelPermalink }}{{ else }}{{ .RelPermalink }}{{ end }}){{ with .Description }}: {{ . }}{{ end }}
 {{- end }}

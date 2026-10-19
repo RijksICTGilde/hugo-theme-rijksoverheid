@@ -118,7 +118,7 @@ Alles is optioneel.
 | `search.threshold` | `0.3` | Hoe streng Fuse.js zoekt: 0 is exact, 1 is alles |
 | `search.max_results` | `10` | Aantal resultaten; 0 is alles |
 | `search.section_weights` | | Factor per sectie op de zoekscore; onder 1 komt een sectie eerder |
-| `llms.secties` | | Secties in `llms.txt`, als lijst met `sectie`, `kop` en optioneel `limiet` |
+| `llms.secties` | | Secties in `llms.txt`, als lijst met `sectie`, `kop` en optioneel `limiet`, `tekst` (een regel onder de kop) en `volledig: false` (niet in `llms-full.txt`) |
 | `og.afbeelding` | `favicon-192x192.png` | Deelafbeelding van 1200 bij 630 pixels |
 | `back_to_top` | `false` | Knop "naar boven" op lange pagina's |
 | `page_banner.type`, `.strong`, `.text` | | Melding boven aan elke pagina |

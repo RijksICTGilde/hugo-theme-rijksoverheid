@@ -1,5 +1,6 @@
 {{- /* llms-full.txt: de inhoud van de hoofdpagina's uit het menu main en van de
-       secties uit params.llms.secties (lijst met sectie, kop en optioneel limiet). */ -}}
+       secties uit params.llms.secties (lijst met sectie, kop en optioneel limiet
+       en tekst); een sectie met volledig: false staat alleen in llms.txt. */ -}}
 # {{ .Site.Title }}
 
 > {{ .Site.Params.description | default .Site.Title }}
@@ -20,14 +21,20 @@
 {{- end }}
 {{- end }}
 {{- range site.Params.llms.secties }}
+{{- if ne .volledig false }}
 {{- $paginas := where site.RegularPages "Section" .sectie }}
 {{- with .limiet }}{{ $paginas = first . $paginas }}{{ end }}
 
 # {{ .kop | default .sectie }}
+{{- with .tekst }}
+
+{{ . }}
+{{- end }}
 {{- range $paginas }}
 
 ## {{ .Title }}
 
 {{ partial "markdown-body" . }}
+{{- end }}
 {{- end }}
 {{- end }}

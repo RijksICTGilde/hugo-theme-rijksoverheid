@@ -169,6 +169,13 @@ for (const build of builds()) {
         assert.ok(lees1("llms-full.txt"), "llms-full.txt ontbreekt");
       });
 
+      test("llms.secties: tekst onder de kop, en volledig: false alleen in llms.txt", () => {
+        assert.match(lees1("llms.txt"), /^## Nieuws\n\nDe drie nieuwste berichten\.\n\n- \[/m);
+        const vol = lees1("llms-full.txt");
+        assert.match(vol, /^# Onderdelen van het theme$/m);
+        assert.doesNotMatch(vol, /^# Nieuws$/m, "de sectie nieuws heeft volledig: false");
+      });
+
       test("elke pagina heeft een markdown-uitvoer en een verwijzing ernaar", () => {
         assert.ok(lees1("onderdelen/lange-pagina/index.md"), "onderdelen/lange-pagina/index.md ontbreekt");
         const html = pagina("/onderdelen/lange-pagina/");

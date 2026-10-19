@@ -200,7 +200,9 @@ params:
         kop: Onderdelen van het theme
       - sectie: nieuws
         kop: Nieuws
+        tekst: De drie nieuwste berichten.
         limiet: 3
+        volledig: false
 
   og:
     afbeelding: images/deelafbeelding.png
