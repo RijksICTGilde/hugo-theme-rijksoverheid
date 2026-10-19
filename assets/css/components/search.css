@@ -111,6 +111,21 @@
   font-weight: 600;
 }
 
+/* Rand boven de lijst alleen als er resultaten zijn */
+.search-results:not(:empty) {
+  position: relative;
+}
+
+.search-results:not(:empty)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 1px;
+  background-color: var(--color-border);
+}
+
 .search-modal-header .search-icon {
   width: 1.25rem;
   height: 1.25rem;
@@ -169,10 +184,11 @@
   transition: background-color 0.15s ease;
 }
 
-.search-result-item::before {
+/* Tekstbrede scheidingslijn onder elk resultaat, behalve het laatste */
+.search-result-item::after {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 1rem;
   right: 1rem;
   height: 1px;
@@ -180,7 +196,7 @@
   transition: background-color 0.15s ease;
 }
 
-.search-results li:first-child .search-result-item::before {
+.search-results li:last-child .search-result-item::after {
   display: none;
 }
 
@@ -191,13 +207,14 @@
   outline: none;
 }
 
-.search-result-item:hover::before,
-.search-result-item:focus-visible::before {
+.search-result-item:hover::after,
+.search-result-item:focus-visible::after {
   background-color: var(--color-bg-info);
 }
 
-.search-results li:has(.search-result-item:hover) + li .search-result-item::before,
-.search-results li:has(.search-result-item:focus-visible) + li .search-result-item::before {
+/* De lijn van het vorige resultaat verdwijnt mee bij hover en focus */
+.search-results li:has(+ li .search-result-item:hover) .search-result-item::after,
+.search-results li:has(+ li .search-result-item:focus-visible) .search-result-item::after {
   background-color: var(--color-bg-page);
 }
 
@@ -230,9 +247,22 @@
 
 .search-result-snippet mark,
 .search-result-title mark,
-#main-content mark[data-search-highlight] {
+mark[data-search-highlight] {
   background-color: var(--color-highlight);
   color: var(--color-highlight-text);
+}
+
+/* Chrome en Safari geven <mark> geen rol, dus een schermlezer hoort de
+   markering niet. Verborgen gegenereerde tekst meldt hem wel, en blijft uit
+   een kopie van de tekst. */
+mark[data-search-highlight]::before {
+  content: "gemarkeerd: ";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .search-no-results {
