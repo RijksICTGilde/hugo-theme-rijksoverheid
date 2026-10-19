@@ -18,14 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PARSER_VERSION: v5.3.1
+      # Uit checksums.txt van de release.
+      PARSER_SHA256: ed5b75ebe3fc3f6c29f925d8acc132e381769690cada3b40680406b9ec64fedf
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Installeer publiccode-parser
         run: |
           set -euo pipefail
           url="https://github.com/italia/publiccode-parser-go/releases/download/${PARSER_VERSION}/publiccode-parser-go_Linux_x86_64.tar.gz"
           curl -fsSL -o /tmp/pcparser.tar.gz "$url"
+          echo "${PARSER_SHA256}  /tmp/pcparser.tar.gz" | sha256sum --check
           tar -xzf /tmp/pcparser.tar.gz -C /tmp
           sudo install /tmp/publiccode-parser /usr/local/bin/publiccode-parser
           publiccode-parser --version
