@@ -100,7 +100,8 @@
       activeFilter = filterButtons[0].dataset.section || '';
     }
 
-    if (opener && document.contains(opener) && typeof opener.focus === 'function') {
+    // Bij Ctrl+K vanaf de pagina zelf is de opener <body>; dan herstelt de dialoog de focus zelf.
+    if (opener && opener !== document.body && document.contains(opener) && typeof opener.focus === 'function') {
       opener.focus();
     }
     opener = null;

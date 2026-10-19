@@ -326,6 +326,54 @@ describe("hash met een niet-ASCII id (referenties.js)", () => {
   });
 });
 
+describe("focus na het sluiten van het zoekvenster (2.4.3)", () => {
+  /** Telt de aanroepen van focus(): body.focus() doet in Chromium niets zichtbaars, maar hoort er niet te zijn. */
+  async function metFocusTeller() {
+    const page = await browser.newPage();
+    await page.setViewport(BREED);
+    await page.evaluateOnNewDocument(() => {
+      window.focusOp = [];
+      const focus = HTMLElement.prototype.focus;
+      HTMLElement.prototype.focus = function (...args) {
+        window.focusOp.push(this === document.body ? "body" : this.tagName.toLowerCase());
+        return focus.apply(this, args);
+      };
+    });
+    await page.goto(`${baseUrl}/`, { waitUntil: "load" });
+    return page;
+  }
+
+  test("een venster dat met Ctrl+K vanaf de pagina opende zet de focus niet op <body>", async () => {
+    const page = await metFocusTeller();
+    try {
+      await page.keyboard.down("Control");
+      await page.keyboard.press("k");
+      await page.keyboard.up("Control");
+      assert.ok(await wacht(() => zoekvenster.isOpen(page)), "Ctrl+K opent het zoekvenster niet");
+      await page.keyboard.press("Escape");
+      assert.ok(await wacht(() => zoekvenster.isOpen(page), false), "Escape sluit het zoekvenster niet");
+      await pauze();
+      assert.deepEqual(await page.evaluate(() => window.focusOp), [], "bij het sluiten is focus() aangeroepen");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een venster dat met de zoekknop opende geeft die knop de focus terug", async () => {
+    const page = await metFocusTeller();
+    try {
+      const knop = await zoekvenster.open(page);
+      await page.keyboard.press("Escape");
+      assert.ok(await wacht(() => zoekvenster.isOpen(page), false), "Escape sluit het zoekvenster niet");
+      await pauze();
+      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de zoekknop");
+      assert.ok((await page.evaluate(() => window.focusOp)).includes("button"), "search.js zet de focus niet zelf terug");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("zoekindex met afwijkende items (search-index-extra.html)", () => {
   const MELDING = "Zoeken lukt nu niet. Probeer het later opnieuw.";
   const EXTRA = [
