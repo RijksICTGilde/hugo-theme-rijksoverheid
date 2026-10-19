@@ -1,6 +1,6 @@
 # Deze repository volgt de publiccode.yml-standaard om publieke
 # software vindbaar te maken. Meer info: https://yml.publiccode.tools/
-publiccodeYmlVersion: "0.4.0"
+publiccodeYmlVersion: "0"
 
 name: Hugo theme voor de Rijksoverheid
 url: "https://github.com/RijksICTGilde/hugo-theme-rijksoverheid"
@@ -15,34 +15,43 @@ categories:
 
 developmentStatus: beta
 
+organisation:
+  name: Rijks ICT Gilde
+  uri: "https://github.com/RijksICTGilde"
+
 description:
   nl:
     shortDescription: >
-      Hugo theme dat de visuele en functionele basis levert voor sites in
-      de stijl van de Rijksoverheid.
+      Hugo theme voor websites in de stijl van de Rijksoverheid, met de
+      kleuren, het lettertype en de iconen van het NLDD Designsysteem.
     longDescription: >
-      Dit Hugo theme biedt een herbruikbare basis voor het publiceren van
-      websites in de visuele stijl van de Rijksoverheid. Het levert
-      layouts, design tokens, componenten (cards, callouts, references,
-      page banners, breadcrumbs, table of contents, zoek) en een
-      JavaScript bundel met fuzzy search. Consumer sites brengen hun eigen
-      content en optionele tokens en componenten mee.
+      Dit Hugo theme is een herbruikbare basis voor websites in de stijl van
+      de Rijksoverheid. Het levert layouts, de kleuren, het lettertype en de
+      iconen van het NLDD Designsysteem, componenten (kaarten, infoblokken,
+      een rechterkolom met inhoudsopgave, tabellen en Mermaid-diagrammen), een
+      sitebrede zoekfunctie en uitvoer voor taalmodellen (llms.txt en Markdown
+      per pagina). Sites brengen hun eigen inhoud mee en, waar nodig, een eigen
+      stylesheet.
 
-      Toegepaste standaarden zijn semantische HTML, WCAG 2.2 AA, dark mode
-      via prefers-color-scheme en CSP-vriendelijke asset bundling. Het
-      theme is gepubliceerd onder de EUPL 1.2 en bedoeld voor hergebruik
-      door overheidsorganisaties.
+      Het theme mikt op WCAG 2.2 niveau AA, werkt onder een strikte Content
+      Security Policy en doet geen verzoeken naar andere domeinen. De
+      toegankelijkheid van een site en de toegankelijkheidsverklaring blijven
+      de verantwoordelijkheid van die site.
+
+      De code staat onder de EUPL 1.2. Het lettertype RijksSans, het Rijkslogo
+      en de huisstijl zijn alleen bedoeld voor de Rijksoverheid; de README legt
+      uit hoe een andere organisatie ze vervangt.
     features:
-      - Layout en typografie in Rijksoverheid huisstijl
-      - Design tokens via CSS custom properties
-      - Herbruikbare componenten en shortcodes
-      - Site brede zoekfunctie met Fuse.js
-      - Dark mode en respect voor prefers-reduced-motion
+      - Kleuren, lettertype en iconen uit het NLDD Designsysteem
+      - Licht en donker, met een keuze voor de bezoeker
+      - Componenten en shortcodes voor kaarten, infoblokken en tabellen
+      - Sitebrede zoekfunctie met Fuse.js, zonder externe dienst
+      - Uitvoer voor taalmodellen en een RSS-feed met de volledige inhoud
+      - Strikte Content Security Policy, zonder inline scripts of stijlen
 
 legal:
   license: EUPL-1.2
   mainCopyrightOwner: RijksICTGilde
-  repoOwner: RijksICTGilde
 
 intendedAudience:
   countries:
@@ -63,7 +72,7 @@ maintenance:
 
 dependsOn:
   open:
-    - name: Hugo Extended
+    - name: Hugo
       versionMin: "0.162.0"
     - name: Go
       versionMin: "1.26"
