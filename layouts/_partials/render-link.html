@@ -5,7 +5,8 @@
     - href: De URL
     - text: De linktekst
     - title: (optioneel) Title attribuut
-    - private: (optioneel) Markeer als besloten link via {.private} in Markdown
+    - private: (optioneel) Markeer als besloten link; in Markdown met de
+      linktitel "besloten" of "private": [tekst](url "besloten")
 
   Externe links openen standaard in hetzelfde tabblad, met
   rel="external noreferrer". Met params.links.nieuw_venster: true openen
@@ -15,8 +16,9 @@
   beschikbaar (WCAG 1.3.1).
 
   Besloten links krijgen een slot-icoon (CSS) en de verborgen melding
-  "(besloten omgeving)". Een link is besloten als {.private} is meegegeven in
-  Markdown, of automatisch bij samenwerkruimten.nl en digilab.overheid.nl/chat.
+  "(besloten omgeving)". Een link is besloten met de linktitel "besloten" of
+  "private" (Hugo kent geen attributen op een inline link), of automatisch bij
+  samenwerkruimten.nl en digilab.overheid.nl/chat.
 
   Klasse nieuw-venster-melding is de haak voor wie er zelf een aria-label
   omheen zet: dat overschrijft deze tekst. meta.html en index.json filteren

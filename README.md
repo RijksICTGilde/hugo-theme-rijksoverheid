@@ -180,8 +180,10 @@ uit de laatste kop in de tekst van de sectie.
 
 - **Links.** Een externe link opent in hetzelfde tabblad. Met
   `params.links.nieuw_venster: true` opent hij in een nieuw venster, met een
-  verborgen melding en een icoon. Een link naar een besloten omgeving
-  (`{.private}`) krijgt een slot en een verborgen melding.
+  verborgen melding en een icoon. Een link naar een besloten omgeving krijgt
+  een slot en een verborgen melding. Markeer hem met de linktitel `besloten`:
+  `[Werkruimte](https://... "besloten")`. Links naar samenwerkruimten.nl en
+  de chat op digilab.overheid.nl herkent het theme zelf.
 - **Infoblokken.** GitHub-alerts worden een infoblok met een echte kop:
   `> [!NOTE]` en `> [!INFO]` worden info, `> [!TIP]` succes, `> [!IMPORTANT]` en
   `> [!WARNING]` waarschuwing, `> [!CAUTION]` gevaar. Een titel zet je achter het
