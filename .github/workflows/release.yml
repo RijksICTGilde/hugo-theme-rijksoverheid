@@ -32,6 +32,16 @@ jobs:
             exit 1
           fi
 
+      - name: Controleer dat de tag op main staat
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse "${TAG_NAME}^{commit}")"
+          if ! git merge-base --is-ancestor "$commit" origin/main; then
+            echo "Tag ${TAG_NAME} (${commit}) staat niet op origin/main." >&2
+            echo "Merge de wijziging naar main en tag daarna opnieuw." >&2
+            exit 1
+          fi
+
       - name: Haal changelog-sectie op
         run: |
           set -euo pipefail
@@ -51,6 +61,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+          flags=()
+          # Een tag met een streepje (v0.3.0-rc1) is een prerelease en wordt niet "laatste release".
+          case "$TAG_NAME" in
+            *-*) flags+=(--prerelease) ;;
+          esac
           gh release create "$TAG_NAME" \
             --title "$TAG_NAME" \
-            --notes-file release-notes.md
+            --notes-file release-notes.md \
+            ${flags[@]+"${flags[@]}"}
