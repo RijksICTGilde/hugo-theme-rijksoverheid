@@ -12,7 +12,8 @@ hero:
 
 {{< card-grid section="onderdelen" >}}
 
-> [!INFO] Waarom deze site?
-> Deze site is geen echte dienst. De teksten zijn verzonnen. We gebruiken de site om te controleren dat het theme toegankelijk, veilig en stabiel is.
->
-> Wil je iets weten over een onderdeel? Lees dan de [lange pagina](/onderdelen/lange-pagina) of ga naar het [overzicht van alle onderdelen](/onderdelen).
+{{< callout titel="Waarom deze site?" variant="info" kopniveau="2" >}}
+Deze site is geen echte dienst. De teksten zijn verzonnen. We gebruiken de site om te controleren dat het theme toegankelijk, veilig en stabiel is.
+
+Wil je iets weten over een onderdeel? Lees dan de [lange pagina](/onderdelen/lange-pagina) of ga naar het [overzicht van alle onderdelen](/onderdelen).
+{{< /callout >}}
