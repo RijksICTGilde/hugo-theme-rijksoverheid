@@ -108,6 +108,9 @@ menus:
     - name: Pagina zonder kopje
       pageRef: /onderdelen/zonder-inhoudsopgave
       weight: 6
+    - name: Buiten de zoekindex
+      pageRef: /onderdelen/buiten-de-zoekindex
+      weight: 7
 
   footer-links:
     - name: Nieuws
