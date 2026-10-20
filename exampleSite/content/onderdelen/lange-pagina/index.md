@@ -32,7 +32,7 @@ Dit is de inleiding van een lange pagina. Hier staat veel op één plek, zodat w
 
 Sommige woorden komen uit het Engels. Een goed voorbeeld is <span lang="en">accessibility statement</span>, wat in het Nederlands een toegankelijkheidsverklaring heet. Ook de afkorting <abbr title="Web Content Accessibility Guidelines" lang="en">WCAG</abbr> is Engels. Een schermlezer leest zulke woorden met een Nederlandse stem voor, tenzij we de taal aangeven.
 
-Tot slot een paar tekens: een vinkje ✅ en een raket 🚀 staan gewoon in de tekst. Een schermlezer leest ze voor met hun eigen naam. De emoji {{< emoji teken="🚫" aria-label="Kan beter" >}} heeft een eigen tekst voor schermlezers, en {{< emoji teken="💡" aria-hidden=true >}} wordt niet voorgelezen.
+Tot slot een paar tekens: een vinkje ✅ en een raket 🚀 staan gewoon in de tekst. Een schermlezer leest ze voor met hun eigen naam. De emoji {{< emoji teken="🚫" aria-label="Kan beter" >}} heeft een eigen tekst voor schermlezers, en het lampje {{< emoji teken="💡" aria-hidden=true >}} wordt niet voorgelezen.
 
 ## Tekst en lijsten
 
