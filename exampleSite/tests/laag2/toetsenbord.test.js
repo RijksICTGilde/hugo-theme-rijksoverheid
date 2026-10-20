@@ -2,13 +2,16 @@
  * Toetsenbord- en gedragstests in een echte browser (WCAG 2.1.1, 2.1.2, 2.4.1,
  * 2.4.3, 2.4.7, 1.4.13, 2.3.3, 4.1.2): Escape sluit het menu, het zoekvenster,
  * de themakeuze en een bron-tooltip, en de focus gaat terug naar waar hij
- * vandaan kwam. Een regex op de HTML ziet dit gedrag niet.
+ * vandaan kwam. Een regex op de HTML ziet dit gedrag niet. Ook dekt de vaste
+ * markeerbalk het element met focus niet af (2.4.11).
  *
  * De selectors volgen het contract van de herbouw:
  *   - menuknop:    button[aria-controls="mobile-menu"], met vaste naam "Menu"
  *   - zoekknop:    .search-trigger, opent het <dialog>
  *   - themakeuze:  een button[aria-expanded] in .footer-settings
  *   - bron-tooltip: .ref-wrapper met .ref-term en .ref-tooltip
+ *   - markeerbalk: button#highlight-bar.toast, zichtbaar bij ?q= met een treffer
+ *   - naar boven:  a.back-to-top, na een schermhoogte scrollen
  */
 
 import { test, before, after, describe } from "node:test";
@@ -40,8 +43,14 @@ after(async () => {
 });
 
 /** Opent een pagina in een nieuw tabblad en geeft die terug; sluit zelf af met `klaar`. */
-async function open(route, viewport = BREED, { javascript = true } = {}) {
+async function open(route, viewport = BREED, { javascript = true, wortel } = {}) {
   const page = await browser.newPage();
+  if (wortel) {
+    // De lettergrootte-instelling van de browser (32 is 200%), niet `html { font-size }`:
+    // een mediaquery in rem rekent ertegen en schaalt dan mee.
+    const cdp = await page.createCDPSession();
+    await cdp.send("Page.setFontSizes", { fontSizes: { standard: wortel, fixed: wortel } });
+  }
   await page.setJavaScriptEnabled(javascript);
   await page.setViewport(viewport);
   await page.goto(baseUrl + route, { waitUntil: "load" });
@@ -335,6 +344,98 @@ describe("focus (2.4.3, 2.4.7)", () => {
       await page.close();
     }
   });
+});
+
+describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
+  const ROUTE = "/onderdelen/lange-pagina/?q=inleiding";
+  const STANDEN = [
+    { naam: "320px breed", breedte: 320 },
+    { naam: "480px breed", breedte: 480 },
+    { naam: "768px breed", breedte: 768 },
+    { naam: "1280px breed", breedte: 1280 },
+    // Bij 200% tekst is de balk op 320px hoger dan de reserve van 6rem in toast.css.
+    { naam: "320px breed met 200% tekst", breedte: 320, wortel: 32 },
+  ];
+
+  const snijdt = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const vak = (r) => `x ${Math.round(r.left)}-${Math.round(r.right)}, y ${Math.round(r.top)}-${Math.round(r.bottom)}`;
+
+  /** Controleert dat de balk in beeld staat en scrolt naar onderen, waar de knop naar boven verschijnt. */
+  async function naarOnderen(page) {
+    const balk = await page.evaluate(() => {
+      const el = document.getElementById("highlight-bar");
+      return !!el && !el.hidden && el.getClientRects().length > 0;
+    });
+    assert.ok(balk, "de markeerbalk #highlight-bar staat niet in beeld bij ?q=inleiding");
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const knop = await page
+      .waitForFunction(
+        () => {
+          const el = document.querySelector("a.back-to-top");
+          return !!el && !el.hidden;
+        },
+        { timeout: 2000 },
+      )
+      .then(() => true, () => false);
+    assert.ok(knop, "a.back-to-top verschijnt niet na onderaan scrollen; staat params.back_to_top aan?");
+  }
+
+  for (const { naam, breedte, wortel } of STANDEN) {
+    test(`de knop naar boven staat niet onder de markeerbalk (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await naarOnderen(page);
+        // De knop is de laatste focusstop, direct na de balk.
+        await page.focus("#highlight-bar");
+        await page.keyboard.press("Tab");
+        const stand = await page.evaluate(() => {
+          const knop = document.activeElement;
+          const rect = knop.getBoundingClientRect();
+          const midden = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          return {
+            isKnop: knop.matches("a.back-to-top"),
+            knop: rect.toJSON(),
+            balk: document.getElementById("highlight-bar").getBoundingClientRect().toJSON(),
+            middenVrij: !!midden && knop.contains(midden),
+            venster: { breedte: innerWidth, hoogte: innerHeight },
+          };
+        });
+        assert.ok(stand.isKnop, "de Tab na de markeerbalk gaat niet naar a.back-to-top");
+        assert.ok(!snijdt(stand.knop, stand.balk), `de knop (${vak(stand.knop)}) overlapt de markeerbalk (${vak(stand.balk)})`);
+        assert.ok(stand.middenVrij, `iets anders ligt over het midden van de knop (${vak(stand.knop)})`);
+        const { knop, venster } = stand;
+        assert.ok(
+          knop.top >= 0 && knop.left >= 0 && knop.bottom <= venster.hoogte && knop.right <= venster.breedte,
+          `de knop (${vak(knop)}) valt buiten beeld (${venster.breedte}x${venster.hoogte})`,
+        );
+      } finally {
+        await page.close();
+      }
+    });
+
+    test(`onderaan ligt de laatste focusstop in de voet vrij van balk en knop (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await naarOnderen(page);
+        const stand = await page.evaluate(() => {
+          const zichtbaar = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+          const laatste = [...document.querySelectorAll("body > footer :is(a[href], button)")].filter(zichtbaar).at(-1);
+          const rect = (el) => el?.getBoundingClientRect().toJSON();
+          return {
+            naam: laatste?.textContent.trim(),
+            laatste: rect(laatste),
+            balk: rect(document.getElementById("highlight-bar")),
+            knop: rect(document.querySelector("a.back-to-top")),
+          };
+        });
+        assert.ok(stand.laatste, "geen zichtbare link of knop in de voet");
+        assert.ok(!snijdt(stand.laatste, stand.balk), `"${stand.naam}" (${vak(stand.laatste)}) ligt onder de markeerbalk (${vak(stand.balk)})`);
+        assert.ok(!snijdt(stand.laatste, stand.knop), `"${stand.naam}" (${vak(stand.laatste)}) ligt onder de knop naar boven (${vak(stand.knop)})`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
 });
 
 describe("bewegingsvoorkeur (2.3.3)", () => {
