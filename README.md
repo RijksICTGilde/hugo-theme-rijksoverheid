@@ -163,6 +163,7 @@ Partials die een site met hetzelfde pad in `layouts/_partials/` vervangt.
 | `llm-instructies.html` | leeg | Eigen tekst boven in `llms.txt` |
 | `markdown-extra.html` | tekst ongewijzigd | Eigen shortcodes omzetten in de Markdown-uitvoer; krijgt `tekst` en `page` en geeft de tekst terug |
 | `page-aside-extra.html` | leeg | Extra blok in de rechterkolom, bijvoorbeeld downloads |
+| `rss-extra.html` | tekst ongewijzigd | De inhoud van een item in de RSS-feed aanpassen; krijgt `tekst` (HTML) en `page` en geeft de tekst terug |
 | `search-index-extra.html` | leeg | Extra items in de zoekindex |
 
 Vervang liever een hook dan een groot partial: een eigen kopie van

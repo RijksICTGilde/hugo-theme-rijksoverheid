@@ -37,7 +37,7 @@
       <atom:updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}</atom:updated>
       {{- end }}
       <guid>{{ .Permalink }}</guid>
-      {{- $inhoud := .Content
+      {{- $inhoud := partial "rss-extra.html" (dict "tekst" .Content "page" .)
         | replaceRE `((?:href|src)=")#` (printf "${1}%s#" .Permalink)
         | replaceRE `((?:href|src)=")(/[^/"][^"]*|/)"` (printf "${1}%s${2}\"" $herkomst) }}
       <description>{{ $inhoud | transform.XMLEscape | safeHTML }}</description>

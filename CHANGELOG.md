@@ -87,8 +87,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `search.threshold`, `search.max_results`, `search.section_weights`,
   `afzender`, `llms.secties` (met `tekst` en `volledig`) en `og.afbeelding`.
 * Front matter `zoekindex: false`: de pagina blijft uit de zoekindex.
-* Hooks `font-preload.html` en `head-extra.html` voor de head, en
-  `markdown-extra.html` voor eigen shortcodes in de Markdown-uitvoer.
+* Hooks `font-preload.html` en `head-extra.html` voor de head,
+  `markdown-extra.html` voor eigen shortcodes in de Markdown-uitvoer en
+  `rss-extra.html` voor de inhoud van een item in de RSS-feed.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. `doc.go`, zodat Dependabot een site met dit
   theme kan bijwerken. `module.hugoVersion.min`.
