@@ -13,3 +13,7 @@ MD033: false
 # duplicaten binnen dezelfde sectie zijn een fout.
 MD024:
   siblings_only: true
+
+# Twee infoblokken (> [!INFO]) achter elkaar staan gescheiden door een lege regel;
+# dat zijn aparte blokken, geen blokcitaat met een gat.
+MD028: false

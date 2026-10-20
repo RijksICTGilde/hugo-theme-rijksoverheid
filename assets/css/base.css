@@ -28,6 +28,12 @@ body {
   font-size: 1.2rem;
   line-height: 1.4;
   color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 h1,
@@ -57,8 +63,13 @@ h1 + h2 {
   margin-top: 1.5rem;
 }
 
-article > header + h2 {
+article > header + h2,
+article > header ~ .artikel-tekst > h2:first-child {
   margin-top: 0.7rem;
+}
+
+article > header:has(.tag-status) ~ .artikel-tekst > h2:first-child {
+  margin-top: 1.5rem;
 }
 
 h2 + h3,
@@ -95,12 +106,10 @@ p {
 
 a {
   color: var(--color-link);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-  transition: color 0.15s ease;
+  text-decoration: none;
 
   &:hover {
-    color: color-mix(in oklch, var(--color-link), black 12%);
+    text-decoration: underline;
   }
 
   &:focus-visible {
@@ -109,23 +118,33 @@ a {
   }
 }
 
-:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a,
-:where(.card-grid > article, .card) header a {
-  text-decoration: none;
-}
-
-:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a,
-:where(.card-grid > article, .card) header a {
-  color: inherit;
-}
-
-:where(nav, .breadcrumb, .toc, body > footer, .page-nav, .button, .button-outline, .button-ghost) a:hover,
-:where(.card-grid > article, .card) header a:hover {
-  color: inherit;
+/* Links in lopende tekst zijn onderstreept, zodat kleur niet de enige drager
+   is (WCAG 1.4.1). `:where()` houdt de specificiteit op die van `a`, zodat
+   componenten met een eigen linkstijl blijven winnen. */
+:where(main :is(p, dd, td, th, blockquote, :is(ul, ol):not([class]) > li)) a:where(:not([class])) {
   text-decoration: underline;
 }
 
-a[rel~="external"]::after {
+.footnote-backref {
+  text-decoration: underline;
+}
+
+/* Cursor volgt het uiterlijk (NLDD): een pointer betekent een link, een
+   control houdt de standaardcursor. Componenten die een <a> als knop tonen,
+   zetten zelf cursor: default. */
+a[href] {
+  cursor: pointer;
+}
+
+button,
+summary,
+select {
+  cursor: default;
+}
+
+/* Het externe-link-icoon hoort alleen bij links die in een nieuw venster
+   openen (params.links.nieuw_venster); besloten links tonen het slot. */
+a[target="_blank"][rel~="external"]:not([rel~="private"])::after {
   content: "";
   display: inline-block;
   width: 0.75em;
@@ -138,25 +157,26 @@ a[rel~="external"]::after {
   vertical-align: inherit;
 }
 
-a[href^="mailto:"]::after {
+a[rel~="private"]::after {
   content: "";
   display: inline-block;
-  width: 0.95em;
-  height: 0.95em;
-  margin-left: 0.25em;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.1em;
   background-color: currentColor;
-  mask-image: url("{{ relURL "images/icons/mail.svg" }}");
+  mask-image: url("{{ relURL "images/icons/lock.svg" }}");
   mask-size: contain;
   mask-repeat: no-repeat;
-  vertical-align: -0.12em;
+  vertical-align: -0.1em;
 }
 
-a[rel~="private"]::after {
-  width: 1em;
-  height: 1em;
-  margin-left: 0.1em;
-  vertical-align: -0.15em;
-  mask-image: url("{{ relURL "images/icons/lock.svg" }}");
+/* Hoog contrast zet currentColor als achtergrond op de paginakleur, waardoor
+   het masker onzichtbaar wordt; een systeemkleur blijft staan. */
+@media (forced-colors: active) {
+  a[target="_blank"][rel~="external"]:not([rel~="private"])::after,
+  a[rel~="private"]::after {
+    background-color: CanvasText;
+  }
 }
 
 p + ul,
@@ -166,7 +186,7 @@ p + ol {
 
 ul,
 ol {
-  padding-left: 1.15rem;
+  padding-left: 1.1rem;
   margin-top: 0;
   margin-bottom: 1.5rem;
   list-style: disc;
@@ -210,6 +230,7 @@ code {
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875em;
+  overflow-wrap: anywhere;
 }
 
 pre {
@@ -245,11 +266,4 @@ nav a {
   &:hover {
     text-decoration: underline;
   }
-}
-
-figcaption {
-  text-align: center;
-  font-style: italic;
-  font-size: 1rem;
-  margin-block-start: 0.5rem;
 }

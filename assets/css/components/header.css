@@ -41,7 +41,7 @@ header {
       }
 
       .tagline {
-        font-family: var(--font-serif);
+        font-family: var(--font-sans);
         font-size: 1.1rem;
         font-style: italic;
         line-height: 1.3;
@@ -104,6 +104,7 @@ header {
       align-items: flex-start;
       gap: var(--woordmerk-afstand, 0.75rem);
       width: fit-content;
+      max-width: 100%;
       text-decoration: none;
     }
 
@@ -114,6 +115,10 @@ header {
       margin-block-start: var(--woordmerk-boven);
       font-size: var(--woordmerk-grootte);
       line-height: 1.17;
+      /* anywhere, niet break-word: alleen anywhere verlaagt de min-content,
+         en die bepaalt hier de breedte bij 320px en 200% tekst. */
+      overflow-wrap: anywhere;
+      hyphens: auto;
       color: light-dark(var(--color-rijksblauw), var(--color-text-heading));
     }
 
@@ -133,41 +138,6 @@ header {
     a.site-logo-link:focus-visible {
       outline: 3px solid var(--color-text);
       outline-offset: 3px;
-    }
-  }
-
-  .breadcrumb {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-    padding: 0.25rem 1rem 0;
-    min-height: 2rem;
-
-    ol {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 0;
-      font-size: var(--text-base);
-    }
-
-    li {
-      display: flex;
-      align-items: center;
-      padding-left: 0;
-    }
-
-    .separator {
-      display: inline-block;
-      width: 0.5em;
-      height: 0.5em;
-      margin: 0 0.5em 0 0.3em;
-      border-right: 2px solid currentColor;
-      border-bottom: 2px solid currentColor;
-      transform: rotate(-45deg);
-    }
-
-    .current {
-      color: var(--color-text-muted);
     }
   }
 
@@ -209,13 +179,13 @@ header {
     }
 
     .title {
-      display: flex;
-      align-items: center;
+      flex: 1;
+      min-width: 0;
       font-size: 1.25rem;
       font-weight: 700;
-      text-decoration: none;
-      min-height: var(--navbar-height);
-      align-self: flex-start;
+      line-height: 1.25;
+      padding-block: 0.5rem;
+      overflow-wrap: break-word;
 
       @media (min-width: 600px) {
         display: none;
@@ -225,10 +195,12 @@ header {
     .menu {
       display: none;
       flex: 1;
+      min-width: 0;
       align-items: center;
 
       ul {
         display: flex;
+        flex-wrap: wrap;
         font-size: 1.25rem;
         margin: 0;
         padding: 0;
@@ -239,6 +211,8 @@ header {
         margin-right: 1.5rem;
         white-space: nowrap;
 
+        /* Reserveert de breedte van de vette tekst, zodat het menu niet
+           verspringt als een item actief wordt. */
         a[data-text] {
           display: inline-flex;
           flex-direction: column;
@@ -260,52 +234,38 @@ header {
 
     .navbar-right {
       display: none;
-      margin-left: auto;
+      margin: 0 0 0 auto;
       padding: 0;
       list-style: none;
+      font-size: 1.25rem;
 
       @media (min-width: 768px) {
         display: flex;
       }
 
-      li {
-        margin-left: 0.75rem;
-      }
-
-      .theme-toggle,
+      /* Zoeken als gewoon menu-item: geen kader, wel een icoon en de
+         sneltoetshint. */
       .search-trigger {
-        height: 32px;
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: var(--color-text-inverse);
-        padding: 0 8px;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-      }
+        gap: 0.4rem;
+        /* Negatieve marge: de tekst blijft uitgelijnd, de hovertint krijgt ruimte */
+        margin: -0.25rem -0.5rem;
+        padding: 0.25rem 0.5rem;
+        background: none;
+        border: none;
+        border-radius: 0;
+        font: inherit;
+        color: var(--color-text-inverse);
 
-      .theme-toggle {
-        width: 32px;
-        padding: 0;
-
-        &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
+        svg {
+          width: 1.25rem;
+          height: 1.25rem;
+          flex-shrink: 0;
         }
 
-        &:focus-visible {
-          outline: 2px solid var(--color-text-inverse);
-          outline-offset: 2px;
-        }
-
-        .sun { display: none; }
-        .moon { display: block; }
-      }
-
-      .search-trigger {
         &:hover {
-          background-color: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
+          background-color: color-mix(in oklch, var(--color-text-inverse) 10%, transparent);
         }
 
         &:focus-visible {
@@ -314,32 +274,20 @@ header {
         }
 
         .search-shortcut {
+          margin-left: 0.25rem;
+          padding: 0.125rem 0.375rem;
+          font-family: inherit;
+          font-size: 0.75rem;
+          line-height: 1.2;
+          color: inherit;
           background-color: transparent;
-          border-color: rgba(255, 255, 255, 0.4);
-        }
-      }
-    }
-
-    :root[data-theme="dark"] & {
-      .theme-toggle,
-      .mobile-theme {
-        .sun { display: block; }
-        .moon { display: none; }
-      }
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) & {
-        .theme-toggle,
-        .mobile-theme {
-          .sun { display: block; }
-          .moon { display: none; }
+          border: 1px solid currentColor;
+          border-radius: 0.125rem;
         }
       }
     }
 
     .mobile-search,
-    .mobile-theme,
     .toggle {
       display: flex;
       align-items: center;
@@ -347,12 +295,18 @@ header {
       padding: 0.5rem;
       background: transparent;
       border: none;
+      border-radius: 0;
       color: var(--color-text-inverse);
       min-height: var(--navbar-height);
       align-self: flex-start;
 
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: color-mix(in oklch, var(--color-text-inverse) 10%, transparent);
       }
 
       &:focus-visible {
@@ -369,21 +323,9 @@ header {
       margin-left: auto;
     }
 
-    .mobile-theme {
-      margin-left: 0.5rem;
-
-      .sun { display: none; }
-      .moon { display: block; }
-    }
-
     .toggle {
       margin-left: 0.5rem;
       margin-right: -0.5rem;
-
-      svg {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
     }
 
     .mobile {
@@ -394,60 +336,53 @@ header {
       ul {
         display: flex;
         flex-direction: column;
+        margin: 0;
+        padding: 0;
+        list-style: none;
         font-size: 1.25rem;
       }
 
       li {
         display: block;
+        margin: 0;
       }
 
-      a,
-      a[href^="http"] {
+      a {
         display: flex;
         align-items: baseline;
         position: relative;
         padding: 0.75rem 0;
+        overflow-wrap: anywhere;
 
-        &::after {
+        /* Scheidingslijn boven elke link: het laatste item van een geneste
+           lijst is niet het laatste van het menu. */
+        &::before {
           content: "";
           position: absolute;
-          bottom: 0;
+          top: 0;
           left: 0;
           right: 0;
           height: 1px;
-          background-color: rgba(255, 255, 255, 0.2);
-          box-shadow: -100vw 0 0 rgba(255, 255, 255, 0.2), 100vw 0 0 rgba(255, 255, 255, 0.2);
+          background-color: color-mix(in oklch, var(--color-text-inverse) 20%, transparent);
+          box-shadow:
+            -100vw 0 0 color-mix(in oklch, var(--color-text-inverse) 20%, transparent),
+            100vw 0 0 color-mix(in oklch, var(--color-text-inverse) 20%, transparent);
         }
-      }
-
-      li:first-child a::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background-color: rgba(255, 255, 255, 0.2);
-        box-shadow: -100vw 0 0 rgba(255, 255, 255, 0.2), 100vw 0 0 rgba(255, 255, 255, 0.2);
-      }
-
-      li:last-child a::after {
-        display: none;
       }
 
       .mobile-second-nav {
         margin-top: 0.25rem;
 
-        li:first-child a::before {
+        > li:first-child > a::before {
           display: none;
         }
 
-        li:not(:first-child) a {
+        ul a {
           padding-left: 1rem;
         }
 
-        .mobile-subnav-child {
-          margin-left: 1rem;
+        ul ul a {
+          padding-left: 2rem;
         }
 
         a.bold {
@@ -458,6 +393,27 @@ header {
 
     .toggle[aria-expanded="true"] ~ .mobile {
       display: block;
+    }
+
+    /* Zonder JavaScript gaat de menuknop niet open; dan staat het menu
+       gewoon uitgeklapt. De zoekknoppen openen dan ook niets; van de lijst
+       rechts blijft zonder knop alleen een leeg lijstitem over. Zonder knoppen
+       naast de titel vraagt die zelf ruimte, anders deelt hij de regel met
+       het menu en krimpt hij tot nul. */
+    @media (scripting: none) {
+      .toggle,
+      .navbar-right,
+      .mobile-search {
+        display: none;
+      }
+
+      .title {
+        flex-basis: auto;
+      }
+
+      .mobile {
+        display: block;
+      }
     }
 
     @media (min-width: 768px) {
@@ -476,7 +432,7 @@ header {
     }
   }
 
-  /* Second nav - alleen op desktop */
+  /* Sectienavigatie, alleen op desktop */
   .navbar-sub {
     display: none;
     background-color: var(--color-bg-info);
@@ -489,17 +445,41 @@ header {
       display: flex;
     }
 
+    &:has(.subnav-panel:not([hidden])) {
+      border-bottom: 0;
+
+      > ul::before {
+        min-height: var(--navbar-height);
+      }
+    }
+
     > ul {
       display: flex;
-      gap: 0 1.5rem;
+      flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+      min-width: 0;
+      gap: 0.25rem 1.5rem;
       margin: 0;
       padding: 0;
       list-style: none;
+
+      > li {
+        min-width: 0;
+      }
+
+      /* Zet de hoogte van de eerste flexregel zonder zelf ruimte in te nemen */
+      &::before {
+        content: "";
+        width: 0;
+        margin-right: -1.5rem;
+      }
     }
 
     a {
       color: var(--color-text);
       font-size: 1.125rem;
+      overflow-wrap: break-word;
 
       &:focus-visible {
         outline-color: var(--color-primary);
@@ -527,14 +507,13 @@ header {
       justify-content: center;
       width: 1.5rem;
       height: 1.5rem;
+      flex-shrink: 0;
       padding: 0;
       background: transparent;
       border: none;
       border-radius: 0;
       font-weight: inherit;
       color: var(--color-text);
-      cursor: pointer;
-      transition: transform 0.2s ease;
 
       &:hover {
         color: var(--color-primary);
@@ -546,8 +525,19 @@ header {
         border-radius: 0;
       }
 
+      .icon-expand {
+        width: 1rem;
+        height: 1rem;
+        transition: transform 0.2s ease;
+      }
+
       &[aria-expanded="true"] .icon-expand {
         transform: rotate(180deg);
+      }
+
+      /* Zonder JavaScript opent de knop niets; de sectielink werkt wel. */
+      @media (scripting: none) {
+        display: none;
       }
     }
 
@@ -558,16 +548,18 @@ header {
       padding: 0.25rem 0.5rem;
       border-radius: 2px;
     }
-
   }
 
-  /* Third nav - uitklapbaar panel, alleen op desktop */
+  /* Submenupaneel: een li direct achter zijn menu-item, met order en volle
+     breedte op een eigen regel onder de balk. */
   .subnav-panel {
     display: none;
+    order: 1;
+    width: calc(100% + 2rem);
     background-color: var(--color-bg-muted);
     box-shadow: 0 0 0 100vmax var(--color-bg-muted);
     clip-path: inset(0 -100vmax);
-    margin-top: -0.75rem;
+    margin: -0.75rem -1rem 0;
 
     @media (min-width: 768px) {
       display: block;
@@ -584,8 +576,13 @@ header {
       gap: 0.25rem 1.5rem;
       max-width: var(--content-max-width);
       margin: 0 auto;
-      padding: 0.4rem 1rem 0rem;
+      padding: 0.4rem 1rem 0;
       list-style: none;
+    }
+
+    li {
+      min-width: 0;
+      margin-bottom: 0.5rem;
     }
 
     a {
@@ -600,10 +597,6 @@ header {
       &:focus-visible {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
-      }
-
-      &.subnav-panel-parent {
-        font-weight: 600;
       }
 
       &.current {

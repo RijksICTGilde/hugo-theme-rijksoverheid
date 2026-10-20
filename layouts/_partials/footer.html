@@ -1,21 +1,79 @@
 <footer>
-  <p class="tagline">{{ .Site.Params.footer.tagline }}</p>
+  {{- $ancestors := .Ancestors.Reverse -}}
+  {{- $kruimelpad := and (not .IsHome) (gt (len $ancestors) 1) -}}
+  {{- if or $kruimelpad .Params.show_lastmod }}
+  <div class="page-meta">
+    {{- if $kruimelpad }}
+    <nav class="breadcrumb" aria-label="Kruimelpad">
+      <ol>
+        {{- range $ancestors -}}
+        <li><a href="{{ .RelPermalink }}">{{ if .IsHome }}Home{{ else }}{{ .Title }}{{ end }}</a><span class="separator" aria-hidden="true"></span></li>
+        {{- end -}}
+        <li><span class="current" aria-current="page">{{ .Title }}</span></li>
+      </ol>
+    </nav>
+    {{- end }}
+    {{ partial "lastmod.html" . }}
+  </div>
+  {{- end }}
+  {{- /* Alleen op de homepage: de voet staat op elke pagina, de melding hoeft maar één keer. */ -}}
+  {{- if and .IsHome site.Params.footer.tagline }}
+  {{- warnf "params.footer.tagline wordt niet meer gebruikt en kan weg: de voet toont nu params.tagline." }}
+  {{- end }}
+  {{- with site.Params.tagline }}
+  <p class="tagline">{{ . }}</p>
+  {{- end }}
+  {{- $links := index site.Menus "footer-links" -}}
+  {{- $rechts := index site.Menus "footer-rechts" -}}
+  {{- if or $links $rechts }}
   <div class="footer-columns">
-    <nav aria-label="{{ .Site.Params.footer.links }}">
-      <h2>{{ .Site.Params.footer.links }}</h2>
+    {{- with $links }}
+    {{- $kop := site.Params.footer.links | default "Zie ook" }}
+    <nav aria-label="{{ $kop }}">
+      <h2>{{ $kop }}</h2>
       <ul>
-        {{ range (index .Site.Menus "footer-links") }}
+        {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
-        {{ end }}
+        {{- end }}
       </ul>
     </nav>
-    <nav aria-label="{{ .Site.Params.footer.rechts }}">
-      <h2>{{ .Site.Params.footer.rechts }}</h2>
+    {{- end }}
+    {{- with $rechts }}
+    {{- $kop := site.Params.footer.rechts | default "Over deze site" }}
+    <nav aria-label="{{ $kop }}">
+      <h2>{{ $kop }}</h2>
       <ul>
-        {{ range (index .Site.Menus "footer-rechts") }}
+        {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
-        {{ end }}
+        {{- end }}
       </ul>
     </nav>
+    {{- end }}
+  </div>
+  {{- end }}
+  <div class="footer-settings">
+    {{- /* params.afzender: naam (verplicht voor de regel), url en tekst. De
+           tekst staat voor de naam; zonder tekst een neutrale aanhef. */}}
+    {{- $afzender := site.Params.afzender | default dict }}
+    {{- with $afzender.naam }}
+    <p class="afzender">{{ $afzender.tekst | default "Afzender:" }} {{ with $afzender.url }}{{ partial "render-link" (dict "href" . "text" $afzender.naam) }}{{ else }}{{ $afzender.naam }}{{ end }}</p>
+    {{- end }}
+    {{- /* Zonder JavaScript werkt de keuze niet, dus dan staat hij er ook niet:
+           base.js haalt hidden weg. Native keuzerondjes in plaats van
+           role="menu": pijltjes, naam, rol en stand werken dan vanzelf. */}}
+    <div class="theme-menu" hidden>
+      <button type="button" class="theme-menu-knop" aria-expanded="false" aria-controls="theme-options">
+        Weergave
+        {{- partial "icon.html" "chevron-down" -}}
+      </button>
+      <div id="theme-options" class="theme-options" hidden>
+        <fieldset>
+          <legend class="visually-hidden">Weergave</legend>
+          <label for="weergave-systeem"><input type="radio" id="weergave-systeem" name="weergave" value="system" checked /> Systeem</label>
+          <label for="weergave-licht"><input type="radio" id="weergave-licht" name="weergave" value="light" /> Licht</label>
+          <label for="weergave-donker"><input type="radio" id="weergave-donker" name="weergave" value="dark" /> Donker</label>
+        </fieldset>
+      </div>
+    </div>
   </div>
 </footer>

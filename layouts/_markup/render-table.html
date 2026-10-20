@@ -1,0 +1,33 @@
+{{- /* Brede tabellen schuiven in een eigen, focusbaar vlak (WCAG 1.4.10,
+       2.1.1). "Tabel" zonder nummer: inhoud.html nummert de wikkels in
+       documentvolgorde, want een shortcode en een render hook draaien niet in
+       die volgorde. Een eigen naam kan met {aria-label="..."} op de regel
+       direct onder de tabel; {print-bijeen="ja"} op diezelfde regel houdt de
+       tabel in de afdruk op één pagina. */ -}}
+{{- $label := or (index .Attributes "aria-label") "Tabel" -}}
+<div class="tabel-wrap" role="region" tabindex="0" aria-label="{{ $label }}">
+<table{{ with index .Attributes "print-bijeen" }} data-print-bijeen{{ end }}>
+  {{- with .THead }}
+  <thead>
+    {{- range . }}
+    <tr>
+      {{- range . }}
+      <th{{ with .Alignment }} class="uitlijning-{{ . }}"{{ end }}>{{ .Text }}</th>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </thead>
+  {{- end }}
+  {{- with .TBody }}
+  <tbody>
+    {{- range . }}
+    <tr>
+      {{- range . }}
+      <td{{ with .Alignment }} class="uitlijning-{{ . }}"{{ end }}>{{ .Text }}</td>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </tbody>
+  {{- end }}
+</table>
+</div>

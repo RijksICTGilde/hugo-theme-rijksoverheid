@@ -1,41 +1,3 @@
-/* Search trigger button - erft van button, alleen afwijkende styling */
-.search-trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9375rem;
-}
-
-.search-trigger .search-icon {
-  color: inherit;
-}
-
-.search-trigger-text {
-  color: inherit;
-}
-
-.search-trigger .search-shortcut {
-  padding: 0.125rem 0.375rem;
-  font-size: 0.75rem;
-  color: inherit;
-  background-color: transparent;
-  border: 1px solid currentColor;
-  border-radius: 0.125rem;
-  margin-left: 0.25rem;
-}
-
-/* Hide trigger text on small screens */
-@media (max-width: 640px) {
-  .search-trigger-text {
-    display: none;
-  }
-
-  .search-trigger .search-shortcut {
-    display: none;
-  }
-}
-
 /* Search modal */
 .search-modal {
   position: fixed;
@@ -78,6 +40,7 @@
 /* Modal header with search input */
 .search-modal-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem 0.5rem;
@@ -100,7 +63,7 @@
   font-weight: normal;
   white-space: nowrap;
   background-color: var(--color-bg-muted);
-  border-color: var(--color-bg-muted);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
 }
 
@@ -109,6 +72,21 @@
   border-color: var(--color-primary);
   color: var(--color-text-on-primary);
   font-weight: 600;
+}
+
+/* Rand boven de lijst alleen als er resultaten zijn */
+.search-results:not(:empty) {
+  position: relative;
+}
+
+.search-results:not(:empty)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 1px;
+  background-color: var(--color-border);
 }
 
 .search-modal-header .search-icon {
@@ -121,6 +99,9 @@
 
 .search-modal .search-input {
   flex: 1;
+  /* Zonder dit houdt het veld zijn intrinsieke breedte en duwt het de
+     sluitknop uit beeld. */
+  min-width: 0;
   padding: 0.5rem 0;
   font-size: 1.125rem;
   font-family: var(--font-sans);
@@ -169,10 +150,11 @@
   transition: background-color 0.15s ease;
 }
 
-.search-result-item::before {
+/* Tekstbrede scheidingslijn onder elk resultaat, behalve het laatste */
+.search-result-item::after {
   content: "";
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 1rem;
   right: 1rem;
   height: 1px;
@@ -180,7 +162,7 @@
   transition: background-color 0.15s ease;
 }
 
-.search-results li:first-child .search-result-item::before {
+.search-results li:last-child .search-result-item::after {
   display: none;
 }
 
@@ -191,13 +173,14 @@
   outline: none;
 }
 
-.search-result-item:hover::before,
-.search-result-item:focus-visible::before {
+.search-result-item:hover::after,
+.search-result-item:focus-visible::after {
   background-color: var(--color-bg-info);
 }
 
-.search-results li:has(.search-result-item:hover) + li .search-result-item::before,
-.search-results li:has(.search-result-item:focus-visible) + li .search-result-item::before {
+/* De lijn van het vorige resultaat verdwijnt mee bij hover en focus */
+.search-results li:has(+ li .search-result-item:hover) .search-result-item::after,
+.search-results li:has(+ li .search-result-item:focus-visible) .search-result-item::after {
   background-color: var(--color-bg-page);
 }
 
@@ -210,11 +193,15 @@
   outline-offset: -2px;
 }
 
+/* Een h2: de kopregel uit base.css (marge boven, regelhoogte, hyphens) hoort
+   niet in de lijst. */
 .search-result-title {
   display: block;
   font-weight: 700;
   font-size: 1.125rem;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem;
+  line-height: inherit;
+  hyphens: inherit;
   color: var(--color-text);
   overflow-wrap: break-word;
 }
@@ -230,7 +217,7 @@
 
 .search-result-snippet mark,
 .search-result-title mark,
-#main-content mark[data-search-highlight] {
+mark[data-search-highlight] {
   background-color: var(--color-highlight);
   color: var(--color-highlight-text);
 }
@@ -250,6 +237,19 @@
   .search-modal-content {
     width: calc(100% - 1rem);
     max-height: 96vh;
+  }
+}
+
+/* In rem, zodat het ook bij vergrote tekst werkt: het veld krijgt dan een
+   eigen regel onder het icoon en de sluitknop. */
+@media (width < 15.5rem) {
+  .search-modal .search-input {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .search-modal-header .button-ghost {
+    margin-left: auto;
   }
 }
 

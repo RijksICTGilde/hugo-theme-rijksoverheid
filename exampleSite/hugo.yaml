@@ -1,0 +1,201 @@
+# Referentieconfiguratie van het theme: elke instelling die het theme kent staat
+# hier met een waarde, zodat de tests alle onderdelen raken.
+baseURL: https://voorbeeld.example/
+title: Voorbeeldsite
+defaultContentLanguage: nl
+
+enableRobotsTXT: true
+
+disableKinds:
+  - taxonomy
+  - term
+
+module:
+  imports:
+    - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
+
+build:
+  # Anders schrijft js.Build (Fuse voor het zoeken) assets/jsconfig.json in de
+  # site. Hugo neemt build niet over uit een module; elke site zet dit zelf.
+  noJSConfigInAssets: true
+
+markup:
+  goldmark:
+    extensions:
+      footnote: true
+    renderer:
+      # Nodig voor lang="en" op Engelse fragmenten en voor <kbd>.
+      unsafe: true
+    parser:
+      attribute:
+        block: true
+  highlight:
+    # De CSP blokkeert inline styles; het kleurenpalet staat in de CSS van het theme.
+    noClasses: false
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+    - llms
+    - llmsfull
+  section:
+    - HTML
+    - RSS
+    - llms
+    - llmsfull
+  page:
+    - HTML
+    - markdown
+
+outputFormats:
+  llms:
+    baseName: llms
+    mediaType: text/plain
+    isPlainText: true
+    notAlternative: true
+  llmsfull:
+    baseName: llms-full
+    mediaType: text/plain
+    isPlainText: true
+    notAlternative: true
+  markdown:
+    baseName: index
+    mediaType: text/markdown
+    isPlainText: true
+    notAlternative: true
+
+menus:
+  main:
+    - name: Home
+      pageRef: /
+      weight: 1
+    - name: Onderdelen
+      pageRef: /onderdelen
+      weight: 2
+    - name: Nieuws
+      pageRef: /nieuws
+      weight: 3
+    - name: Handleiding
+      pageRef: /handleiding
+      weight: 4
+    - name: Over deze site
+      pageRef: /over
+      weight: 5
+
+  onderdelen_nav:
+    - name: Alle onderdelen
+      pageRef: /onderdelen
+      weight: 1
+      params:
+        bold: true
+    - name: Lange pagina
+      pageRef: /onderdelen/lange-pagina
+      weight: 2
+    - name: Diagram
+      pageRef: /onderdelen/diagram
+      weight: 3
+    - name: Links
+      pageRef: /onderdelen/links
+      weight: 4
+    - name: Lange woorden
+      pageRef: /onderdelen/lange-woorden
+      weight: 5
+    - name: Pagina zonder kopje
+      pageRef: /onderdelen/zonder-inhoudsopgave
+      weight: 6
+    - name: Buiten de zoekindex
+      pageRef: /onderdelen/buiten-de-zoekindex
+      weight: 7
+
+  footer-links:
+    - name: Nieuws
+      pageRef: /nieuws
+      weight: 1
+    - name: Broncode van het theme
+      url: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid
+      weight: 2
+    - name: Samenwerkruimte van het programma
+      url: https://samenwerkruimten.nl/voorbeeld
+      weight: 3
+
+  footer-rechts:
+    - name: Privacy
+      pageRef: /over/privacy
+      weight: 1
+    - name: Toegankelijkheid
+      pageRef: /over/toegankelijkheid
+      weight: 2
+    - name: Contact
+      pageRef: /over/contact
+      weight: 3
+
+params:
+  tagline: Zo ziet elk onderdeel van het theme eruit
+  description: >-
+    Voorbeeldsite van het Hugo-theme voor de Rijksoverheid. Elke pagina laat een ander onderdeel zien,
+    zodat we het theme kunnen testen.
+  back_to_top: true
+
+  afzender:
+    naam: Ministerie van Voorbeeldzaken
+    url: https://www.rijksoverheid.nl/
+    tekst: Deze voorbeeldsite is een proef van het Ministerie van Voorbeeldzaken.
+
+  footer:
+    links: Zie ook
+    rechts: Over deze site
+
+  logo:
+    url: https://www.rijksoverheid.nl/
+    label: naar de website van de Rijksoverheid
+    woordmerk:
+      - Ministerie van Voorbeeldzaken
+      - Directie Digitale Voorbeelden
+
+  page_banner:
+    type: info
+    strong: "Let op:"
+    text: Dit is een voorbeeldsite. De teksten zijn verzonnen.
+
+  links:
+    nieuw_venster: false
+    besloten:
+      - samenwerkruimten.nl
+      - digilab.overheid.nl/chat
+
+  infoblok:
+    kopniveau: 3
+
+  search:
+    enable: true
+    threshold: 0.3
+    max_results: 10
+    priority_sections:
+      - onderdelen
+    section_weights:
+      nieuws: 0.8
+    filters:
+      - section: ""
+        label: Alles
+      - section: onderdelen
+        label: Onderdelen
+      - section: nieuws
+        label: Nieuws
+
+  llms:
+    secties:
+      - sectie: onderdelen
+        kop: Onderdelen van het theme
+      - sectie: nieuws
+        kop: Nieuws
+        tekst: De drie nieuwste berichten.
+        limiet: 3
+        volledig: false
+
+  og:
+    afbeelding: images/deelafbeelding.png

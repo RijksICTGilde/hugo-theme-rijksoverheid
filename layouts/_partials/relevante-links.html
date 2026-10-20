@@ -1,0 +1,30 @@
+{{- /* Relevante links in de rechterkolom. Front matter:
+         relevante_links:
+           - titel: "De intentieverklaring"
+             pagina: "/documenten/intentieverklaring"   # interne pagina
+           - titel: "Externe bron"
+             url: "https://voorbeeld.nl"                 # of een URL
+       De links gaan via render-link.html, zodat externe en besloten links
+       dezelfde rel en meldingen krijgen als in de tekst. Rendert niets als
+       relevante_links ontbreekt. */ -}}
+{{- with .Params.relevante_links -}}
+<nav class="relevante-links" aria-label="Relevante links">
+  <h2>Relevante links</h2>
+  <ul>
+    {{- range . -}}
+    {{- $item := . -}}
+    {{- $href := $item.url -}}
+    {{- with $item.pagina -}}
+      {{- with site.GetPage . -}}
+        {{- $href = .RelPermalink -}}
+      {{- else -}}
+        {{- warnf "Relevante link '%s' op pagina %s wijst naar %s, maar die pagina bestaat niet." ($item.titel | default .) $.Path . -}}
+      {{- end -}}
+    {{- end -}}
+    {{- with $href }}
+    <li>{{ partial "render-link.html" (dict "href" . "text" ($item.titel | default .)) }}</li>
+    {{- end -}}
+    {{- end }}
+  </ul>
+</nav>
+{{- end -}}

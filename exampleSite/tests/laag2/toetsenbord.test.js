@@ -1,0 +1,655 @@
+/**
+ * Toetsenbord- en gedragstests in een echte browser (WCAG 2.1.1, 2.1.2, 2.4.1,
+ * 2.4.3, 2.4.7, 1.4.13, 2.3.3, 4.1.2): Escape sluit het menu, het zoekvenster,
+ * de themakeuze en een bron-tooltip, en de focus gaat terug naar waar hij
+ * vandaan kwam. Een regex op de HTML ziet dit gedrag niet. Ook dekt de vaste
+ * markeerbalk het element met focus niet af (2.4.11).
+ *
+ * De selectors volgen het contract van de herbouw:
+ *   - menuknop:    button[aria-controls="mobile-menu"], met vaste naam "Menu"
+ *   - zoekknop:    .search-trigger, opent het <dialog>
+ *   - themakeuze:  een button[aria-expanded] in .footer-settings
+ *   - bron-tooltip: .ref-wrapper met .ref-term en .ref-tooltip
+ *   - markeerbalk: button#highlight-bar.toast, zichtbaar bij ?q= met een treffer
+ *   - naar boven:  a.back-to-top, na een schermhoogte scrollen
+ */
+
+import { test, before, after, describe } from "node:test";
+import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import puppeteer from "puppeteer";
+import { PUPPETEER_ARGS } from "./lib/puppeteer-args.js";
+import { startServer } from "./lib/server.js";
+import { builds } from "../lib/site.js";
+
+const SITE = builds()[0];
+const BREED = { width: 1280, height: 900 };
+const SMAL = { width: 400, height: 800 };
+
+let browser;
+let server;
+let baseUrl;
+
+before(async () => {
+  assert.ok(existsSync(SITE.dir), `${SITE.dir} bestaat niet; draai eerst npm run build`);
+  server = await startServer(SITE.dir);
+  baseUrl = `http://127.0.0.1:${server.address().port}`;
+  browser = await puppeteer.launch({ args: PUPPETEER_ARGS });
+});
+
+after(async () => {
+  await browser?.close();
+  server?.close();
+});
+
+/** Opent een pagina in een nieuw tabblad en geeft die terug; sluit zelf af met `klaar`. */
+async function open(route, viewport = BREED, { javascript = true, wortel } = {}) {
+  const page = await browser.newPage();
+  if (wortel) {
+    // De lettergrootte-instelling van de browser (32 is 200%), niet `html { font-size }`:
+    // een mediaquery in rem rekent ertegen en schaalt dan mee.
+    const cdp = await page.createCDPSession();
+    await cdp.send("Page.setFontSizes", { fontSizes: { standard: wortel, fixed: wortel } });
+  }
+  await page.setJavaScriptEnabled(javascript);
+  await page.setViewport(viewport);
+  await page.goto(baseUrl + route, { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
+  return page;
+}
+
+/** Het eerste element dat past bij de selector en echt zichtbaar is. */
+async function zichtbaar(page, selector) {
+  const handles = await page.$$(selector);
+  for (const handle of handles) {
+    const zichtbaarNu = await handle.evaluate((el) => {
+      const stijl = getComputedStyle(el);
+      return el.getClientRects().length > 0 && stijl.visibility !== "hidden";
+    });
+    if (zichtbaarNu) return handle;
+  }
+  return null;
+}
+
+const actief = (page) =>
+  page.evaluate(() => {
+    const el = document.activeElement;
+    return el ? { tag: el.tagName.toLowerCase(), id: el.id, klasse: el.className?.toString?.() ?? "", href: el.getAttribute("href") } : null;
+  });
+
+/** Staat de focus op precies dit element? */
+const heeftFocus = (page, handle) => page.evaluate((el) => document.activeElement === el, handle);
+
+describe("skip-link (2.4.1)", () => {
+  test("de eerste Tab gaat naar de skip-link en Enter zet de focus in <main>", async () => {
+    const page = await open("/");
+    try {
+      await page.keyboard.press("Tab");
+      const eerste = await actief(page);
+      assert.equal(eerste?.href, "#main-content", "de eerste focusstop is niet de skip-link");
+      await page.keyboard.press("Enter");
+      const nu = await actief(page);
+      assert.equal(nu?.id, "main-content", "de focus verhuist niet mee naar <main>");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("menu op een smal scherm (2.1.1, 4.1.2)", () => {
+  async function menuKnop(page) {
+    const knop = await zichtbaar(page, 'button[aria-controls="mobile-menu"]');
+    assert.ok(knop, 'geen zichtbare button[aria-controls="mobile-menu"] bij 400px breed');
+    return knop;
+  }
+  const verwacht = (knop) => knop.evaluate((el) => el.getAttribute("aria-expanded"));
+  const menuZichtbaar = (page) =>
+    page.evaluate(() => {
+      const menu = document.getElementById("mobile-menu");
+      return !!menu && !menu.hidden && menu.getClientRects().length > 0 && getComputedStyle(menu).visibility !== "hidden";
+    });
+
+  test("de knop heet Menu, en die naam verandert niet als het menu opent", async () => {
+    const page = await open("/", SMAL);
+    try {
+      const knop = await menuKnop(page);
+      const naam = () => knop.evaluate((el) => (el.getAttribute("aria-label") ?? el.textContent).trim());
+      assert.equal(await naam(), "Menu");
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await naam(), "Menu");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("Enter opent het menu, Escape sluit het en de focus gaat terug naar de knop", async () => {
+    const page = await open("/", SMAL);
+    try {
+      const knop = await menuKnop(page);
+      assert.equal(await verwacht(knop), "false");
+      assert.equal(await menuZichtbaar(page), false, "het menu is zichtbaar terwijl aria-expanded=false");
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await verwacht(knop), "true");
+      assert.equal(await menuZichtbaar(page), true, "het menu opent niet");
+      await page.keyboard.press("Escape");
+      assert.equal(await verwacht(knop), "false");
+      assert.equal(await menuZichtbaar(page), false, "het menu sluit niet");
+      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de menuknop");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("Escape met de focus in het menu zet de focus terug op de knop", async () => {
+    const page = await open("/", SMAL);
+    try {
+      const knop = await menuKnop(page);
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Tab");
+      const binnen = await page.evaluate(() => !!document.activeElement?.closest("#mobile-menu"));
+      assert.ok(binnen, "de eerste Tab na het openen gaat niet naar een link in het menu");
+      await page.keyboard.press("Escape");
+      assert.equal(await verwacht(knop), "false");
+      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de menuknop");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("zoekvenster (2.1.1, 2.1.2, 2.1.4)", () => {
+  for (const [naam, viewport] of [["breed scherm", BREED], ["smal scherm", SMAL]]) {
+    test(`Enter opent het venster, Escape sluit het en de focus gaat terug naar de zoekknop (${naam})`, async () => {
+      const page = await open("/", viewport);
+      try {
+        const knop = await zichtbaar(page, ".search-trigger");
+        assert.ok(knop, "geen zichtbare .search-trigger");
+        await knop.focus();
+        await page.keyboard.press("Enter");
+        const open1 = await page.evaluate(() => {
+          const dialog = document.querySelector("dialog[open]");
+          return { open: !!dialog, focusBinnen: !!dialog && dialog.contains(document.activeElement) };
+        });
+        assert.ok(open1.open, "het zoekvenster opent niet");
+        assert.ok(open1.focusBinnen, "de focus staat niet in het zoekvenster");
+        await page.keyboard.press("Escape");
+        assert.equal(await page.evaluate(() => !!document.querySelector("dialog[open]")), false, "het zoekvenster sluit niet");
+        assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de zoekknop");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+
+  test("Ctrl+K opent het venster en de knop kondigt de sneltoets aan", async () => {
+    const page = await open("/");
+    try {
+      const knop = await zichtbaar(page, ".search-trigger");
+      assert.ok(knop, "geen zichtbare .search-trigger");
+      const sneltoets = await knop.evaluate((el) => el.getAttribute("aria-keyshortcuts"));
+      assert.match(sneltoets ?? "", /Control\+K/, "aria-keyshortcuts ontbreekt of noemt Control+K niet");
+      const hint = await page.$(".search-trigger kbd.search-shortcut");
+      assert.ok(hint, "geen zichtbare kbd.search-shortcut in de zoekknop");
+      assert.equal(await hint.evaluate((el) => el.getAttribute("aria-hidden")), "true");
+      await page.keyboard.down("Control");
+      await page.keyboard.press("k");
+      await page.keyboard.up("Control");
+      assert.ok(await page.evaluate(() => !!document.querySelector("dialog[open]")), "Ctrl+K opent het zoekvenster niet");
+      await page.keyboard.press("Escape");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een gewone letter zonder modifier opent het venster niet (2.1.4)", async () => {
+    const page = await open("/");
+    try {
+      for (const toets of ["/", "k", "s"]) await page.keyboard.press(toets);
+      assert.equal(await page.evaluate(() => !!document.querySelector("dialog[open]")), false);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("themakeuze in de voet", () => {
+  const OPENER = ".footer-settings button[aria-expanded]";
+
+  test("Enter opent de keuze, Escape sluit hem en de focus gaat terug naar de knop", async () => {
+    const page = await open("/");
+    try {
+      const knop = await page.$(OPENER);
+      assert.ok(knop, `geen ${OPENER}; de themakeuze is een uitklapknop in .footer-settings`);
+      await knop.evaluate((el) => el.scrollIntoView());
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await knop.evaluate((el) => el.getAttribute("aria-expanded")), "true", "de themakeuze opent niet");
+      const paneelZichtbaar = await knop.evaluate((el) => {
+        const paneel = document.getElementById(el.getAttribute("aria-controls") ?? "");
+        return !!paneel && !paneel.hidden && paneel.getClientRects().length > 0;
+      });
+      assert.ok(paneelZichtbaar, "het paneel van aria-controls is niet zichtbaar");
+      await page.keyboard.press("Escape");
+      assert.equal(await knop.evaluate((el) => el.getAttribute("aria-expanded")), "false", "de themakeuze sluit niet");
+      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de knop van de themakeuze");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een gekozen schema zet data-scheme en bewaart alleen de sleutel theme", async () => {
+    const page = await open("/");
+    try {
+      const knop = await page.$(OPENER);
+      assert.ok(knop, `geen ${OPENER}`);
+      await knop.evaluate((el) => el.scrollIntoView());
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      // De keuze Donker is een radio met een label, of een knop of role=radio met tekst.
+      const donker = await page.evaluateHandle(() => {
+        const opties = [...document.querySelectorAll('.footer-settings input[type="radio"], .footer-settings [role="radio"], .footer-settings button:not([aria-expanded])')];
+        const tekst = (el) => (el.labels?.[0]?.textContent ?? el.textContent ?? "").trim();
+        return opties.find((el) => /donker/i.test(tekst(el)));
+      });
+      const element = donker.asElement();
+      assert.ok(element, "geen keuze Donker (radio of knop) in .footer-settings");
+      await element.focus();
+      await page.keyboard.press("Space");
+      assert.equal(await page.evaluate(() => document.documentElement.getAttribute("data-scheme")), "dark");
+      const sleutels = await page.evaluate(() => Object.keys(localStorage));
+      assert.deepEqual(sleutels, ["theme"]);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("bron-tooltip (1.4.13)", () => {
+  test("verschijnt bij focus en sluit met Escape zonder dat de focus verspringt", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      const term = await page.$(".ref-wrapper .ref-term");
+      assert.ok(term, "geen .ref-wrapper .ref-term op de lange pagina");
+      await term.focus();
+      // De tooltip schakelt met een korte overgang; wacht tot hij de verwachte stand heeft.
+      const tipIs = async (verwacht) => {
+        for (let i = 0; i < 20; i++) {
+          const zichtbaarNu = await term.evaluate((el) => {
+            const tip = el.closest(".ref-wrapper").querySelector(".ref-tooltip");
+            const stijl = getComputedStyle(tip);
+            return stijl.display !== "none" && stijl.visibility !== "hidden" && parseFloat(stijl.opacity) > 0.5;
+          });
+          if (zichtbaarNu === verwacht) return true;
+          await new Promise((klaar) => setTimeout(klaar, 50));
+        }
+        return false;
+      };
+      assert.ok(await tipIs(true), "de tooltip verschijnt niet bij focus");
+      await page.keyboard.press("Escape");
+      assert.ok(await tipIs(false), "Escape sluit de tooltip niet");
+      assert.ok(await heeftFocus(page, term), "de focus is verspringd na Escape");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("focus (2.4.3, 2.4.7)", () => {
+  test("elke focusstop op de homepage is zichtbaar en heeft een zichtbare focusindicator", async () => {
+    const page = await open("/");
+    const bevindingen = [];
+    try {
+      let aantal = 0;
+      for (let i = 0; i < 80; i++) {
+        await page.keyboard.press("Tab");
+        const stop = await page.evaluate(() => {
+          const el = document.activeElement;
+          if (!el || el === document.body) return { einde: true };
+          // Een element dat we al hadden: de focus is een rondje gegaan, zonder val.
+          if (el.dataset.tabGezien) return { einde: true };
+          el.dataset.tabGezien = "1";
+          const stijl = getComputedStyle(el);
+          const naam =
+            el.tagName.toLowerCase() +
+            (el.id ? `#${el.id}` : "") +
+            (el.className?.toString().trim() ? `.${el.className.toString().trim().split(/\s+/).join(".")}` : "") +
+            ` "${(el.getAttribute("aria-label") ?? el.textContent).trim().slice(0, 30)}"`;
+          return {
+            naam,
+            zichtbaar: el.getClientRects().length > 0 && stijl.visibility !== "hidden",
+            // Een ring op het element, op zijn ::before of ::after (een uitgerekte kaartlink), of op een
+            // ouder die de focus bevat.
+            indicator: (() => {
+              const toont = (s) => (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== "none";
+              if (toont(stijl) || toont(getComputedStyle(el, "::before")) || toont(getComputedStyle(el, "::after"))) return true;
+              for (let ouder = el.parentElement, n = 0; ouder && n < 4; ouder = ouder.parentElement, n++) {
+                const s = getComputedStyle(ouder);
+                if (ouder.matches(":focus-within") && s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0) return true;
+              }
+              return false;
+            })(),
+          };
+        });
+        if (stop.einde) break;
+        aantal++;
+        if (!stop.zichtbaar) bevindingen.push(`${stop.naam}: focus op een onzichtbaar element`);
+        else if (!stop.indicator) bevindingen.push(`${stop.naam}: geen outline of box-shadow bij focus`);
+      }
+      assert.ok(aantal >= 8, `maar ${aantal} focusstops op de homepage; verwacht minstens 8`);
+      assert.deepEqual(bevindingen, []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
+  const ROUTE = "/onderdelen/lange-pagina/?q=inleiding";
+  const STANDEN = [
+    { naam: "320px breed", breedte: 320 },
+    { naam: "480px breed", breedte: 480 },
+    { naam: "768px breed", breedte: 768 },
+    { naam: "1280px breed", breedte: 1280 },
+    // Bij 200% tekst is de balk op 320px het hoogst (8,6rem); daarop rekent --toast-ruimte in toast.css.
+    { naam: "320px breed met 200% tekst", breedte: 320, wortel: 32 },
+    { naam: "768px breed met 200% tekst", breedte: 768, wortel: 32 },
+    { naam: "1280px breed met 200% tekst", breedte: 1280, wortel: 32 },
+  ];
+
+  const snijdt = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const vak = (r) => `x ${Math.round(r.left)}-${Math.round(r.right)}, y ${Math.round(r.top)}-${Math.round(r.bottom)}`;
+
+  /**
+   * Haalt de knop uit de pagina. params.back_to_top geldt voor de hele site en de voorbeeldsite zet het aan,
+   * dus dit bootst een site zonder knop na: de CSS rekent op de aanwezigheid van het element.
+   */
+  const knopWeg = (page) => page.evaluate(() => document.querySelector("a.back-to-top")?.remove());
+
+  /** Controleert dat de balk in beeld staat en scrolt naar onderen, waar de knop naar boven verschijnt. */
+  async function naarOnderen(page, { knop: metKnop = true } = {}) {
+    const balk = await page.evaluate(() => {
+      const el = document.getElementById("highlight-bar");
+      return !!el && !el.hidden && el.getClientRects().length > 0;
+    });
+    assert.ok(balk, "de markeerbalk #highlight-bar staat niet in beeld bij ?q=inleiding");
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    if (!metKnop) return;
+    const knop = await page
+      .waitForFunction(
+        () => {
+          const el = document.querySelector("a.back-to-top");
+          return !!el && !el.hidden;
+        },
+        { timeout: 2000 },
+      )
+      .then(() => true, () => false);
+    assert.ok(knop, "a.back-to-top verschijnt niet na onderaan scrollen; staat params.back_to_top aan?");
+  }
+
+  /** De snijding van twee rechthoeken als breedte en hoogte in px; 0 als ze elkaar niet raken of er een ontbreekt. */
+  function snijding(a, b) {
+    if (!a || !b) return { breedte: 0, hoogte: 0 };
+    return {
+      breedte: Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)),
+      hoogte: Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)),
+    };
+  }
+  const oppervlak = (s) => s.breedte * s.hoogte;
+
+  /**
+   * Loopt met Tab van het begin van de pagina tot de focus terug is bij het begin en geeft per focusstop de
+   * rechthoeken van het element, de balk en de knop. De balk en de knop zelf zijn geen focusstop voor deze meting.
+   */
+  async function tabWandeling(page) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const stops = [];
+    for (let i = 0; i < 150; i++) {
+      await page.keyboard.press("Tab");
+      // base.js zet de knop in het frame na een scroll aan of uit.
+      await page.evaluate(() => new Promise((klaar) => requestAnimationFrame(klaar)));
+      const stop = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el || el === document.body || el.dataset.tabGezien) return { einde: true };
+        el.dataset.tabGezien = "1";
+        if (el.matches("#highlight-bar, a.back-to-top")) return {};
+        const stijl = getComputedStyle(el);
+        const rect = (b) => (b && !b.hidden && b.getClientRects().length > 0 ? b.getBoundingClientRect().toJSON() : null);
+        const tekst = (el.getAttribute("aria-label") ?? el.textContent).trim().replace(/\s+/g, " ").slice(0, 30);
+        return {
+          naam: `${el.tagName.toLowerCase()} "${tekst}"`,
+          rect: el.getBoundingClientRect().toJSON(),
+          balk: rect(document.getElementById("highlight-bar")),
+          knop: rect(document.querySelector("a.back-to-top")),
+          marge: { begin: parseFloat(stijl.scrollMarginTop) || 0, eind: parseFloat(stijl.scrollMarginBottom) || 0 },
+          venster: { breedte: innerWidth, hoogte: innerHeight },
+        };
+      });
+      if (stop.einde) break;
+      if (stop.rect) stops.push(stop);
+    }
+    return stops;
+  }
+
+  for (const { naam, breedte, wortel } of STANDEN) {
+    test(`de knop naar boven staat niet onder de markeerbalk (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await naarOnderen(page);
+        // De knop is de laatste focusstop, direct na de balk.
+        await page.focus("#highlight-bar");
+        await page.keyboard.press("Tab");
+        const stand = await page.evaluate(() => {
+          const knop = document.activeElement;
+          const rect = knop.getBoundingClientRect();
+          const midden = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          return {
+            isKnop: knop.matches("a.back-to-top"),
+            knop: rect.toJSON(),
+            balk: document.getElementById("highlight-bar").getBoundingClientRect().toJSON(),
+            middenVrij: !!midden && knop.contains(midden),
+            venster: { breedte: innerWidth, hoogte: innerHeight },
+          };
+        });
+        assert.ok(stand.isKnop, "de Tab na de markeerbalk gaat niet naar a.back-to-top");
+        assert.ok(!snijdt(stand.knop, stand.balk), `de knop (${vak(stand.knop)}) overlapt de markeerbalk (${vak(stand.balk)})`);
+        assert.ok(stand.middenVrij, `iets anders ligt over het midden van de knop (${vak(stand.knop)})`);
+        const { knop, venster } = stand;
+        assert.ok(
+          knop.top >= 0 && knop.left >= 0 && knop.bottom <= venster.hoogte && knop.right <= venster.breedte,
+          `de knop (${vak(knop)}) valt buiten beeld (${venster.breedte}x${venster.hoogte})`,
+        );
+      } finally {
+        await page.close();
+      }
+    });
+
+    test(`onderaan ligt de laatste focusstop in de voet vrij van balk en knop (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await naarOnderen(page);
+        const stand = await page.evaluate(() => {
+          const zichtbaar = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+          const laatste = [...document.querySelectorAll("body > footer :is(a[href], button)")].filter(zichtbaar).at(-1);
+          const rect = (el) => el?.getBoundingClientRect().toJSON();
+          return {
+            naam: laatste?.textContent.trim(),
+            laatste: rect(laatste),
+            balk: rect(document.getElementById("highlight-bar")),
+            knop: rect(document.querySelector("a.back-to-top")),
+          };
+        });
+        assert.ok(stand.laatste, "geen zichtbare link of knop in de voet");
+        assert.ok(!snijdt(stand.laatste, stand.balk), `"${stand.naam}" (${vak(stand.laatste)}) ligt onder de markeerbalk (${vak(stand.balk)})`);
+        assert.ok(!snijdt(stand.laatste, stand.knop), `"${stand.naam}" (${vak(stand.laatste)}) ligt onder de knop naar boven (${vak(stand.knop)})`);
+      } finally {
+        await page.close();
+      }
+    });
+
+    test(`zonder knop naar boven ligt elke focusstop in de voet vrij van de markeerbalk (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await knopWeg(page);
+        await naarOnderen(page, { knop: false });
+        // Van de eerste link in de voet tot de balk, die in de volgorde direct na de voet komt.
+        await page.focus("body > footer :is(a[href], button)");
+        const stops = [];
+        for (let i = 0; i < 60; i++) {
+          const stop = await page.evaluate(() => {
+            const el = document.activeElement;
+            if (!el?.closest("body > footer")) return null;
+            return {
+              naam: (el.getAttribute("aria-label") ?? el.textContent).trim().replace(/\s+/g, " ").slice(0, 30),
+              rect: el.getBoundingClientRect().toJSON(),
+              balk: document.getElementById("highlight-bar").getBoundingClientRect().toJSON(),
+            };
+          });
+          if (!stop) break;
+          stops.push(stop);
+          await page.keyboard.press("Tab");
+        }
+        assert.ok(stops.length >= 5, `maar ${stops.length} focusstops in de voet; verwacht minstens 5`);
+        assert.ok(stops.some((s) => s.naam.startsWith("Weergave")), "de themakeuze is geen focusstop in de voet");
+        for (const s of stops) {
+          assert.ok(!snijdt(s.rect, s.balk), `"${s.naam}" (${vak(s.rect)}) ligt onder de markeerbalk (${vak(s.balk)})`);
+        }
+      } finally {
+        await page.close();
+      }
+    });
+
+    for (const metKnop of [true, false]) {
+      test(`${metKnop ? "met" : "zonder"} knop naar boven: Tab langs de hele pagina laat geen element met focus onder ${metKnop ? "balk of knop" : "de balk"} verdwijnen (${naam})`, async (t) => {
+        const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+        try {
+          if (!metKnop) await knopWeg(page);
+          const stops = await tabWandeling(page);
+          assert.ok(stops.length >= 30, `maar ${stops.length} focusstops op de pagina; verwacht minstens 30`);
+          assert.ok(stops.some((s) => s.naam.includes("Weergave")), "de wandeling komt niet bij de themakeuze in de voet");
+          const geheel = [];
+          const deels = [];
+          let slechtste = { fractie: 0, naam: "-" };
+          for (const stop of stops) {
+            const { rect, balk, knop, marge, venster } = stop;
+            const totaal = rect.width * rect.height;
+            if (totaal === 0) continue;
+            const onderBalk = snijding(rect, balk);
+            const onderKnop = snijding(rect, knop);
+            const bedekt = oppervlak(onderBalk) + oppervlak(onderKnop);
+            const zichtbaar = oppervlak(snijding(rect, { left: 0, top: 0, right: venster.breedte, bottom: venster.hoogte }));
+            if (bedekt / totaal > slechtste.fractie) slechtste = { fractie: bedekt / totaal, naam: stop.naam };
+            const beschrijving = `${stop.naam} (${vak(rect)}, ${Math.round((bedekt / totaal) * 100)}% afgedekt)`;
+            if (zichtbaar > 0 && bedekt >= zichtbaar - 1) geheel.push(beschrijving);
+            // Een element dat met zijn scrollmarges in het venster past, scrolt volledig boven balk en knop; een
+            // hoger element kan dat niet (16px speling voor afronding).
+            const past = rect.height + marge.begin + marge.eind + 16 <= venster.hoogte;
+            const raakt = (s) => s.breedte > 1 && s.hoogte > 1;
+            if (past && (raakt(onderBalk) || raakt(onderKnop))) deels.push(beschrijving);
+          }
+          t.diagnostic(
+            slechtste.fractie > 0
+              ? `${stops.length} focusstops, slechtste dekking ${Math.round(slechtste.fractie * 100)}% bij ${slechtste.naam}`
+              : `${stops.length} focusstops, geen enkele deels afgedekt`,
+          );
+          assert.deepEqual(geheel, [], "elementen met focus liggen geheel onder de balk of de knop (2.4.11)");
+          assert.deepEqual(deels, [], "elementen die boven de ruimte onder passen liggen toch deels onder de balk of de knop");
+        } finally {
+          await page.close();
+        }
+      });
+    }
+  }
+
+  /** De ruimte onder de laatste regel van de voet en de scrollmarge van een link in de voet, in px. */
+  const ruimtes = (page) =>
+    page.evaluate(() => ({
+      balk: !document.getElementById("highlight-bar").hidden,
+      voet: parseFloat(getComputedStyle(document.querySelector("body > footer")).paddingBottom),
+      marge: parseFloat(getComputedStyle(document.querySelector("body > footer a[href]")).scrollMarginBottom),
+    }));
+
+  async function ruimtesVan(route, metKnop) {
+    const page = await open(route, { width: 320, height: 640 });
+    try {
+      if (!metKnop) await knopWeg(page);
+      return await ruimtes(page);
+    } finally {
+      await page.close();
+    }
+  }
+
+  const SLUITERS = [
+    ["Escape", (page) => page.keyboard.press("Escape")],
+    ["een klik op de balk", (page) => page.click("#highlight-bar")],
+  ];
+
+  for (const metKnop of [true, false]) {
+    for (const [wijze, sluit] of SLUITERS) {
+      test(`${metKnop ? "met" : "zonder"} knop naar boven: na ${wijze} is de ruimte onderaan weer normaal`, async () => {
+        // Normaal is dezelfde pagina zonder ?q=, dus zonder balk.
+        const normaal = await ruimtesVan("/onderdelen/lange-pagina/", metKnop);
+        assert.equal(normaal.balk, false, "de markeerbalk staat in beeld zonder ?q=");
+        const page = await open(ROUTE, { width: 320, height: 640 });
+        try {
+          if (!metKnop) await knopWeg(page);
+          const metBalk = await ruimtes(page);
+          assert.ok(metBalk.balk, "de markeerbalk staat niet in beeld bij ?q=inleiding");
+          assert.ok(metBalk.voet > normaal.voet, `de voet houdt geen extra ruimte vrij bij de balk (${metBalk.voet}px, normaal ${normaal.voet}px)`);
+          assert.ok(metBalk.marge > normaal.marge, `een link in de voet heeft geen extra scrollmarge bij de balk (${metBalk.marge}px, normaal ${normaal.marge}px)`);
+          await sluit(page);
+          const dicht = await ruimtes(page);
+          assert.equal(dicht.balk, false, `de markeerbalk sluit niet met ${wijze}`);
+          assert.deepEqual({ voet: dicht.voet, marge: dicht.marge }, { voet: normaal.voet, marge: normaal.marge });
+        } finally {
+          await page.close();
+        }
+      });
+    }
+  }
+});
+
+describe("bewegingsvoorkeur (2.3.3)", () => {
+  for (const route of ["/", "/onderdelen/lange-pagina/"]) {
+    test(`prefers-reduced-motion: geen overgangen of animaties op ${route}`, async () => {
+      const page = await open(route);
+      try {
+        await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+        const bevindingen = await page.evaluate(() => {
+          const tijd = (waarde) => Math.max(...waarde.split(",").map((t) => (t.trim().endsWith("ms") ? parseFloat(t) : parseFloat(t) * 1000) || 0));
+          const uit = [];
+          if (getComputedStyle(document.documentElement).scrollBehavior === "smooth") uit.push("html: scroll-behavior smooth");
+          for (const el of document.querySelectorAll("*")) {
+            const stijl = getComputedStyle(el);
+            if (tijd(stijl.transitionDuration) > 1 && stijl.transitionProperty !== "none") uit.push(`${el.tagName.toLowerCase()}.${el.className}: transition ${stijl.transitionDuration}`);
+            if (tijd(stijl.animationDuration) > 1 && stijl.animationName !== "none") uit.push(`${el.tagName.toLowerCase()}.${el.className}: animation ${stijl.animationDuration}`);
+          }
+          return [...new Set(uit)].slice(0, 10);
+        });
+        assert.deepEqual(bevindingen, []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
+describe("zonder JavaScript", () => {
+  test("de homepage toont kop, inhoud en hoofdnavigatie op een breed scherm", async () => {
+    const page = await open("/", BREED, { javascript: false });
+    try {
+      const staat = await page.evaluate(() => {
+        const zichtbaar = (el) => !!el && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden";
+        const links = [...document.querySelectorAll("nav a")].filter(zichtbaar).map((a) => a.getAttribute("href"));
+        return { h1: zichtbaar(document.querySelector("h1")), main: zichtbaar(document.querySelector("main")), links };
+      });
+      assert.ok(staat.h1, "de h1 is niet zichtbaar zonder JavaScript");
+      assert.ok(staat.main, "<main> is niet zichtbaar zonder JavaScript");
+      assert.ok(staat.links.some((href) => href.includes("onderdelen")), "geen zichtbare link naar Onderdelen in een nav zonder JavaScript");
+    } finally {
+      await page.close();
+    }
+  });
+});

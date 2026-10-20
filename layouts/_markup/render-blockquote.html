@@ -1,17 +1,44 @@
+{{- /* Alerts (> [!NOTE] enz.) worden een infoblok: een <div>, geen citaat
+       (WCAG 1.3.1). De titel is een echte kop, standaard h3, instelbaar met
+       params.infoblok.kopniveau.
+
+       Alerttype naar variant:
+         note, info          -> info (standaard, met info-icoon)
+         tip                 -> success
+         important, warning  -> warning
+         caution             -> danger
+       Andere typen krijgen de standaardopmaak zonder variantklasse.
+
+       Zonder titel draagt alleen de kleur het type; daarom krijgen tip,
+       important, warning en caution dan een verborgen typenaam (WCAG 1.4.1). */ -}}
 {{- if eq .Type "alert" -}}
-<blockquote class="callout">
-  {{- if or (eq .AlertType "info") .AlertTitle }}
+{{- $varianten := dict "note" "info" "info" "info" "tip" "success" "important" "warning" "warning" "warning" "caution" "danger" -}}
+{{- $variant := index $varianten .AlertType -}}
+{{- $niveau := 3 -}}
+{{- with site.Params.infoblok -}}
+  {{- with .kopniveau -}}{{ $niveau = int . }}{{- end -}}
+{{- end -}}
+{{- if or (lt $niveau 2) (gt $niveau 6) -}}
+  {{- errorf "params.infoblok.kopniveau %d ongeldig (kies 2 tot en met 6)" $niveau -}}
+{{- end -}}
+{{- $icoon := eq $variant "info" -}}
+<div class="callout{{ with $variant }} {{ . }}{{ end }}">
+  {{- if or $icoon .AlertTitle }}
   <header>
-    {{- if eq .AlertType "info" }}
-    <img src="{{ relURL "images/icons/info.svg" }}" alt="Info icon">
+    {{- if $icoon }}
+    {{- partial "icon.html" "info" -}}
     {{- end }}
-    {{- with .AlertTitle }}<span class="title">{{ . }}</span>{{ end }}
+    {{- with .AlertTitle }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
   </header>
   {{- end }}
+  {{- $tekst := .Text }}
+  {{- if not .AlertTitle }}
+    {{- $tekst = partial "infoblok-typenaam.html" (dict "alert" .AlertType "tekst" $tekst) }}
+  {{- end }}
   <div class="content">
-    {{ .Text }}
+    {{ $tekst }}
   </div>
-</blockquote>
+</div>
 {{- else -}}
 <blockquote class="quote">
   {{ .Text }}

@@ -1,4 +1,11 @@
-<dialog id="search-modal" class="search-modal" aria-label="Zoeken" data-search-index="{{ "index.json" | relURL }}" data-search-priority="{{ delimit (default slice site.Params.search.priority_sections) "," }}">
+{{- /* Zoekvenster. De instellingen staan als data-attributen op de dialog, zodat
+       het script geen inline code nodig heeft (CSP). Een waarde van 0 is
+       geldig (drempel 0 is exact, max_results 0 is alles), dus geen default. */ -}}
+{{- $search := site.Params.search | default dict -}}
+{{- $threshold := cond (isset $search "threshold") $search.threshold 0.3 -}}
+{{- $maxResults := cond (isset $search "max_results") $search.max_results 10 -}}
+{{- $weights := $search.section_weights | default dict -}}
+<dialog id="search-modal" class="search-modal" aria-label="Zoeken"{{ with site.Home.OutputFormats.Get "json" }} data-search-index="{{ .RelPermalink }}"{{ end }} data-search-priority="{{ delimit (default slice $search.priority_sections) "," }}" data-search-threshold="{{ $threshold }}" data-search-max-results="{{ $maxResults }}" data-search-weights="{{ $weights | jsonify }}">
   <div class="search-modal-content">
     <div class="search-modal-header">
       {{- partial "icon.html" "search" -}}
@@ -6,31 +13,35 @@
         type="search"
         id="search-input"
         class="search-input"
-        placeholder="Zoeken..."
-        aria-label="Zoek op de website"
+        placeholder="Waar zoek je naar?"
+        aria-label="Waar zoek je naar?"
         autocomplete="off"
         autofocus
       />
-      <button class="button-ghost" id="search-close" aria-label="Sluiten">
+      <button type="button" class="button-ghost" id="search-close" aria-label="Sluiten">
         {{- partial "icon.html" "x" -}}
       </button>
     </div>
-    {{/* Sectie-filters config-driven via site.Params.search.filters.
-         Fallback: alleen "Alles" — zoekt over hele site zonder filter. */}}
-    {{ $filters := site.Params.search.filters }}
+    {{/* Sectie-filters via site.Params.search.filters, het eerste filter is
+         "Alles". Zonder filters zoekt het over de hele site. */}}
+    {{ $filters := $search.filters }}
     {{ if and $filters (gt (len $filters) 1) }}
     <div class="search-filters" role="group" aria-label="Filter op sectie">
       {{ range $i, $f := $filters }}
-      <button class="search-filter{{ if eq $i 0 }} active{{ end }}"
+      <button type="button" class="search-filter{{ if eq $i 0 }} active{{ end }}"
               data-section="{{ .section }}"
               aria-pressed="{{ if eq $i 0 }}true{{ else }}false{{ end }}">{{ .label }}</button>
       {{ end }}
     </div>
     {{ end }}
-    <ul id="search-results" class="search-results" aria-label="Zoekresultaten" aria-live="polite"></ul>
+    <p id="search-status" class="visually-hidden" role="status"></p>
+    <ul id="search-results" class="search-results" aria-label="Zoekresultaten"></ul>
   </div>
 </dialog>
 
-<button id="highlight-bar" class="toast" aria-live="polite" hidden>
-  Zoekterm "<span id="highlight-bar-query"></span>" is gemarkeerd. Klik hier om de markering te verwijderen.
+{{- /* De statusmelding staat altijd in de DOM: een live region die pas na het
+       laden verschijnt, leest een schermlezer niet voor (4.1.3). */ -}}
+<p id="highlight-status" class="visually-hidden" role="status"></p>
+<button type="button" id="highlight-bar" class="toast" hidden>
+  Zoekterm "<span id="highlight-bar-query"></span>" is gemarkeerd. Verwijder de markering.
 </button>

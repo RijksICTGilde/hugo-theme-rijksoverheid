@@ -1,0 +1,40 @@
+{{- /* Emoji met een bewuste keuze voor schermlezers. Een schermlezer leest een
+       kale emoji voor met een eigen naam, vaak Engels of per apparaat anders.
+       Kies daarom altijd een van de twee:
+
+         {{< emoji teken="🚫" aria-label="Kan beter" >}}   betekenisvol: leest "Kan beter"
+         {{< emoji teken="💡" aria-hidden=true >}}         versiering: leest niets
+
+       In de Markdown-uitvoer wordt het de kale emoji (partial markdown-body). */ -}}
+{{- if not .IsNamedParams -}}
+  {{- errorf "%s: emoji kent alleen benoemde parameters, bijvoorbeeld teken=\"💡\"" .Position -}}
+{{- else -}}
+{{- range $naam, $_ := .Params -}}
+  {{- if not (in (slice "teken" "aria-label" "aria-hidden") $naam) -}}
+    {{- errorf "%s: onbekende parameter %q voor emoji; kies uit teken, aria-label, aria-hidden" $.Position $naam -}}
+  {{- end -}}
+{{- end -}}
+{{- $teken := .Get "teken" -}}
+{{- $label := .Get "aria-label" -}}
+{{- $verborgen := false -}}
+{{- with .Get "aria-hidden" -}}
+  {{- if not (in (slice "true" "false") (string .)) -}}
+    {{- errorf "%s: aria-hidden is true of false, niet %q" $.Position (string .) -}}
+  {{- end -}}
+  {{- $verborgen = eq (string .) "true" -}}
+{{- end -}}
+{{- if not $teken -}}
+  {{- errorf "%s: emoji mist de parameter teken" .Position -}}
+{{- end -}}
+{{- if and $label $verborgen -}}
+  {{- errorf "%s: emoji heeft aria-label of aria-hidden=true, niet allebei" .Position -}}
+{{- end -}}
+{{- if not (or $label $verborgen) -}}
+  {{- errorf "%s: emoji mist een keuze voor schermlezers: geef aria-label=\"..\" (betekenisvol) of aria-hidden=true (versiering)" .Position -}}
+{{- end -}}
+{{- if $verborgen -}}
+<span aria-hidden="true">{{ $teken }}</span>
+{{- else -}}
+<span role="img" aria-label="{{ $label }}">{{ $teken }}</span>
+{{- end -}}
+{{- end -}}

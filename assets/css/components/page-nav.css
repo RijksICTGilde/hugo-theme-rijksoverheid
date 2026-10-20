@@ -1,6 +1,6 @@
 .page-nav {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
 }
 
@@ -30,8 +30,11 @@
 .page-nav-prev {
   text-align: start;
 
+  /* De tweede regel houdt de pijl uit de naam van de link; een browser die
+     "/ alt" niet kent, valt terug op de eerste. */
   .page-nav-label::before {
     content: "← ";
+    content: "← " / "";
   }
 }
 
@@ -41,6 +44,7 @@
 
   .page-nav-label::after {
     content: " →";
+    content: " →" / "";
   }
 }
 
@@ -51,11 +55,12 @@
 
 .page-nav-title {
   font-weight: 600;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 640px) {
   .page-nav {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .page-nav-next {

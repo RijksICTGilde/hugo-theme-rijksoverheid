@@ -1,4 +1,4 @@
-/* Referenties — accordeon-overzicht onderaan een pagina, met inline
+/* Referenties: accordeon-overzicht onderaan een pagina, met inline
    tooltip-marker (.ref-wrapper) op elke verwijzing in de body-tekst.
    Activeer een ref via {ref:N} marker in markdown; consumer-partial
    (reftext.html) doet de substitutie. */
@@ -10,7 +10,6 @@
 }
 
 .references > details > summary {
-  cursor: pointer;
   list-style: none;
   font-size: 1.75rem;
   font-weight: 700;
@@ -61,14 +60,28 @@
   display: inline;
 }
 
-.ref-term {
+/* De term is een knop. button.css stijlt elke knop, met :hover en
+   :focus-visible op 0,2,0 (de nesting maakt er :is(button, .button) van);
+   deze selectors wegen zwaarder, los van de volgorde in de bundel. Met
+   line-height: normal is de knop even hoog als de tekst, zodat de tooltip
+   niet over de knop valt. Een knop breekt niet over regels; met anywhere
+   (niet break-word) breekt een lang woord binnen de knop af (1.4.10). */
+.ref-wrapper button.ref-term {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: inherit;
+  line-height: normal;
+  color: inherit;
+  text-align: inherit;
+  overflow-wrap: anywhere;
   text-decoration: underline dotted;
-  text-decoration-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  text-decoration-color: var(--color-primary);
   text-decoration-thickness: 2px;
   text-underline-offset: 0.2em;
 }
 
-.ref-term:focus-visible {
+.ref-wrapper .ref-term:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 2px;
@@ -92,8 +105,8 @@
   max-inline-size: min(22rem, calc(100vw - 2rem));
   padding: 0.75rem 1rem;
   padding-block-start: calc(0.75rem + 0.4rem);
-  background-color: var(--color-bg-page);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-text-muted);
   border-radius: 0.5rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   font-size: 1rem;

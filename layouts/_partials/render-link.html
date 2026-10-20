@@ -5,24 +5,58 @@
     - href: De URL
     - text: De linktekst
     - title: (optioneel) Title attribuut
-    - private: (optioneel) Markeer als besloten link via {.private} in Markdown
+    - private: (optioneel) Markeer als besloten link; in Markdown met de
+      linktitel "besloten" of "private": [tekst](url "besloten")
 
-  Externe links krijgen automatisch target="_blank" en rel="external noopener noreferrer".
-  Omdat ze in een nieuw venster openen, krijgen ze een verborgen melding
+  Externe links openen standaard in hetzelfde tabblad, met
+  rel="external noreferrer". Met params.links.nieuw_venster: true openen
+  externe en besloten links in een nieuw venster (target="_blank",
+  rel="external noopener noreferrer") en krijgen ze een verborgen melding
   "(opent in een nieuw venster)"; het icoon alleen is niet programmatisch
-  beschikbaar (WCAG 1.3.1). Klasse nieuw-venster-melding is de haak voor wie
-  er zelf een aria-label omheen zet: dat overschrijft deze tekst.
-  Private links krijgen een slotje-icoon en "(besloten omgeving)" label.
-  Een link is private als {.private} is meegegeven in Markdown, of automatisch
-  bij samenwerkruimten.nl en digilab.overheid.nl/chat.
+  beschikbaar (WCAG 1.3.1).
+
+  Besloten links krijgen een slot-icoon (CSS) en de verborgen melding
+  "(besloten omgeving)". Een link is besloten met de linktitel "besloten" of
+  "private" (Hugo kent geen attributen op een inline link), of automatisch
+  als hij naar een host uit params.links.besloten gaat: een lijst met
+  hostnamen, eventueel met een pad erachter. Een host geldt ook voor zijn
+  subdomeinen, een pad ook voor de paden eronder. Standaard
+  samenwerkruimten.nl en digilab.overheid.nl/chat; een lege lijst zet de
+  automatische herkenning uit.
+
+  Klasse nieuw-venster-melding is de haak voor wie er zelf een aria-label
+  omheen zet: dat overschrijft deze tekst. meta.html en index.json filteren
+  de tekst " (opent in een nieuw venster)" en ", opent in een nieuw venster"
+  uit description en zoekindex; houd die teksten gelijk.
 */ -}}
 {{- $u := urls.Parse .href -}}
 {{- $isExternal := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
-{{- $isPrivate := or .private (and $isExternal (or (strings.Contains $u.Host "samenwerkruimten.nl") (and (strings.Contains $u.Host "digilab.overheid.nl") (strings.Contains $u.Path "/chat")))) -}}
+{{- $nieuwVenster := false -}}
+{{- $besloten := slice "samenwerkruimten.nl" "digilab.overheid.nl/chat" -}}
+{{- with site.Params.links -}}
+  {{- $nieuwVenster = .nieuw_venster -}}
+  {{- if isset . "besloten" }}{{ $besloten = .besloten }}{{ end -}}
+{{- end -}}
+{{- $isPrivate := .private -}}
+{{- if and $isExternal (not $isPrivate) -}}
+  {{- $host := lower $u.Hostname -}}
+  {{- range $besloten -}}
+    {{- $b := urls.Parse (printf "//%s" .) -}}
+    {{- $bHost := lower $b.Hostname -}}
+    {{- $opHost := or (eq $host $bHost) (hasSuffix $host (printf ".%s" $bHost)) -}}
+    {{- /* Met een slash erachter valt /chatbot niet onder /chat. */ -}}
+    {{- $onderPad := hasPrefix (printf "%s/" $u.Path) (printf "%s/" (strings.TrimSuffix "/" $b.Path)) -}}
+    {{- if and $opHost $onderPad }}{{ $isPrivate = true }}{{ end -}}
+  {{- end -}}
+{{- end -}}
 {{- if $isPrivate -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external private noopener noreferrer">{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (besloten omgeving, opent in een nieuw venster)</span></a>
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $nieuwVenster }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="external private noreferrer"{{ end }}>{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (besloten omgeving{{ if $nieuwVenster }}, opent in een nieuw venster{{ end }})</span></a>
 {{- else if $isExternal -}}
+{{- if $nieuwVenster -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span></a>
+{{- else -}}
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} rel="external noreferrer">{{ .text }}</a>
+{{- end -}}
 {{- else -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}>{{ .text }}</a>
 {{- end -}}

@@ -1,0 +1,47 @@
+{{- $pctx := . -}}
+{{- if .IsHome -}}{{ $pctx = .Site -}}{{- end -}}
+{{- $pages := slice -}}
+{{- if or $.IsHome $.IsSection -}}
+{{- $pages = $pctx.RegularPages -}}
+{{- else -}}
+{{- $pages = $pctx.Pages -}}
+{{- end -}}
+{{- $limit := .Site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 -}}
+{{- $pages = $pages | first $limit -}}
+{{- end -}}
+{{- /* Links in .Content zijn root-relatief en bevatten al het pad van de baseURL;
+       alleen de herkomst (schema en host) komt ervoor. */ -}}
+{{- $base := urls.Parse .Site.BaseURL -}}
+{{- $herkomst := printf "%s://%s" $base.Scheme $base.Host -}}
+{{- $laatste := time.AsTime "0001-01-01T00:00:00Z" -}}
+{{- range $pages }}{{ $d := cond .Date.IsZero .Lastmod .Date }}{{ if $d.After $laatste }}{{ $laatste = $d }}{{ end }}{{ end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ if or .IsHome (eq .Title .Site.Title) }}{{ .Site.Title }}{{ else if in .Title .Site.Title }}{{ .Title }}{{ else }}{{ .Title }} van {{ .Site.Title }}{{ end }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>{{ with .Description }}{{ . | plainify }}{{ else with .Site.Params.description }}{{ . }}{{ else }}{{ $.Site.Title }}{{ end }}</description>
+    <language>{{ site.Language.Lang | default "nl" }}</language>
+    {{- if not $laatste.IsZero }}<lastBuildDate>{{ $laatste.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    {{- with .OutputFormats.Get "rss" }}{{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType.Type | safeHTML }}{{ end }}
+    {{- range $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      {{- $pubDate := cond .Date.IsZero .Lastmod .Date }}
+      {{- if not $pubDate.IsZero }}
+      <pubDate>{{ $pubDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- end }}
+      {{- if not .Lastmod.IsZero }}
+      <atom:updated>{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}</atom:updated>
+      {{- end }}
+      <guid>{{ .Permalink }}</guid>
+      {{- $inhoud := partial "rss-extra.html" (dict "tekst" .Content "page" .)
+        | replaceRE `((?:href|src)=")#` (printf "${1}%s#" .Permalink)
+        | replaceRE `((?:href|src)=")(/[^/"][^"]*|/)"` (printf "${1}%s${2}\"" $herkomst) }}
+      <description>{{ $inhoud | transform.XMLEscape | safeHTML }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

@@ -8,20 +8,22 @@
   font-family: var(--font-sans);
   font-size: 0.9375rem;
   color: var(--color-text);
-  background-color: var(--color-bg-page);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-surface);
   border-radius: 0.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card);
   z-index: 100;
   text-align: center;
 
+  /* Eén regel als het past, anders afbreken: met nowrap liep de tekst bij
+     vergrote letters buiten beeld (WCAG 1.4.4). */
   @media (min-width: 600px) {
     left: 50%;
     right: auto;
     bottom: 1rem;
     transform: translateX(-50%);
+    width: max-content;
     max-width: calc(100% - 2rem);
-    white-space: nowrap;
     text-align: left;
   }
 }
@@ -30,18 +32,26 @@
   display: none;
 }
 
-/* De toast staat vast onderin met z-index 100 en kan een element dat focus
-   krijgt afdekken (WCAG 2.4.11). Zolang hij zichtbaar is, krijgt elk focusbaar
-   element ruimte onder zich mee, zodat de browser het erboven scrollt in
-   plaats van erachter. */
-body:has(.toast:not([hidden])) :is(a, button, summary, input, select, textarea, [tabindex]) {
-  scroll-margin-block-end: 6rem;
+/* De toast staat vast onderin met z-index 100 en kan de laatste regel van de
+   voet en een element met focus afdekken (WCAG 2.4.11). Zolang hij zichtbaar
+   is, houdt de voet ruimte vrij en krijgt elk focusbaar element ruimte onder
+   zich mee, zodat de browser het erboven scrollt in plaats van erachter. Padding
+   kan de hoogte van de toast niet volgen, dus een vaste waarde: 10rem dekt hem
+   op 320px bij 200% tekst (8,6rem) met een regel speling. */
+body:has(.toast:not([hidden])) {
+  --toast-ruimte: 10rem;
+
+  > footer {
+    padding-block-end: var(--toast-ruimte);
+  }
+
+  :is(a, button, summary, input, select, textarea, [tabindex]) {
+    scroll-margin-block-end: var(--toast-ruimte);
+  }
 }
 
 /* Interactive toast (button) */
 button.toast {
-  cursor: pointer;
-
   &:hover,
   &:focus-visible {
     background-color: light-dark(var(--color-rijksblauw), var(--color-text));

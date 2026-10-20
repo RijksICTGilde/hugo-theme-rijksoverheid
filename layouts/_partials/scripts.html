@@ -1,8 +1,15 @@
-{{/* JavaScript bundling via Hugo's asset pipeline */}}
+{{- /* Eén gefingerprinte JavaScript-bundel, in vaste volgorde. */ -}}
 {{- $baseJs := resources.Get "js/base.js" -}}
 {{- $tocJs := resources.Get "js/toc.js" -}}
 {{- $referentiesJs := resources.Get "js/referenties.js" -}}
-{{- $fuseJs := resources.Get "lib/fuse/fuse.min.js" -}}
-{{- $searchJs := resources.Get "js/search.js" -}}
-{{- $js := slice $baseJs $tocJs $referentiesJs $fuseJs $searchJs | resources.Concat "js/bundle.js" | fingerprint "md5" -}}
+{{- $tooltipJs := resources.Get "js/tooltip.js" -}}
+{{- $lijst := slice $baseJs $tocJs $referentiesJs $tooltipJs -}}
+{{- if partial "zoeken-aan.html" . -}}
+  {{- /* Fuse is ESM; esbuild maakt er een klassiek script van (zet window.Fuse). */ -}}
+  {{- $fuseJs := resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020") -}}
+  {{- $lijst = $lijst | append $fuseJs (resources.Get "js/search.js") -}}
+{{- end -}}
+{{- $js := $lijst | resources.Concat "js/bundle.js" -}}
+{{- if hugo.IsProduction }}{{ $js = $js | minify }}{{ end -}}
+{{- $js = $js | fingerprint "md5" -}}
 <script src="{{ $js.RelPermalink }}"></script>

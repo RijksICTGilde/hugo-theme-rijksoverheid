@@ -1,0 +1,29 @@
+{
+  "name": "hugo-theme-rijksoverheid-examplesite",
+  "private": true,
+  "type": "module",
+  "description": "Voorbeeldsite en tests van het theme. Alleen laag 2 heeft npm nodig; laag 1 gebruikt alleen Node.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "hugo --minify --panicOnWarning --cleanDestinationDir --destination public && hugo --minify --panicOnWarning --cleanDestinationDir --environment nieuw-venster --destination public-nieuw-venster",
+    "test": "node --test tests/*.test.js",
+    "laag2": "node --test tests/laag2/*.test.js",
+    "pa11y": "node --test tests/laag2/pa11y.test.js",
+    "wcag22": "node --test tests/laag2/wcag22.test.js",
+    "reflow": "node --test tests/laag2/reflow.test.js",
+    "toetsenbord": "node --test tests/laag2/toetsenbord.test.js",
+    "escape": "node --test tests/laag2/escape.test.js",
+    "opmaak": "node --test tests/laag2/opmaak.test.js",
+    "a11y-review": "node --test tests/laag2/a11y-review.test.js"
+  },
+  "devDependencies": {
+    "axe-core": "^4.13.0",
+    "pa11y-ci": "^5.0.0",
+    "puppeteer": "^25.9.0"
+  },
+  "overrides": {
+    "puppeteer": "$puppeteer"
+  }
+}

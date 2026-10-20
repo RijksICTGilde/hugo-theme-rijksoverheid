@@ -1,0 +1,13 @@
+{
+  "name": "hugo-theme-rijksoverheid-nldd",
+  "private": true,
+  "type": "module",
+  "description": "Genereert de NLDD-kleuren en -iconen van het theme. Niet nodig om een site te bouwen.",
+  "scripts": {
+    "genereer": "node tokens.js && node iconen.js",
+    "check": "node check.js"
+  },
+  "devDependencies": {
+    "@nldd/design-system": "0.9.0"
+  }
+}

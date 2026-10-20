@@ -1,0 +1,6 @@
+{{- /* Hook: past de inhoud van een item in de RSS-feed aan. Krijgt een dict
+       met tekst (de HTML van de pagina) en page, en geeft de HTML terug;
+       standaard ongewijzigd. Een site vervangt dit bestand, bijvoorbeeld om
+       sprekersnotities weg te laten:
+         {{ return replaceRE `(?s)<aside class="notes">.*?</aside>` "" .tekst }} */ -}}
+{{- return .tekst -}}

@@ -1,3 +1,9 @@
+/* Kleuren komen uit de NLDD-primitives (assets/css/nldd-primitives.css).
+   Elke primitive is al een light-dark()-paar: stap N in light is stap
+   1000-N in dark. Voor tekst en lijnen volstaat dus één stap. Achtergronden
+   krijgen wel twee stappen: gespiegeld wit (stap 0) is zwart (stap 1000),
+   en de pagina moet in dark de donkerste laag blijven. De neutrale schaal is
+   --theme-neutral-*: coolgray met meer verzadiging, zodat dark blauw blijft. */
 :root {
   color-scheme: light dark;
 
@@ -6,39 +12,62 @@
   --article-max-width: 800px;
   --navbar-height: 55px;
 
-  /* Primaire kleuren */
-  --color-rijksblauw: #154273;
-  --color-rijksoranje: #e17000;
-  --color-primary: light-dark(var(--color-rijksblauw), #80d5fc);
-  --color-link: light-dark(#01689b, #93dcfa);
+  /* Huisstijlkleuren: vaste merkkleuren, niet themagevoelig */
+  --color-rijksblauw: var(--primitives-color-reference-lintblauw);
+  --color-rijksoranje: var(--primitives-color-reference-oranje);
+  /* Verouderde namen: alias voor sites die ze nog gebruiken, vervalt in een volgende release */
+  --color-rijks-blauw: var(--color-rijksblauw);
+  --color-rijks-oranje: var(--color-rijksoranje);
 
-  /* Background voor menu + footer. */
+  --color-primary: var(--primitives-color-lintblauw-750);
+  /* In dark stap 800 in plaats van de gespiegelde 650: die haalt op
+     --color-bg-info geen 4,5:1 contrast (WCAG AA) */
+  --color-link: light-dark(var(--primitives-color-lintblauw-650), var(--primitives-color-lintblauw-800));
+
+  /* Achtergrond voor menu en voet */
   --color-banner: var(--color-rijksblauw);
 
   /* Achtergrondkleuren */
-  --color-bg-page: light-dark(#ffffff, #0f172a);
-  --color-bg-hero: light-dark(rgba(220, 227, 234, 0.9), rgba(30, 41, 59, 0.95));
-  --color-bg-info: light-dark(#d9ebf7, #1e3a5f);
-  --color-bg-muted: light-dark(#f3f3f3, #1e293b);
-  --color-bg-light: light-dark(#eff7fc, #1e293b);
+  --color-bg-page: light-dark(var(--theme-neutral-0), var(--theme-neutral-50));
+  --color-bg-hero: color-mix(in oklch, light-dark(var(--theme-neutral-75), var(--theme-neutral-100)) 92%, transparent);
+  --color-bg-info: light-dark(var(--primitives-color-lintblauw-75), var(--primitives-color-lintblauw-200));
+  --color-bg-muted: light-dark(var(--theme-neutral-25), var(--theme-neutral-100));
+  --color-bg-light: light-dark(var(--primitives-color-lintblauw-25), var(--theme-neutral-100));
+  --color-bg-success: light-dark(var(--primitives-color-success-75), var(--primitives-color-success-200));
+  --color-bg-warning: light-dark(var(--primitives-color-warning-75), var(--primitives-color-warning-200));
+  --color-bg-danger: light-dark(var(--primitives-color-critical-75), var(--primitives-color-critical-200));
+  /* Zwevende vlakken zoals tooltip en uitklappaneel; in dark lichter dan de pagina */
+  --color-surface: light-dark(var(--theme-neutral-0), var(--theme-neutral-100));
+
+  /* Accenten: rand of icoon bij een melding, minstens 3:1 tegen de eigen achtergrond en tegen --color-bg-page */
+  --color-accent-info: var(--primitives-color-accent-600);
+  --color-accent-success: var(--primitives-color-success-600);
+  --color-accent-warning: var(--primitives-color-warning-600);
+  --color-accent-danger: var(--primitives-color-critical-600);
 
   /* Tekstkleuren */
-  --color-text: light-dark(#0f172a, #e2e8f0);
-  --color-text-heading: light-dark(#0f172a, #f1f5f9);
-  --color-text-muted: light-dark(#334155, #b8c4d0);
+  --color-text: var(--theme-neutral-950);
+  --color-text-heading: var(--theme-neutral-950);
+  --color-text-muted: var(--theme-neutral-800);
   --color-text-inverse: #ffffff;
-  --color-text-on-primary: light-dark(#ffffff, #1e293b);
+  --color-text-on-primary: light-dark(#ffffff, var(--theme-neutral-100));
 
   /* Border kleur */
-  --color-border: light-dark(#e2e8f0, #334155);
+  --color-border: light-dark(var(--theme-neutral-75), var(--theme-neutral-200));
+  /* Rand van een bedieningselement (bijvoorbeeld een invoerveld): minstens 3:1 tegen de pagina */
+  --color-border-strong: var(--theme-neutral-500);
+  /* Rand van een zwevend vlak (tooltip, themapaneel, toast): minstens 3:1 tegen de pagina en het vlak zelf */
+  --color-border-surface: var(--color-text-muted);
 
-  /* Highlight kleur voor zoekresultaten */
-  --color-highlight: oklch(0.9 0.091 79);
-  --color-highlight-text: oklch(0.263 0.059 79);
+  /* Markering van de zoekterm, NLDD's mark-semantiek (donkergeel) */
+  --color-highlight: light-dark(var(--primitives-color-mark-100), var(--primitives-color-mark-200));
+  --color-highlight-text: light-dark(var(--primitives-color-mark-900), var(--primitives-color-mark-800));
 
   /* Typography */
-  --font-sans: "RO-Sans", "Fira Sans", Arial, sans-serif;
-  --font-serif: "RO-Serif", "Times New Roman", serif;
+  --font-sans: "RijksSans", "Fira Sans", Arial, sans-serif;
+  /* Verouderd: de tagline gebruikt nu --font-sans cursief, vervalt in een volgende release */
+  --font-serif: var(--font-sans);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   /* Font size */
   --text-base: 1rem;
@@ -54,20 +83,16 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-scheme="light"]) {
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 }
 
-:root[data-theme="dark"] {
+:root[data-scheme="dark"] {
   color-scheme: dark;
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-:root[data-theme="light"] {
+:root[data-scheme="light"] {
   color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
 }

@@ -1,0 +1,199 @@
+/* De rechterkolom bij tekstpagina's: inhoudsopgave, extra blokken uit de hook
+   page-aside-extra.html en relevante links. De volgorde in de broncode is ook
+   de focusvolgorde: deze kolom staat vóór de tekst.
+
+   Het breekpunt 59.375rem staat ook in js/toc.js; houd ze gelijk. In rem, zodat
+   de kolom ook stapelt als de tekst groter staat. */
+
+article:has(> .page-aside) {
+  @media (width >= 59.375rem) {
+    display: grid;
+    grid-template-columns: minmax(0, var(--article-max-width)) minmax(14rem, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 2rem;
+    padding-right: 0;
+
+    > * {
+      grid-column: 1;
+      min-width: 0;
+    }
+
+    > header {
+      grid-row: 1;
+    }
+
+    /* Tussen grid-items vallen marges niet samen. Buiten het grid wordt de
+       afstand onder de h1 de grootste van beide marges; dat doen we hier na. */
+    > header > :last-child {
+      margin-bottom: 0;
+    }
+
+    > header:has(> h1:last-child) ~ .artikel-tekst > :is(p, ul, ol, h2):first-child {
+      margin-top: 0.8rem;
+    }
+
+    > .artikel-tekst {
+      grid-row: 2;
+    }
+
+    > .page-aside {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      max-height: calc(100vh - 2rem);
+      padding-top: 1rem;
+      overflow-y: auto;
+
+      /* overflow-y maakt ook de x-as scrollend, dus een ring buiten de
+         rand wordt afgekapt. */
+      a:focus-visible {
+        outline-offset: -2px;
+      }
+    }
+  }
+}
+
+/* Breed artikel: de tekstkolom neemt de ruimte, de rechterkolom krijgt een
+   vaste breedte. */
+article.wide:has(> .page-aside) {
+  @media (width >= 59.375rem) {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+  }
+}
+
+.page-aside {
+  font-size: 1rem;
+  overflow-wrap: break-word;
+
+  @media (width < 59.375rem) {
+    padding-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* De knoppen komen uit toc.js; zonder JavaScript blijven de blokken open. */
+.page-aside:has(.page-aside-toggle) {
+  --chevron: 1.25rem;
+  --chevron-ruimte: 0.25rem;
+
+  > * + * {
+    margin-top: 0.25rem;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  /* Springt in tot waar de tekst van het label begint, na de chevron. */
+  h2 + * {
+    padding: 0.25rem 0 0.75rem calc(var(--chevron) + var(--chevron-ruimte));
+  }
+}
+
+.page-aside-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--chevron-ruimte);
+  min-height: 24px;
+  padding: 0.5rem 0;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+
+  &:hover,
+  &:focus-visible {
+    background-color: transparent;
+    border: none;
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: var(--chevron);
+    height: var(--chevron);
+    transform: rotate(-90deg);
+    transition: transform 0.2s ease;
+  }
+
+  &[aria-expanded="true"] svg {
+    transform: none;
+  }
+}
+
+.page-aside > * + * {
+  margin-top: 1.5rem;
+}
+
+.page-aside h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.page-aside ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+/* Als block met minimaal 24px hoogte is elke link een groot genoeg doel, ook
+   de sublinks die zonder marge onder elkaar staan (WCAG 2.5.8). Een .button
+   in de kolom houdt zijn eigen opmaak en focusring. */
+.page-aside li > a:not(.button) {
+  display: block;
+  min-height: 24px;
+  padding-block: 0.125rem;
+  scroll-margin-block: 0.5rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.page-aside > * > ul > li {
+  margin-bottom: 0.5rem;
+}
+
+/* Inhoudsopgave */
+.toc {
+  ul ul {
+    padding-left: 0.5rem;
+  }
+
+  ul ul li {
+    margin-bottom: 0;
+  }
+}
+
+.page-aside .toc a.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Relevante links: pijl als opsommingsteken, zonder alt-tekst voor
+   hulpsoftware. De eerste regel is de terugval voor browsers zonder die
+   syntaxis. */
+.relevante-links a::before {
+  content: "→";
+  content: "→" / "";
+  display: inline-block;
+  margin-right: 0.4em;
+}

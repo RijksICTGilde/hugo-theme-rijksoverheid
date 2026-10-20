@@ -1,9 +1,39 @@
+{{- /* Mermaid-diagram als voorgerenderde SVG's.
+
+  Contract met het renderscript van de site: het theme rendert zelf niets.
+  Voor de build maakt de site van elk mermaid-blok twee SVG's, een voor
+  het lichte en een voor het donkere thema (de download is de lichte):
+
+    static/images/render/<subpad>/<slug>-light.svg
+    static/images/render/<subpad>/<slug>-dark.svg
+
+  Het pad is relatief aan de projectmap (of de map van een module).
+  Ontbreekt een van de twee, dan stopt de build met beide verwachte
+  paden. De lichte SVG heeft een viewBox nodig: daaruit komen width en
+  height tegen verspringen.
+
+  subpad  het pad van het contentbestand ten opzichte van content/, zonder
+          extensie; bij index.md en _index.md alleen de map.
+          content/docs/intro.md      -> docs/intro
+          content/docs/opzet/index.md -> docs/opzet
+  slug    uit accTitle: kleine letters, witruimte wordt "-", alles behalve
+          a-z, 0-9 en "-" vervalt, reeksen "-" worden er een, geen "-" aan
+          begin of eind. Dezelfde slug voor de tweede keer op een pagina
+          wordt <slug>-2, dan <slug>-3.
+          Zonder accTitle: diagram-<n>, met n het volgnummer van het blok
+          onder alle mermaid-blokken op de pagina (met en zonder accTitle),
+          vanaf 1.
+
+  Tekstalternatief: accTitle wordt de alt, accDescr (op een regel of als
+  accDescr { ... }) een verborgen beschrijving na de afbeeldingen. Zonder
+  accTitle is accDescr de alt; zonder beide waarschuwt de build.
+*/ -}}
 {{- $inner := .Inner -}}
 {{- $accTitle := "" -}}
 {{- $accDescr := "" -}}
 {{- $inMultiDescr := false -}}
 {{- range split $inner "\n" -}}
-  {{- $line := trim . " " -}}
+  {{- $line := strings.TrimSpace . -}}
   {{- if $inMultiDescr -}}
     {{- if strings.Contains $line "}" -}}
       {{- $inMultiDescr = false -}}
@@ -14,59 +44,86 @@
         {{- $accDescr = $line -}}
       {{- end -}}
     {{- end -}}
-  {{- else if hasPrefix $line "accTitle:" -}}
-    {{- $accTitle = trim (strings.TrimPrefix "accTitle:" $line) " " -}}
+  {{- else if and (hasPrefix $line "accTitle:") (not $accTitle) -}}
+    {{- /* De eerste accTitle telt, net als in het renderscript. */ -}}
+    {{- $accTitle = strings.TrimSpace (strings.TrimPrefix "accTitle:" $line) -}}
   {{- else if hasPrefix $line "accDescr {" -}}
     {{- $inMultiDescr = true -}}
   {{- else if hasPrefix $line "accDescr:" -}}
-    {{- $accDescr = trim (strings.TrimPrefix "accDescr:" $line) " " -}}
+    {{- $accDescr = strings.TrimSpace (strings.TrimPrefix "accDescr:" $line) -}}
   {{- end -}}
 {{- end -}}
 
-{{- /* Blokteller (voor fallback slug bij ontbrekende accTitle) */ -}}
-{{- $blockKey := "mermaid-block-num" -}}
-{{- $blockNum := .Page.Store.Get $blockKey | default 0 -}}
-{{- $blockNum = add $blockNum 1 -}}
-{{- .Page.Store.Set $blockKey $blockNum -}}
-
-{{- /* Subpad afgeleid van content-bestand */ -}}
+{{- /* LogicalName en niet ContentBaseName: die geeft bij een bundle de mapnaam. */ -}}
 {{- $pageDir := path.Dir .Page.File.Path -}}
-{{- $baseName := .Page.File.ContentBaseName -}}
+{{- $baseName := replaceRE `\.[^.]+$` "" .Page.File.LogicalName -}}
 {{- $subdir := $pageDir -}}
 {{- if and (ne $baseName "index") (ne $baseName "_index") -}}
   {{- $subdir = path.Join $pageDir $baseName -}}
 {{- end -}}
 
-{{- /* Slug: op basis van accTitle of fallback diagram-N */ -}}
-{{- $slug := "" -}}
-{{- if $accTitle -}}
-  {{- $slug = $accTitle | lower | replaceRE "\\s+" "-" | replaceRE "[^a-z0-9-]" "" | replaceRE "-+" "-" | replaceRE "^-|-$" "" -}}
-  {{- $countKey := printf "mermaid-slug-%s" $slug -}}
-  {{- $count := .Page.Store.Get $countKey | default 0 -}}
-  {{- $count = add $count 1 -}}
-  {{- .Page.Store.Set $countKey $count -}}
-  {{- if gt $count 1 -}}
-    {{- $slug = printf "%s-%d" $slug $count -}}
+{{- /* Nummer en slug per blok bewaren onder zijn Ordinal: rendert Hugo de
+     inhoud nog een keer (een ander uitvoerformaat), dan krijgt hetzelfde
+     blok hetzelfde nummer in plaats van een doorgeteld nummer. */ -}}
+{{- $blokken := .Page.Store.Get "mermaid-blokken" | default dict -}}
+{{- $sleutel := printf "b%d" .Ordinal -}}
+{{- $blok := index $blokken $sleutel -}}
+{{- if not $blok -}}
+  {{- $nummer := add (len $blokken) 1 -}}
+  {{- $basis := "" -}}
+  {{- $slug := "" -}}
+  {{- if $accTitle -}}
+    {{- /* \s plus \v, \p{Z} en U+FEFF is de witruimte van \s in JavaScript. */ -}}
+    {{- $basis = $accTitle | lower | replaceRE `[\s\v\p{Z}\x{FEFF}]+` "-" | replaceRE `[^a-z0-9-]` "" | replaceRE `-+` "-" | replaceRE `^-|-$` "" -}}
+    {{- $eerder := 0 -}}
+    {{- range $blokken -}}
+      {{- if eq .basis $basis -}}{{ $eerder = add $eerder 1 }}{{- end -}}
+    {{- end -}}
+    {{- $slug = cond (gt $eerder 0) (printf "%s-%d" $basis (add $eerder 1)) $basis -}}
+  {{- else -}}
+    {{- $slug = printf "diagram-%d" $nummer -}}
   {{- end -}}
-{{- else -}}
-  {{- $slug = printf "diagram-%d" $blockNum -}}
+  {{- $blok = dict "nummer" $nummer "basis" $basis "slug" $slug -}}
+  {{- .Page.Store.Set "mermaid-blokken" (merge $blokken (dict $sleutel $blok)) -}}
 {{- end -}}
+{{- $slug := $blok.slug -}}
 
-{{- /* Pre-rendered SVGs in static/ */ -}}
-{{- $lightFile := path.Join "static/images/render" $subdir (printf "%s-light.svg" $slug) -}}
-{{- $darkFile := path.Join "static/images/render" $subdir (printf "%s-dark.svg" $slug) -}}
-
-{{- $lightUrl := printf "/%s" (path.Join "images/render" $subdir (printf "%s-light.svg" $slug)) -}}
-{{- $darkUrl := printf "/%s" (path.Join "images/render" $subdir (printf "%s-dark.svg" $slug)) -}}
+{{- $lightPad := path.Join "images/render" $subdir (printf "%s-light.svg" $slug) -}}
+{{- $darkPad := path.Join "images/render" $subdir (printf "%s-dark.svg" $slug) -}}
+{{- $lightFile := path.Join "static" $lightPad -}}
+{{- $darkFile := path.Join "static" $darkPad -}}
 
 {{- if and (os.FileExists $lightFile) (os.FileExists $darkFile) -}}
+{{- /* De bestandsnaam verandert niet bij een nieuwe render; de inhoudshash in de
+     URL voorkomt dat browser of CDN een oude SVG blijft tonen. */ -}}
+{{- $lightSVG := os.ReadFile $lightFile -}}
+{{- $lightUrl := printf "%s?v=%s" $lightPad (substr ($lightSVG | md5) 0 8) | relURL -}}
+{{- $darkUrl := printf "%s?v=%s" $darkPad (substr (os.ReadFile $darkFile | md5) 0 8) | relURL -}}
+{{- $viewBox := findRESubmatch `viewBox="[-\d.]+[ ,]+[-\d.]+[ ,]+([\d.]+)[ ,]+([\d.]+)"` $lightSVG 1 -}}
+{{- if not $viewBox -}}
+  {{- errorf "Diagram '%s' op pagina %s heeft geen leesbare viewBox." $slug .Page.File.Path -}}
+{{- end -}}
+{{- $breedte := int (math.Ceil (index (index $viewBox 0) 1)) -}}
+{{- $hoogte := int (math.Ceil (index (index $viewBox 0) 2)) -}}
+{{- $alt := $accTitle | default $accDescr -}}
+{{- if not $alt -}}
+  {{- warnf "Diagram '%s' op pagina %s heeft geen accTitle of accDescr; geef het een tekstalternatief (WCAG 1.1.1)." $slug .Page.File.Path -}}
+  {{- $alt = printf "Diagram %d" $blok.nummer -}}
+{{- end -}}
+{{- $beschrijving := "" -}}
+{{- if $accTitle -}}{{ $beschrijving = $accDescr }}{{- end -}}
+{{- $kB := int (math.Ceil (div (float (len $lightSVG)) 1024)) -}}
 <div class="mermaid-diagram">
-  <a class="mermaid-download button-ghost" href="{{ $lightUrl }}" download="{{ $slug }}.svg" title="Download als afbeelding" aria-label="Download als afbeelding">
+  <img class="mermaid-img mermaid-img--light" src="{{ $lightUrl }}" alt="{{ $alt }}" width="{{ $breedte }}" height="{{ $hoogte }}" loading="lazy">
+  <img class="mermaid-img mermaid-img--dark" src="{{ $darkUrl }}" alt="{{ $alt }}" width="{{ $breedte }}" height="{{ $hoogte }}" loading="lazy">
+  {{- with $beschrijving }}
+  <p class="mermaid-beschrijving visually-hidden">{{ . }}</p>
+  {{- end }}
+  <a class="mermaid-download button-ghost" href="{{ $lightUrl }}" download="{{ $slug }}.svg" data-tooltip="Download als afbeelding">
     {{- partial "icon.html" "download" -}}
+    <span class="visually-hidden">Download als afbeelding: {{ $alt }} (SVG, {{ $kB }} kB)</span>
   </a>
-  <img class="mermaid-img mermaid-img--light" src="{{ $lightUrl }}" alt="{{ $accDescr }}" loading="lazy">
-  <img class="mermaid-img mermaid-img--dark" src="{{ $darkUrl }}" alt="{{ $accDescr }}" loading="lazy">
 </div>
 {{- else -}}
-{{- errorf "Mermaid SVGs ontbreken voor '%s' op pagina %s. Voer 'npm run render-mermaid' uit." $slug .Page.File.Path -}}
+{{- errorf "Mermaid SVGs ontbreken voor '%s' op pagina %s: verwacht static/%s en static/%s." $slug .Page.File.Path $lightPad $darkPad -}}
 {{- end -}}
