@@ -9,13 +9,15 @@ toc_tot_en_met: 3
 
 In het Nederlands plak je woorden aan elkaar. Daardoor zijn sommige woorden erg lang. Zo'n woord mag nooit buiten het scherm lopen, ook niet als je de tekst groter zet of als je een kleine telefoon hebt.
 
-## Uitvoeringsorganisatiebeleidsvoorbereidingsprocessen
+## Lange woorden in een zin: Uitvoeringsorganisatiebeleidsvoorbereidingsprocessen
 
 Het woord Veiligheidsregioverordeningsuitvoeringsprogramma staat midden in een zin. De zin loopt daarom door naar de volgende regel, en het lange woord breekt af.
 
-### Aansprakelijkheidsverzekeringspremieberekeningsmodellen
+### Lange woorden in een kop: Aansprakelijkheidsverzekeringspremieberekeningsmodellen
 
-#### Gemeenteraadsverkiezingsuitslagbekendmakingsprocedures
+Deze kop en de kop hieronder bevatten allebei een lang woord, dat op een smal scherm afbreekt.
+
+#### Lange woorden in een lijst, link, adres en tabel: Gemeenteraadsverkiezingsuitslagbekendmakingsprocedures
 
 Een lijst met lange woorden:
 
@@ -32,5 +34,5 @@ Een adres zonder spaties: <https://www.example.org/een/zeer/lange/url/zonder/eni
 | Arbeidsongeschiktheidsverzekeringsmaatschappijen | Bedrijven die een verzekering aanbieden voor wie niet kan werken. |
 | Verantwoordelijkheidsverdelingsonderzoeksrapportage | Een verslag over wie waarvoor verantwoordelijk is. |
 
-> [!INFO] Informatiebeveiligingsbewustwordingscampagne
+> [!INFO] Lange woorden in een infoblok: Informatiebeveiligingsbewustwordingscampagne
 > Ook in een infoblok mag een lang woord als Gebruikersacceptatietestomgevingsbeheerder niet buiten beeld lopen.
