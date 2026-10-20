@@ -353,21 +353,30 @@ describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
     { naam: "480px breed", breedte: 480 },
     { naam: "768px breed", breedte: 768 },
     { naam: "1280px breed", breedte: 1280 },
-    // Bij 200% tekst is de balk op 320px hoger dan de reserve van 6rem in toast.css.
+    // Bij 200% tekst is de balk op 320px het hoogst (8,6rem); daarop rekent --toast-ruimte in toast.css.
     { naam: "320px breed met 200% tekst", breedte: 320, wortel: 32 },
+    { naam: "768px breed met 200% tekst", breedte: 768, wortel: 32 },
+    { naam: "1280px breed met 200% tekst", breedte: 1280, wortel: 32 },
   ];
 
   const snijdt = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
   const vak = (r) => `x ${Math.round(r.left)}-${Math.round(r.right)}, y ${Math.round(r.top)}-${Math.round(r.bottom)}`;
 
+  /**
+   * Haalt de knop uit de pagina. params.back_to_top geldt voor de hele site en de voorbeeldsite zet het aan,
+   * dus dit bootst een site zonder knop na: de CSS rekent op de aanwezigheid van het element.
+   */
+  const knopWeg = (page) => page.evaluate(() => document.querySelector("a.back-to-top")?.remove());
+
   /** Controleert dat de balk in beeld staat en scrolt naar onderen, waar de knop naar boven verschijnt. */
-  async function naarOnderen(page) {
+  async function naarOnderen(page, { knop: metKnop = true } = {}) {
     const balk = await page.evaluate(() => {
       const el = document.getElementById("highlight-bar");
       return !!el && !el.hidden && el.getClientRects().length > 0;
     });
     assert.ok(balk, "de markeerbalk #highlight-bar staat niet in beeld bij ?q=inleiding");
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    if (!metKnop) return;
     const knop = await page
       .waitForFunction(
         () => {
@@ -378,6 +387,50 @@ describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
       )
       .then(() => true, () => false);
     assert.ok(knop, "a.back-to-top verschijnt niet na onderaan scrollen; staat params.back_to_top aan?");
+  }
+
+  /** De snijding van twee rechthoeken als breedte en hoogte in px; 0 als ze elkaar niet raken of er een ontbreekt. */
+  function snijding(a, b) {
+    if (!a || !b) return { breedte: 0, hoogte: 0 };
+    return {
+      breedte: Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)),
+      hoogte: Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)),
+    };
+  }
+  const oppervlak = (s) => s.breedte * s.hoogte;
+
+  /**
+   * Loopt met Tab van het begin van de pagina tot de focus terug is bij het begin en geeft per focusstop de
+   * rechthoeken van het element, de balk en de knop. De balk en de knop zelf zijn geen focusstop voor deze meting.
+   */
+  async function tabWandeling(page) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const stops = [];
+    for (let i = 0; i < 150; i++) {
+      await page.keyboard.press("Tab");
+      // base.js zet de knop in het frame na een scroll aan of uit.
+      await page.evaluate(() => new Promise((klaar) => requestAnimationFrame(klaar)));
+      const stop = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el || el === document.body || el.dataset.tabGezien) return { einde: true };
+        el.dataset.tabGezien = "1";
+        if (el.matches("#highlight-bar, a.back-to-top")) return {};
+        const stijl = getComputedStyle(el);
+        const rect = (b) => (b && !b.hidden && b.getClientRects().length > 0 ? b.getBoundingClientRect().toJSON() : null);
+        const tekst = (el.getAttribute("aria-label") ?? el.textContent).trim().replace(/\s+/g, " ").slice(0, 30);
+        return {
+          naam: `${el.tagName.toLowerCase()} "${tekst}"`,
+          rect: el.getBoundingClientRect().toJSON(),
+          balk: rect(document.getElementById("highlight-bar")),
+          knop: rect(document.querySelector("a.back-to-top")),
+          marge: { begin: parseFloat(stijl.scrollMarginTop) || 0, eind: parseFloat(stijl.scrollMarginBottom) || 0 },
+          venster: { breedte: innerWidth, hoogte: innerHeight },
+        };
+      });
+      if (stop.einde) break;
+      if (stop.rect) stops.push(stop);
+    }
+    return stops;
   }
 
   for (const { naam, breedte, wortel } of STANDEN) {
@@ -435,6 +488,126 @@ describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
         await page.close();
       }
     });
+
+    test(`zonder knop naar boven ligt elke focusstop in de voet vrij van de markeerbalk (${naam})`, async () => {
+      const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+      try {
+        await knopWeg(page);
+        await naarOnderen(page, { knop: false });
+        // Van de eerste link in de voet tot de balk, die in de volgorde direct na de voet komt.
+        await page.focus("body > footer :is(a[href], button)");
+        const stops = [];
+        for (let i = 0; i < 60; i++) {
+          const stop = await page.evaluate(() => {
+            const el = document.activeElement;
+            if (!el?.closest("body > footer")) return null;
+            return {
+              naam: (el.getAttribute("aria-label") ?? el.textContent).trim().replace(/\s+/g, " ").slice(0, 30),
+              rect: el.getBoundingClientRect().toJSON(),
+              balk: document.getElementById("highlight-bar").getBoundingClientRect().toJSON(),
+            };
+          });
+          if (!stop) break;
+          stops.push(stop);
+          await page.keyboard.press("Tab");
+        }
+        assert.ok(stops.length >= 5, `maar ${stops.length} focusstops in de voet; verwacht minstens 5`);
+        assert.ok(stops.some((s) => s.naam.startsWith("Weergave")), "de themakeuze is geen focusstop in de voet");
+        for (const s of stops) {
+          assert.ok(!snijdt(s.rect, s.balk), `"${s.naam}" (${vak(s.rect)}) ligt onder de markeerbalk (${vak(s.balk)})`);
+        }
+      } finally {
+        await page.close();
+      }
+    });
+
+    for (const metKnop of [true, false]) {
+      test(`${metKnop ? "met" : "zonder"} knop naar boven: Tab langs de hele pagina laat geen element met focus onder ${metKnop ? "balk of knop" : "de balk"} verdwijnen (${naam})`, async (t) => {
+        const page = await open(ROUTE, { width: breedte, height: 640 }, { wortel });
+        try {
+          if (!metKnop) await knopWeg(page);
+          const stops = await tabWandeling(page);
+          assert.ok(stops.length >= 30, `maar ${stops.length} focusstops op de pagina; verwacht minstens 30`);
+          assert.ok(stops.some((s) => s.naam.includes("Weergave")), "de wandeling komt niet bij de themakeuze in de voet");
+          const geheel = [];
+          const deels = [];
+          let slechtste = { fractie: 0, naam: "-" };
+          for (const stop of stops) {
+            const { rect, balk, knop, marge, venster } = stop;
+            const totaal = rect.width * rect.height;
+            if (totaal === 0) continue;
+            const onderBalk = snijding(rect, balk);
+            const onderKnop = snijding(rect, knop);
+            const bedekt = oppervlak(onderBalk) + oppervlak(onderKnop);
+            const zichtbaar = oppervlak(snijding(rect, { left: 0, top: 0, right: venster.breedte, bottom: venster.hoogte }));
+            if (bedekt / totaal > slechtste.fractie) slechtste = { fractie: bedekt / totaal, naam: stop.naam };
+            const beschrijving = `${stop.naam} (${vak(rect)}, ${Math.round((bedekt / totaal) * 100)}% afgedekt)`;
+            if (zichtbaar > 0 && bedekt >= zichtbaar - 1) geheel.push(beschrijving);
+            // Een element dat met zijn scrollmarges in het venster past, scrolt volledig boven balk en knop; een
+            // hoger element kan dat niet (16px speling voor afronding).
+            const past = rect.height + marge.begin + marge.eind + 16 <= venster.hoogte;
+            const raakt = (s) => s.breedte > 1 && s.hoogte > 1;
+            if (past && (raakt(onderBalk) || raakt(onderKnop))) deels.push(beschrijving);
+          }
+          t.diagnostic(
+            slechtste.fractie > 0
+              ? `${stops.length} focusstops, slechtste dekking ${Math.round(slechtste.fractie * 100)}% bij ${slechtste.naam}`
+              : `${stops.length} focusstops, geen enkele deels afgedekt`,
+          );
+          assert.deepEqual(geheel, [], "elementen met focus liggen geheel onder de balk of de knop (2.4.11)");
+          assert.deepEqual(deels, [], "elementen die boven de ruimte onder passen liggen toch deels onder de balk of de knop");
+        } finally {
+          await page.close();
+        }
+      });
+    }
+  }
+
+  /** De ruimte onder de laatste regel van de voet en de scrollmarge van een link in de voet, in px. */
+  const ruimtes = (page) =>
+    page.evaluate(() => ({
+      balk: !document.getElementById("highlight-bar").hidden,
+      voet: parseFloat(getComputedStyle(document.querySelector("body > footer")).paddingBottom),
+      marge: parseFloat(getComputedStyle(document.querySelector("body > footer a[href]")).scrollMarginBottom),
+    }));
+
+  async function ruimtesVan(route, metKnop) {
+    const page = await open(route, { width: 320, height: 640 });
+    try {
+      if (!metKnop) await knopWeg(page);
+      return await ruimtes(page);
+    } finally {
+      await page.close();
+    }
+  }
+
+  const SLUITERS = [
+    ["Escape", (page) => page.keyboard.press("Escape")],
+    ["een klik op de balk", (page) => page.click("#highlight-bar")],
+  ];
+
+  for (const metKnop of [true, false]) {
+    for (const [wijze, sluit] of SLUITERS) {
+      test(`${metKnop ? "met" : "zonder"} knop naar boven: na ${wijze} is de ruimte onderaan weer normaal`, async () => {
+        // Normaal is dezelfde pagina zonder ?q=, dus zonder balk.
+        const normaal = await ruimtesVan("/onderdelen/lange-pagina/", metKnop);
+        assert.equal(normaal.balk, false, "de markeerbalk staat in beeld zonder ?q=");
+        const page = await open(ROUTE, { width: 320, height: 640 });
+        try {
+          if (!metKnop) await knopWeg(page);
+          const metBalk = await ruimtes(page);
+          assert.ok(metBalk.balk, "de markeerbalk staat niet in beeld bij ?q=inleiding");
+          assert.ok(metBalk.voet > normaal.voet, `de voet houdt geen extra ruimte vrij bij de balk (${metBalk.voet}px, normaal ${normaal.voet}px)`);
+          assert.ok(metBalk.marge > normaal.marge, `een link in de voet heeft geen extra scrollmarge bij de balk (${metBalk.marge}px, normaal ${normaal.marge}px)`);
+          await sluit(page);
+          const dicht = await ruimtes(page);
+          assert.equal(dicht.balk, false, `de markeerbalk sluit niet met ${wijze}`);
+          assert.deepEqual({ voet: dicht.voet, marge: dicht.marge }, { voet: normaal.voet, marge: normaal.marge });
+        } finally {
+          await page.close();
+        }
+      });
+    }
   }
 });
 

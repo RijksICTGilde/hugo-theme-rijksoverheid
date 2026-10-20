@@ -32,12 +32,22 @@
   display: none;
 }
 
-/* De toast staat vast onderin met z-index 100 en kan een element dat focus
-   krijgt afdekken (WCAG 2.4.11). Zolang hij zichtbaar is, krijgt elk focusbaar
-   element ruimte onder zich mee, zodat de browser het erboven scrollt in
-   plaats van erachter. */
-body:has(.toast:not([hidden])) :is(a, button, summary, input, select, textarea, [tabindex]) {
-  scroll-margin-block-end: 6rem;
+/* De toast staat vast onderin met z-index 100 en kan de laatste regel van de
+   voet en een element met focus afdekken (WCAG 2.4.11). Zolang hij zichtbaar
+   is, houdt de voet ruimte vrij en krijgt elk focusbaar element ruimte onder
+   zich mee, zodat de browser het erboven scrollt in plaats van erachter. Padding
+   kan de hoogte van de toast niet volgen, dus een vaste waarde: 10rem dekt hem
+   op 320px bij 200% tekst (8,6rem) met een regel speling. */
+body:has(.toast:not([hidden])) {
+  --toast-ruimte: 10rem;
+
+  > footer {
+    padding-block-end: var(--toast-ruimte);
+  }
+
+  :is(a, button, summary, input, select, textarea, [tabindex]) {
+    scroll-margin-block-end: var(--toast-ruimte);
+  }
 }
 
 /* Interactive toast (button) */

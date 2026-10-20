@@ -86,8 +86,8 @@ body:has(> .back-to-top) > footer {
 /* De balk van de zoekmarkering (.toast) ligt vast onderin over de knop heen
    (WCAG 2.4.11), dus de knop staat erboven zolang de balk er is. `anchor()`
    volgt de echte hoogte van de balk, die bij vergrote tekst of een lange
-   zoekterm hoger is dan de reserve van 6rem in toast.css. Een browser zonder
-   ankerpositionering laat de tweede declaratie vallen en houdt 6rem. */
+   zoekterm hoger is dan 6rem. Een browser zonder ankerpositionering laat de
+   tweede declaratie vallen en houdt 6rem. */
 .toast {
   anchor-name: --toast;
 }
@@ -97,8 +97,10 @@ body:has(.toast:not([hidden])) a.back-to-top {
   bottom: calc(anchor(--toast top, 5.5rem) + 0.5rem);
 }
 
-/* Zonder extra ruimte ligt de knop onderaan de pagina over de themakeuze. 12rem
-   is genoeg voor balk en knop samen op 320px bij 200% tekst (11,8rem). */
-body:has(> .back-to-top):has(.toast:not([hidden])) > footer {
-  padding-block-end: 12rem;
+/* Zonder extra ruimte ligt de knop onderaan de pagina over de themakeuze. 13rem
+   is genoeg voor balk en knop samen op 320px bij 200% tekst (11,8rem), met
+   speling voor de focusring. Voet en scrollmarge volgen --toast-ruimte uit
+   toast.css. */
+body:has(> .back-to-top):has(.toast:not([hidden])) {
+  --toast-ruimte: 13rem;
 }
