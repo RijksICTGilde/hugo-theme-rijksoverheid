@@ -47,6 +47,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   met `params.logo.url`.
 * **Paginatitel** volgens NLDD: `Pagina · Site`, op de homepage
   `Site: tagline`.
+* **Ondertitel.** De voet toont `params.tagline`, dezelfde zin als naast de
+  sitenaam. Op een smal scherm staat de ondertitel niet in de kop; zonder de
+  voet was hij daar weg (WCAG 1.4.10). `params.footer.tagline` vervalt.
 * **Links** zijn onderstreept in lopende tekst, niet in navigatie en kaarten.
   Knoppen hebben geen handcursor meer; alleen wat eruitziet als een link.
 * **Zoeken.** Het aantal resultaten staat in een aparte
@@ -128,8 +131,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `role="status"` die bij het laden niets meldt.
 * Zonder JavaScript staan er geen zoekknoppen meer die niets doen.
 * De titel van een zoekresultaat is een kop van niveau 2 (WCAG 1.3.1).
-* De knop "Naar boven" staat boven de balk van de zoekmarkering, ook bij
-  vergrote tekst; de balk lag er helemaal over (WCAG 2.4.11).
+* De balk van de zoekmarkering dekt geen element met focus meer af (WCAG
+  2.4.11): de knop "Naar boven" staat erboven, en de voet houdt onderaan de
+  pagina ruimte vrij, ook zonder de knop.
 * De meta-description begint niet meer met een kop.
 * De 404-pagina heet "Pagina niet gevonden" in plaats van "404 Page not
   found", ook in de titel en de deelgegevens.
@@ -180,6 +184,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   zet: de kleuren eromheen zijn veranderd.
 * Een site die bijwerkt met Dependabot, zet een `tools.go` in de root; zie de
   README.
+* Haal `params.footer.tagline` weg; de build waarschuwt zolang het er staat.
+  De voet toont nu `params.tagline`.
 
 ## [0.2.3]
 
