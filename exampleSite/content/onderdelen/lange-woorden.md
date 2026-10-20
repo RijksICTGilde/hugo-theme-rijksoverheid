@@ -1,7 +1,7 @@
 ---
 title: Arbeidsongeschiktheidsverzekeringsmaatschappijen en andere lange woorden
 description: Een pagina met zeer lange Nederlandse samenstellingen, om te controleren dat de pagina op een smal scherm niet breder wordt.
-card_title: Verantwoordelijkheidsverdelingsonderzoeksrapportage
+card_title: "Lange woorden: Verantwoordelijkheidsverdelingsonderzoeksrapportage"
 card_description: Een kaart met zeer lange woorden, zoals aansprakelijkheidsverzekeringspremieberekeningsmodellen.
 weight: 4
 toc_tot_en_met: 3
