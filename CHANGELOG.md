@@ -127,6 +127,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * De melding boven de pagina is een regio "Melding" in plaats van een
   `role="status"` die bij het laden niets meldt.
 * Zonder JavaScript staan er geen zoekknoppen meer die niets doen.
+* De titel van een zoekresultaat is een kop van niveau 2 (WCAG 1.3.1).
+* De knop "Naar boven" staat boven de balk van de zoekmarkering, ook bij
+  vergrote tekst; de balk lag er helemaal over (WCAG 2.4.11).
 * De meta-description begint niet meer met een kop.
 * De 404-pagina heet "Pagina niet gevonden" in plaats van "404 Page not
   found", ook in de titel en de deelgegevens.
