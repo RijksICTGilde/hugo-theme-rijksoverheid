@@ -193,11 +193,15 @@
   outline-offset: -2px;
 }
 
+/* Een h2: de kopregel uit base.css (marge boven, regelhoogte, hyphens) hoort
+   niet in de lijst. */
 .search-result-title {
   display: block;
   font-weight: 700;
   font-size: 1.125rem;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem;
+  line-height: inherit;
+  hyphens: inherit;
   color: var(--color-text);
   overflow-wrap: break-word;
 }

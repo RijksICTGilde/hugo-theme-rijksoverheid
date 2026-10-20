@@ -174,6 +174,47 @@ describe("zoekmarkering (1.3.1, 4.1.2)", () => {
   });
 });
 
+describe("zoekresultaten (1.3.1)", () => {
+  test("de titel van elk resultaat is een kop van niveau 2", async () => {
+    const page = await open("/");
+    try {
+      const knop = await page.evaluateHandle(() =>
+        [...document.querySelectorAll(".search-trigger")].find((el) => el.getClientRects().length > 0),
+      );
+      await knop.asElement().click();
+      await page.waitForSelector("dialog.search-modal[open]");
+      await page.type("#search-input", "pagina");
+      await page.waitForSelector('#search-results a[href*="q=pagina"]');
+      // De titel per resultaat zoals de index die geeft, in de volgorde van de lijst.
+      const titels = await page.evaluate(async () => {
+        const sleutel = (url) => {
+          const { pathname, hash } = new URL(url, location.href);
+          return pathname + hash;
+        };
+        const index = await (await fetch(document.querySelector("#search-modal").dataset.searchIndex)).json();
+        const perUrl = new Map(index.map((item) => [sleutel(item.url), item.title]));
+        return [...document.querySelectorAll("#search-results li")].map((li) => perUrl.get(sleutel(li.querySelector("a")?.href ?? "")));
+      });
+      const items = await page.$$("#search-results li");
+      assert.ok(items.length > 1, `${items.length} resultaten voor "pagina"; de controle heeft er meer dan één nodig`);
+      const alle = (node) => [node, ...(node.children ?? []).flatMap(alle)];
+      const bevindingen = [];
+      for (const [i, li] of items.entries()) {
+        const koppen = alle(await page.accessibility.snapshot({ root: li, interestingOnly: false })).filter((node) => node.role === "heading");
+        if (koppen.length !== 1) {
+          bevindingen.push(`resultaat ${i + 1} (${titels[i]}): ${koppen.length} koppen`);
+          continue;
+        }
+        if (koppen[0].level !== 2) bevindingen.push(`resultaat ${i + 1} (${titels[i]}): kop van niveau ${koppen[0].level}`);
+        if (koppen[0].name !== titels[i]) bevindingen.push(`resultaat ${i + 1}: de kop heet "${koppen[0].name}", de titel is "${titels[i]}"`);
+      }
+      assert.deepEqual(bevindingen, []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("knoppen en de volgorde van de bestanden", () => {
   test("een klasse met toestand wint van de hover van een kale button, ook als zijn regel eerder in de bundel staat", async () => {
     const page = await open("/");

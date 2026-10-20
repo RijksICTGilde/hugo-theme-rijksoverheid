@@ -263,7 +263,8 @@
       link.className = 'search-result-item';
       link.tabIndex = i === 0 ? 0 : -1;
 
-      var title = document.createElement('span');
+      // Niveau 2: het zoekvenster heeft zelf geen kop.
+      var title = document.createElement('h2');
       title.className = 'search-result-title';
       appendHighlighted(title, item.title, query);
       link.appendChild(title);
