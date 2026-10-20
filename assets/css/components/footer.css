@@ -92,6 +92,9 @@ body > footer {
     line-height: 1.2;
     font-style: italic;
     color: var(--color-text-inverse);
+    /* anywhere, niet break-word: alleen anywhere verlaagt de min-content, en
+       die bepaalt hier de breedte van de flexregel (zie .page-meta). */
+    overflow-wrap: anywhere;
   }
 
   .footer-columns {

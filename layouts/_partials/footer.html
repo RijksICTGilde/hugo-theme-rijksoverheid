@@ -16,7 +16,11 @@
     {{ partial "lastmod.html" . }}
   </div>
   {{- end }}
-  {{- with site.Params.footer.tagline }}
+  {{- /* Alleen op de homepage: de voet staat op elke pagina, de melding hoeft maar één keer. */ -}}
+  {{- if and .IsHome site.Params.footer.tagline }}
+  {{- warnf "params.footer.tagline wordt niet meer gebruikt en kan weg: de voet toont nu params.tagline." }}
+  {{- end }}
+  {{- with site.Params.tagline }}
   <p class="tagline">{{ . }}</p>
   {{- end }}
   {{- $links := index site.Menus "footer-links" -}}
