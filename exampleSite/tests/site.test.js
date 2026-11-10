@@ -21,6 +21,8 @@ import { tags, elementen, klassen, tekstVan } from "./lib/html.js";
 const VERWACHTE_ROUTES = [
   "/",
   "/404.html",
+  "/enkel/",
+  "/enkel/pagina/",
   "/handleiding/",
   "/handleiding/zo-lees-je-een-pagina/",
   "/nieuws/",
@@ -38,6 +40,10 @@ const VERWACHTE_ROUTES = [
   "/over/contact/",
   "/over/privacy/",
   "/over/toegankelijkheid/",
+  "/reeks/",
+  "/reeks/derde/",
+  "/reeks/eerste/",
+  "/reeks/tweede/",
 ];
 
 const BOUW_HULP =
