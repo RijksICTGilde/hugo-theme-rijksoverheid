@@ -591,7 +591,7 @@
   function handleHighlightEscape(e) {
     if (e.key === 'Escape' && !e.defaultPrevented && !(searchModal && searchModal.open)) {
       e.preventDefault();
-      hideHighlights(false);
+      hideHighlights(document.activeElement === document.getElementById('highlight-bar'));
     }
   }
 

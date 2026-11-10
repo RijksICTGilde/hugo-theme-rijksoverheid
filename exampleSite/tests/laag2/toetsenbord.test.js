@@ -477,7 +477,7 @@ describe("melding over de zoekmarkering (2.4.3, 2.4.11)", () => {
     });
   }
 
-  for (const toets of ["Enter"]) {
+  for (const toets of ["Enter", "Escape"]) {
     test(`${toets} op de melding haalt de markering weg en zet de focus op <main>`, async () => {
       const page = await metMelding();
       try {
