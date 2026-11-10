@@ -12,6 +12,8 @@
   var prioSections = [];
   var sectionWeights = {};
   var maxResults = 10;
+  var ingedruktOpAchtergrond = false;
+  var losgelatenOpAchtergrond = false;
 
   var fuseOptions = {
     keys: [
@@ -440,8 +442,29 @@
       }, 150);
     });
 
+    // Een click vuurt op de gemeenschappelijke voorouder van indrukken en
+    // loslaten: indrukken op een knop en loslaten naast het paneel geeft dus de
+    // dialog als target. Daarom beide kanten apart bijhouden, zodat wegschuiven
+    // de handeling afbreekt in plaats van het venster te sluiten. Sluiten pas
+    // bij de click: bij een tik volgt die na pointerup, en zonder venster komt
+    // hij aan bij wat eronder ligt.
+    searchModal.addEventListener('pointerdown', function (e) {
+      ingedruktOpAchtergrond = e.target === searchModal;
+    });
+
+    searchModal.addEventListener('pointerup', function (e) {
+      losgelatenOpAchtergrond = e.target === searchModal;
+    });
+
+    searchModal.addEventListener('pointercancel', function () {
+      ingedruktOpAchtergrond = false;
+    });
+
     searchModal.addEventListener('click', function (e) {
-      if (e.target === searchModal) {
+      var opAchtergrond = e.target === searchModal && ingedruktOpAchtergrond && losgelatenOpAchtergrond;
+      ingedruktOpAchtergrond = false;
+      losgelatenOpAchtergrond = false;
+      if (opAchtergrond) {
         closeModal();
       }
     });

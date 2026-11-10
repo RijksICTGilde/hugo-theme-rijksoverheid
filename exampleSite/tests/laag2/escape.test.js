@@ -8,8 +8,9 @@
  * Elke test opent twee of drie lagen tegelijk, drukt voor elke laag op Escape
  * en kijkt na elke toets welke laag dicht is en waar de focus staat.
  *
- * Verder in dit bestand, met dezelfde browser: de focus na het sluiten van het
- * zoekvenster, een gecodeerd id in de hash en een zoekindex met afwijkende items.
+ * Verder in dit bestand, met dezelfde browser: het zoekvenster sluiten met de
+ * aanwijzer, de focus na het sluiten van het zoekvenster, een gecodeerd id in de
+ * hash en een zoekindex met afwijkende items.
  */
 
 import { test, before, after, describe } from "node:test";
@@ -327,6 +328,93 @@ describe("hash met een niet-ASCII id (referenties.js)", () => {
       await page.evaluate(() => { location.hash = "#%E0%A4%A"; });
       await pauze();
       assert.deepEqual(fouten, []);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("zoekvenster sluiten met de aanwijzer", () => {
+  /** Opent het zoekvenster met een zoekterm erin en geeft de rechthoeken van paneel en sluitknop. */
+  async function metZoekterm() {
+    const page = await open("/");
+    const knop = await zoekvenster.open(page);
+    await page.type("#search-input", "pagina");
+    const vak = (selector) => page.$eval(selector, (el) => el.getBoundingClientRect().toJSON());
+    return { page, knop, paneel: await vak(".search-modal-content"), sluiten: await vak("#search-close") };
+  }
+  const midden = (r) => ({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+  /** Een punt op de achtergrond, rechts naast het paneel. */
+  const naast = (paneel) => ({ x: (paneel.right + BREED.width) / 2, y: paneel.y + 20 });
+  const zoekterm = (page) => page.$eval("#search-input", (el) => el.value);
+
+  async function versleep(page, van, naar) {
+    await page.mouse.move(van.x, van.y);
+    await page.mouse.down();
+    await page.mouse.move(naar.x, naar.y, { steps: 5 });
+    await page.mouse.up();
+    await pauze();
+  }
+
+  test("indrukken op Sluiten en loslaten naast het paneel sluit het venster niet", async () => {
+    const { page, paneel, sluiten } = await metZoekterm();
+    try {
+      await versleep(page, midden(sluiten), naast(paneel));
+      assert.ok(await zoekvenster.isOpen(page), "het venster sluit bij loslaten naast het paneel");
+      assert.equal(await zoekterm(page), "pagina", "de zoekterm is weg");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("indrukken naast het paneel en loslaten erin sluit het venster niet", async () => {
+    const { page, paneel } = await metZoekterm();
+    try {
+      await versleep(page, naast(paneel), midden(paneel));
+      assert.ok(await zoekvenster.isOpen(page), "het venster sluit bij loslaten in het paneel");
+      assert.equal(await zoekterm(page), "pagina", "de zoekterm is weg");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een tik naast het paneel sluit het venster en komt niet aan bij wat eronder ligt", async () => {
+    const page = await browser.newPage();
+    try {
+      await page.setViewport({ ...SMAL, hasTouch: true, isMobile: true });
+      await page.goto(`${baseUrl}/`, { waitUntil: "load" });
+      // Een knop onder de achtergrond, precies waar de tik valt.
+      await page.evaluate(() => {
+        window.kliks = [];
+        document.addEventListener("click", (e) => window.kliks.push(e.target.id || e.target.tagName.toLowerCase()), true);
+        const eronder = document.createElement("button");
+        eronder.id = "eronder";
+        eronder.textContent = "eronder";
+        Object.assign(eronder.style, { position: "fixed", left: "0", right: "0", bottom: "0", height: "6rem" });
+        document.body.append(eronder);
+      });
+      await zoekvenster.open(page);
+      assert.ok(await wacht(() => zoekvenster.isOpen(page)), "het zoekvenster gaat niet open");
+      const paneel = await page.$eval(".search-modal-content", (el) => el.getBoundingClientRect().toJSON());
+      const punt = { x: SMAL.width / 2, y: SMAL.height - 24 };
+      assert.ok(punt.y > paneel.bottom, `de tik op y ${punt.y} valt in het paneel (onderkant ${paneel.bottom})`);
+      await page.evaluate(() => { window.kliks = []; });
+      await page.touchscreen.tap(punt.x, punt.y);
+      assert.ok(await wacht(() => zoekvenster.isOpen(page), false), "een tik naast het paneel sluit het venster niet");
+      await pauze(300);
+      assert.deepEqual(await page.evaluate(() => window.kliks), ["search-modal"], "de tik komt aan bij wat onder de achtergrond lag");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een klik naast het paneel sluit het venster en geeft de zoekknop de focus terug", async () => {
+    const { page, knop, paneel } = await metZoekterm();
+    try {
+      const punt = naast(paneel);
+      await page.mouse.click(punt.x, punt.y);
+      assert.ok(await wacht(() => zoekvenster.isOpen(page), false), "een klik naast het paneel sluit het venster niet");
+      assert.ok(await heeftFocus(page, knop), "de focus is niet teruggegaan naar de zoekknop");
     } finally {
       await page.close();
     }
