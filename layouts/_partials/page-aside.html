@@ -1,6 +1,6 @@
-{{- /* Rechterkolom van een tekstpagina: inhoudsopgave, de hook
-       page-aside-extra.html en relevante pagina's en links. Rendert niets als er geen
-       kolominhoud is.
+{{- /* Rechterkolom van een tekstpagina: relevante pagina's en links, de
+       inhoudsopgave en de hook page-aside-extra.html. Rendert niets als er
+       geen kolominhoud is.
 
        Aanroepen met een dict:
          (dict "page" . "showToc" true)    tekstpagina met inhoudsopgave
@@ -29,6 +29,9 @@
 {{- $hasLinks := trim $links " \n\t" -}}
 {{- if or $hasToc $hasExtra $hasLinks -}}
 <aside class="page-aside">
+  {{- with $hasLinks }}
+  {{ $links }}
+  {{- end -}}
   {{- if $hasToc }}
   <nav id="toc" class="toc" aria-label="Inhoudsopgave">
     <h2>Op deze pagina</h2>
@@ -37,9 +40,6 @@
   {{- end -}}
   {{- with $hasExtra }}
   {{ $extra }}
-  {{- end -}}
-  {{- with $hasLinks }}
-  {{ $links }}
   {{- end }}
   {{- /* Chevron voor de uitklapknoppen op smal scherm (toc.js). Als laatste
          kind, zodat hij de afstand tussen de blokken niet beïnvloedt. */}}

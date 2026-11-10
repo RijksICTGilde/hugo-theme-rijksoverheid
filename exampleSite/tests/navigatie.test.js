@@ -60,6 +60,13 @@ for (const build of builds()) {
         assert.equal(blok(html)?.attrs.get("aria-label"), undefined);
       });
 
+      test("het blok staat in de rechterkolom boven de inhoudsopgave, zoals bij moza", () => {
+        const aside = elementen(pagina("/onderdelen/lange-pagina/"), "aside", heeftKlasseAttr("page-aside"))[0];
+        assert.ok(aside, "geen aside.page-aside");
+        const labels = elementen(aside.binnen, "nav").map((n) => n.attrs.get("aria-label"));
+        assert.deepEqual(labels.slice(0, 2), ["Relevante links", "Inhoudsopgave"]);
+      });
+
       test("een sectie met eigen tekst is een artikel met de kaarten onder de tekst", () => {
         const artikel = elementen(pagina("/reeks/"), "article", (a) => !a.has("class"))[0];
         assert.ok(artikel, "geen article voor de sectie");
