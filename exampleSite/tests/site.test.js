@@ -164,6 +164,18 @@ for (const build of builds()) {
         assert.ok(besloten.length >= 4, `verwacht minstens 4 besloten links, gevonden ${besloten.length}`);
         for (const l of extern) assert.ok((l.attrs.get("rel") ?? "").split(/\s+/).includes("external"), `${l.attrs.get("href")} zonder rel=external`);
       });
+
+      // De tweede build zet params.linkcontrole, zoals een controlebuild voor htmltest.
+      test(`data-proofer-ignore staat ${build.nieuwVenster ? "op elke besloten link en verder nergens" : "nergens"}`, () => {
+        const verkeerd = [];
+        for (const [route, html] of paginas) {
+          for (const a of elementen(html, "a")) {
+            const besloten = (a.attrs.get("rel") ?? "").split(/\s+/).includes("private");
+            if (a.attrs.has("data-proofer-ignore") !== (build.nieuwVenster && besloten)) verkeerd.push(`${route}  ${a.attrs.get("href")}`);
+          }
+        }
+        assert.deepEqual(verkeerd, []);
+      });
     });
 
     describe("uitvoerformaten", () => {

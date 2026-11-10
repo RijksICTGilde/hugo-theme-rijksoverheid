@@ -22,7 +22,10 @@
   hostnamen, eventueel met een pad erachter. Een host geldt ook voor zijn
   subdomeinen, een pad ook voor de paden eronder. Standaard
   samenwerkruimten.nl en digilab.overheid.nl/chat; een lege lijst zet de
-  automatische herkenning uit.
+  automatische herkenning uit. Besloten links zitten achter een inlog: alleen
+  een controlebuild (params.linkcontrole, bijvoorbeeld via
+  HUGO_PARAMS_LINKCONTROLE=true) zet data-proofer-ignore, zodat htmltest ze
+  overslaat.
 
   Klasse nieuw-venster-melding is de haak voor wie er zelf een aria-label
   omheen zet: dat overschrijft deze tekst. meta.html en index.json filteren
@@ -50,7 +53,7 @@
   {{- end -}}
 {{- end -}}
 {{- if $isPrivate -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $nieuwVenster }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="external private noreferrer"{{ end }}>{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (besloten omgeving{{ if $nieuwVenster }}, opent in een nieuw venster{{ end }})</span></a>
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $nieuwVenster }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="external private noreferrer"{{ end }}{{ if site.Params.linkcontrole }} data-proofer-ignore{{ end }}>{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (besloten omgeving{{ if $nieuwVenster }}, opent in een nieuw venster{{ end }})</span></a>
 {{- else if $isExternal -}}
 {{- if $nieuwVenster -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}<span class="visually-hidden nieuw-venster-melding"> (opent in een nieuw venster)</span></a>
