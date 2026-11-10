@@ -1,5 +1,5 @@
 {{- /* Rechterkolom van een tekstpagina: inhoudsopgave, de hook
-       page-aside-extra.html en relevante links. Rendert niets als er geen
+       page-aside-extra.html en relevante pagina's en links. Rendert niets als er geen
        kolominhoud is.
 
        Aanroepen met een dict:
@@ -25,7 +25,8 @@
 {{- $hasToc := and .showToc $toc (ne $p.Params.toc false) (gt (len (findRE "<li>" $toc)) 0) -}}
 {{- $extra := partial "page-aside-extra.html" $p -}}
 {{- $hasExtra := trim $extra " \n\t" -}}
-{{- $hasLinks := $p.Params.relevante_links -}}
+{{- $links := partial "relevante-links.html" $p -}}
+{{- $hasLinks := trim $links " \n\t" -}}
 {{- if or $hasToc $hasExtra $hasLinks -}}
 <aside class="page-aside">
   {{- if $hasToc }}
@@ -38,7 +39,7 @@
   {{ $extra }}
   {{- end -}}
   {{- with $hasLinks }}
-  {{ partial "relevante-links.html" $p }}
+  {{ $links }}
   {{- end }}
   {{- /* Chevron voor de uitklapknoppen op smal scherm (toc.js). Als laatste
          kind, zodat hij de afstand tussen de blokken niet beïnvloedt. */}}

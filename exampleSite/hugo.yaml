@@ -6,6 +6,14 @@ defaultContentLanguage: nl
 
 enableRobotsTXT: true
 
+# De bijwerkdatum voor een hele sectie zet je hier, niet in de front matter:
+# daar verschuift de commit zelf de getoonde datum.
+cascade:
+  - params:
+      show_lastmod: true
+    target:
+      path: '{/reeks,/reeks/**,/enkel,/enkel/**}'
+
 disableKinds:
   - taxonomy
   - term

@@ -188,10 +188,16 @@ article.wide:has(> .page-aside) {
   font-weight: 600;
 }
 
+.page-aside .relevante-paginas a[aria-current="page"] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 /* Relevante links: pijl als opsommingsteken, zonder alt-tekst voor
    hulpsoftware. De eerste regel is de terugval voor browsers zonder die
    syntaxis. */
-.relevante-links a::before {
+.relevante-links a::before,
+.relevante-paginas .relevante-link a::before {
   content: "→";
   content: "→" / "";
   display: inline-block;
