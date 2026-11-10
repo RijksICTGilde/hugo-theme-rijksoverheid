@@ -159,6 +159,7 @@ Partials die een site met hetzelfde pad in `layouts/_partials/` vervangt.
 | `favicons.html` | de favicons van het theme | Eigen favicons |
 | `font-preload.html` | RijksSans | Het lettertype dat de browser vooraf ophaalt; leeg voor geen |
 | `head-extra.html` | leeg | Extra elementen in de `<head>`, na de CSS van het theme |
+| `lastmod-datum.html` | `.Lastmod` | De datum achter "laatst bijgewerkt"; krijgt de pagina en geeft een tijd terug |
 | `og-image.html` | `params.og.afbeelding` | Deelafbeelding per pagina; geeft een pad terug |
 | `llm-instructies.html` | leeg | Eigen tekst boven in `llms.txt` |
 | `markdown-extra.html` | tekst ongewijzigd | Eigen shortcodes omzetten in de Markdown-uitvoer; krijgt `tekst` en `page` en geeft de tekst terug |
