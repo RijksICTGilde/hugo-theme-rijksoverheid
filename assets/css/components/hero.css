@@ -1,5 +1,6 @@
 /* Minimale hoogte, geen vaste: bij tekstvergroting (WCAG 1.4.4) groeit de
-   hero mee met het tekstblok in plaats van het af te knippen. De afbeelding is
+   hero mee met het tekstblok in plaats van het af te knippen. Onder 550px is
+   de foto weg en bepaalt alleen het tekstblok de hoogte. De afbeelding is
    een achtergrondlaag en bepaalt de hoogte niet; het tekstblok staat in de flow
    en wordt via de grid verticaal gecentreerd. */
 .hero {
@@ -8,22 +9,30 @@
   /* minmax(0, …): een lang woord mag de kolom niet breder maken dan de hero. */
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  min-height: 300px;
   width: 100%;
   /* Alleen horizontaal knippen: de negatieve marge van .content mag niet buiten
      de pagina uitsteken, verticaal moet alles zichtbaar blijven. */
   overflow-x: clip;
 
-  @media (min-width: 1100px) {
+  @media (min-width: 550px) {
+    min-height: 300px;
+  }
+
+  @media (min-width: 900px) {
     min-height: 350px;
   }
 
   img {
+    display: none;
     position: absolute;
     inset: 0;
     height: 100%;
     width: 100%;
     object-fit: cover;
+
+    @media (min-width: 550px) {
+      display: block;
+    }
   }
 
   .content {
@@ -39,7 +48,7 @@
     border-radius: var(--radius-bottom-right);
 
     @media (min-width: 900px) {
-      width: clamp(450px, 40vw, 550px);
+      width: 550px;
     }
 
     @media (min-width: 1100px) {
