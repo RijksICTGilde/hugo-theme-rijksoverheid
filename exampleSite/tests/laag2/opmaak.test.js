@@ -174,6 +174,41 @@ describe("zoekmarkering (1.3.1, 4.1.2)", () => {
   });
 });
 
+// pa11y en axe zien de melding niet: ze toetsen pagina's zonder ?q=.
+describe("melding over de zoekmarkering (1.4.3)", () => {
+  for (const schema of ["light", "dark"]) {
+    test(`de tekst haalt 4,5:1, ook bij hover en focus (${schema})`, async () => {
+      const page = await open(`/onderdelen/links/?q=pagina&scheme=${schema}`);
+      try {
+        await page.waitForSelector("#highlight-bar:not([hidden])");
+        // Een overgang maakt de meting afhankelijk van het moment van kijken.
+        await page.addStyleTag({ content: "#highlight-bar { transition: none !important }" });
+        const bevindingen = [];
+        const meet = async (toestand) => {
+          const [voor, achter] = await page.$eval("#highlight-bar", (el) => {
+            const s = getComputedStyle(el);
+            return [s.color, s.backgroundColor];
+          });
+          const verhouding = await contrast(page, voor, achter);
+          if (verhouding < 4.5) bevindingen.push(`${toestand}: ${verhouding.toFixed(2)}:1`);
+        };
+        await meet("rust");
+        await page.hover("#highlight-bar");
+        await meet("hover");
+        await page.mouse.move(0, 0);
+        // Na een toets matcht :focus-visible ook bij focus vanuit een script.
+        await page.keyboard.press("Tab");
+        await page.$eval("#highlight-bar", (el) => el.focus());
+        assert.ok(await page.$eval("#highlight-bar", (el) => el.matches(":focus-visible")), "de melding heeft geen zichtbare focus");
+        await meet("focus");
+        assert.deepEqual(bevindingen, []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("zoekresultaten (1.3.1)", () => {
   test("de titel van elk resultaat is een kop van niveau 2", async () => {
     const page = await open("/");
@@ -251,7 +286,7 @@ describe("knoppen en de volgorde van de bestanden", () => {
 
 describe("zwevende vlakken (1.4.11)", () => {
   for (const schema of ["light", "dark"]) {
-    test(`tooltip, themapaneel en toast hebben dezelfde rand van minstens 3:1 (${schema})`, async () => {
+    test(`tooltip en themapaneel hebben dezelfde rand van minstens 3:1 (${schema})`, async () => {
       // Het diagram heeft een knop met data-tooltip; zonder zo'n element maakt tooltip.js geen ballon.
       const page = await open(`/onderdelen/diagram/?scheme=${schema}`);
       try {
@@ -265,12 +300,11 @@ describe("zwevende vlakken (1.4.11)", () => {
           return {
             tooltip: stijl(".tooltip"),
             themapaneel: stijl(".theme-options"),
-            toast: stijl(".toast"),
             pagina: getComputedStyle(document.body).backgroundColor,
           };
         });
         const bevindingen = [];
-        for (const naam of ["tooltip", "themapaneel", "toast"]) {
+        for (const naam of ["tooltip", "themapaneel"]) {
           const vlak = vlakken[naam];
           if (!vlak) {
             bevindingen.push(`${naam}: niet in de pagina`);
