@@ -764,3 +764,42 @@ describe("opmaak uit moza", () => {
     }
   });
 });
+
+// Ook opmaak die een site zelf schrijft, zoals toetsingskader-archiefwet doet.
+describe("links in eigen opmaak (1.4.1)", () => {
+  test("een link in een figcaption of caption is onderstreept", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      const lijnen = await page.evaluate(() => {
+        const artikel = document.querySelector("main .artikel-tekst");
+        artikel.insertAdjacentHTML(
+          "beforeend",
+          '<figure><img alt="" src="data:,"><figcaption>Bron: <a href="#a">een rapport</a></figcaption></figure>' +
+            '<table><caption>Zie ook <a href="#b">de bijlage</a></caption><tr><td>1</td></tr></table>',
+        );
+        return [...artikel.querySelectorAll('a[href="#a"], a[href="#b"]')].map((a) => getComputedStyle(a).textDecorationLine);
+      });
+      assert.deepEqual(lijnen, ["underline", "underline"]);
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een bronterm heeft de stippellijn, ook als eigen <a class=ref-term>", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      const termen = await page.evaluate(() => {
+        const artikel = document.querySelector("main .artikel-tekst");
+        artikel.insertAdjacentHTML("beforeend", '<p><span class="ref-wrapper"><a href="#fn:1" class="ref-term">eigen term</a></span></p>');
+        return [...artikel.querySelectorAll(".ref-wrapper .ref-term")].map((term) => {
+          const s = getComputedStyle(term);
+          return `${term.tagName.toLowerCase()} ${s.textDecorationLine} ${s.textDecorationStyle}`;
+        });
+      });
+      assert.ok(termen.some((t) => t.startsWith("button ")), "geen bronterm van het theme op de pagina");
+      assert.deepEqual(termen.filter((t) => !t.endsWith(" underline dotted")), []);
+    } finally {
+      await page.close();
+    }
+  });
+});

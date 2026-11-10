@@ -75,6 +75,12 @@
   color: inherit;
   text-align: inherit;
   overflow-wrap: anywhere;
+}
+
+/* De stippellijn onderscheidt de term van de tekst, niet alleen de kleur
+   (1.4.1); ook een eigen term als <a> of <span>. :is() houdt het gewicht op
+   0,2,1, boven de :hover van button.css. */
+.ref-wrapper :is(a, button, span).ref-term {
   text-decoration: underline dotted;
   text-decoration-color: var(--color-primary);
   text-decoration-thickness: 2px;

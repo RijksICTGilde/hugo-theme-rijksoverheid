@@ -121,7 +121,7 @@ a {
 /* Links in lopende tekst zijn onderstreept, zodat kleur niet de enige drager
    is (WCAG 1.4.1). `:where()` houdt de specificiteit op die van `a`, zodat
    componenten met een eigen linkstijl blijven winnen. */
-:where(main :is(p, dd, td, th, blockquote, :is(ul, ol):not([class]) > li)) a:where(:not([class])) {
+:where(main :is(p, dd, td, th, blockquote, figcaption, caption, :is(ul, ol):not([class]) > li)) a:where(:not([class])) {
   text-decoration: underline;
 }
 
