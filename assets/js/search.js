@@ -632,9 +632,10 @@
     var walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
         var parent = node.parentElement;
-        // Geen script en stijl, geen eerdere markering, en niets in een
-        // SVG-tekening: daar werkt een HTML-element niet.
-        var skip = !parent || parent.closest('script, style, noscript, textarea, mark, svg');
+        // Geen script en stijl, geen eerdere markering, niet de melding zelf
+        // (die staat in <main>), en niets in een SVG-tekening: daar werkt een
+        // HTML-element niet.
+        var skip = !parent || parent.closest('script, style, noscript, textarea, mark, svg, #highlight-bar');
         return skip ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
       }
     });
