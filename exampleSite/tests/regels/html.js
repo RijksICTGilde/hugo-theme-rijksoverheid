@@ -293,6 +293,57 @@ function checkIconenDecoratief(html) {
   return findings;
 }
 
+const SVG_VORMEN = new Set(["rect", "path", "circle", "ellipse", "line", "polyline", "polygon", "use"]);
+const SVG_TAG = /<(\/?)([a-z][\w:-]*)((?:"[^"]*"|'[^']*'|[^"'>])*)>/gi;
+const MAX_TAG = 80;
+
+function kortTag(tag) {
+  return tag.length > MAX_TAG ? `${tag.slice(0, MAX_TAG - 1)}…>` : tag;
+}
+
+/**
+ * Niet-gesloten vormelementen in inline SVG. Staat er een geneste <svg> in,
+ * dan verlaat de minifier na de eerste geneste </svg> de SVG-modus en haalt
+ * hij de / weg uit `<rect ... />`. De browser leest zo'n <rect> dan als open
+ * element: alles wat erna komt wordt zijn kind en verdwijnt uit beeld. Geen
+ * scanner meldt dat.
+ *
+ * Een element dat geen eigen sluittag krijgt, sluit pas bij de sluittag van
+ * een voorouder; zo leest de browser het ook.
+ */
+function checkSvgGesloten(html) {
+  const findings = [];
+  const open = [];
+  const meldOpen = (elementen) => {
+    for (const { naam, tag } of elementen) {
+      if (SVG_VORMEN.has(naam)) findings.push(`${kortTag(tag)} is niet gesloten`);
+    }
+  };
+
+  for (const [tag, sluit, ruweNaam, rest] of schoon(html).matchAll(SVG_TAG)) {
+    const naam = ruweNaam.toLowerCase();
+    const zelfsluitend = rest.trimEnd().endsWith("/");
+
+    if (open.length === 0) {
+      if (!sluit && naam === "svg" && !zelfsluitend) open.push({ naam, tag });
+      continue;
+    }
+
+    if (!sluit) {
+      if (!zelfsluitend) open.push({ naam, tag });
+      continue;
+    }
+
+    const index = open.findLastIndex((element) => element.naam === naam);
+    if (index === -1) continue;
+    meldOpen(open.splice(index + 1));
+    open.pop();
+  }
+
+  meldOpen(open);
+  return findings;
+}
+
 /**
  * De toegankelijke naam bevat de zichtbare tekst (WCAG 2.5.3). Een
  * aria-label dat de zichtbare tekst overschrijft, breekt spraakbediening.
@@ -365,6 +416,7 @@ export {
   checkLandmarkNamen,
   checkSkipLink,
   checkIconenDecoratief,
+  checkSvgGesloten,
   checkLabelInNaam,
   checkTitelVorm,
   checkLekkendeSyntax,
