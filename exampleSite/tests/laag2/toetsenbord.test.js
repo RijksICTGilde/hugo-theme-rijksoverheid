@@ -408,6 +408,25 @@ describe("zoekmarkering niet alleen in kleur (1.4.1)", () => {
     }
   });
 
+  test("zonder de melding, zoals bij een eigen baseof.html, markeert de pagina niets", async () => {
+    const page = await browser.newPage();
+    try {
+      await page.setViewport(BREED);
+      // Haal de knop weg zodra de parser hem maakt, nog voor search.js draait.
+      await page.evaluateOnNewDocument(() => {
+        new MutationObserver(() => document.getElementById("highlight-bar")?.remove()).observe(document, {
+          childList: true,
+          subtree: true,
+        });
+      });
+      await page.goto(baseUrl + "/onderdelen/links/?q=pagina", { waitUntil: "load" });
+      assert.equal(await page.$("#highlight-bar"), null, "de knop staat er nog: de toets meet niets");
+      assert.equal(await page.$$eval("mark[data-search-highlight]", (marks) => marks.length), 0);
+    } finally {
+      await page.close();
+    }
+  });
+
   test("in tekst die al vet is, zoals een kop, is de markering onderstreept", async () => {
     const page = await open("/onderdelen/lange-pagina/?q=opsommingen");
     try {

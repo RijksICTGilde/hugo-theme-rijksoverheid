@@ -559,7 +559,9 @@
     if (query.length < 2) return;
 
     var mainContent = document.getElementById('main-content');
-    if (!mainContent) return;
+    // Zonder de melding (een eigen baseof.html zonder #highlight-bar) is een
+    // markering niet weg te halen en hoort een schermlezer er niets van.
+    if (!mainContent || !document.getElementById('highlight-bar')) return;
 
     // q parameter blijft in URL zodat highlight deelbaar is
     var count = highlightTextNodes(mainContent, query);
