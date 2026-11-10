@@ -559,3 +559,174 @@ describe("diagram in de afdruk", () => {
     }
   });
 });
+
+describe("bodytekst in dark (1.4.3)", () => {
+  test("is een tint zachter dan de koppen en haalt 4,5:1 op elke achtergrond waarop hij staat", async () => {
+    const page = await open("/?scheme=dark");
+    try {
+      const uitslag = await page.evaluate(() => {
+        const canvas = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+        const lees = () => Array.from(canvas.getImageData(0, 0, 1, 1).data.slice(0, 3));
+        const lum = (kanalen) => {
+          const [x, y, z] = kanalen.map((n) => {
+            const c = n / 255;
+            return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * x + 0.7152 * y + 0.0722 * z;
+        };
+        const token = (naam) => {
+          const el = document.createElement("div");
+          el.style.color = `var(${naam})`;
+          document.body.appendChild(el);
+          const kleur = getComputedStyle(el).color;
+          el.remove();
+          return kleur;
+        };
+        const tekst = getComputedStyle(document.body).color;
+        const koppen = token("--color-text-heading");
+        const pagina = token("--color-bg-page");
+        // Eerst de pagina, dan het vlak erover: de hero is half doorzichtig.
+        const samengesteld = (vlak) => {
+          canvas.clearRect(0, 0, 1, 1);
+          canvas.fillStyle = pagina;
+          canvas.fillRect(0, 0, 1, 1);
+          canvas.fillStyle = vlak;
+          canvas.fillRect(0, 0, 1, 1);
+          return lees();
+        };
+        canvas.clearRect(0, 0, 1, 1);
+        canvas.fillStyle = tekst;
+        canvas.fillRect(0, 0, 1, 1);
+        const tekstLum = lum(lees());
+        const verhoudingen = {};
+        for (const naam of ["bg-page", "bg-muted", "bg-light", "bg-info", "bg-success", "bg-warning", "bg-danger", "bg-hero", "surface"]) {
+          const [a, b] = [tekstLum, lum(samengesteld(token(`--color-${naam}`)))].sort((p, q) => q - p);
+          verhoudingen[naam] = Math.round(((a + 0.05) / (b + 0.05)) * 100) / 100;
+        }
+        return { tekst, koppen, verhoudingen };
+      });
+      assert.notEqual(uitslag.tekst, uitslag.koppen, "bodytekst en koppen hebben dezelfde kleur");
+      const onder = Object.entries(uitslag.verhoudingen).filter(([, v]) => v < 4.5);
+      assert.deepEqual(onder, [], JSON.stringify(uitslag.verhoudingen));
+      console.log("contrast bodytekst dark:", JSON.stringify(uitslag.verhoudingen));
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("tooltip dicht bij zijn element", () => {
+  test("de ballon staat hooguit 2px van het element en de brug dekt het gat", async () => {
+    const page = await open("/onderdelen/diagram/");
+    try {
+      const knop = await page.$(".mermaid-download");
+      assert.ok(knop, "geen .mermaid-download");
+      await knop.hover();
+      const maat = await page.evaluate(() => {
+        const ballon = document.querySelector("body > .tooltip");
+        const knop = document.querySelector(".mermaid-download").getBoundingClientRect();
+        const b = ballon.getBoundingClientRect();
+        const brug = getComputedStyle(ballon, "::before").height;
+        return { hidden: ballon.hidden, onder: b.top - knop.bottom, boven: knop.top - b.bottom, brug };
+      });
+      assert.equal(maat.hidden, false);
+      const gat = Math.min(Math.abs(maat.onder), Math.abs(maat.boven));
+      assert.ok(gat <= 2.5, `gat van ${gat}px`);
+      assert.ok(parseFloat(maat.brug) >= gat - 0.5, `brug ${maat.brug} dekt het gat van ${gat}px niet`);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("hero op een smal scherm", () => {
+  const meet = (page) =>
+    page.evaluate(() => {
+      const img = document.querySelector(".hero img");
+      return {
+        weergave: getComputedStyle(img).display,
+        bron: img.currentSrc,
+        hoogte: document.querySelector(".hero").getBoundingClientRect().height,
+        inhoud: document.querySelector(".hero .content").getBoundingClientRect().height,
+        overloop: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+
+  test("onder 550px is de foto verborgen en laadt alleen de mini-versie", async () => {
+    const page = await open("/", { breedte: 400 });
+    try {
+      const m = await meet(page);
+      assert.equal(m.weergave, "none");
+      const groot = await page.evaluate(() =>
+        performance.getEntriesByType("resource").filter((e) => e.initiatorType === "img" && e.encodedBodySize > 20000).map((e) => e.name),
+      );
+      assert.deepEqual(groot, [], `groot beeld geladen: ${m.bron}`);
+      assert.ok(m.overloop <= 1, `overloop ${m.overloop}px`);
+      assert.ok(m.hoogte >= m.inhoud, "de hero is lager dan zijn tekst");
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("vanaf 550px staat de foto er en is de hero minstens 300px hoog", async () => {
+    const page = await open("/", { breedte: 700 });
+    try {
+      const m = await meet(page);
+      assert.equal(m.weergave, "block");
+      assert.ok(m.hoogte >= 300, `hoogte ${m.hoogte}px`);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("opmaak uit moza", () => {
+  test("een knop met een lang woord breekt af in plaats van buiten zijn vak te lopen", async () => {
+    const page = await open("/", { breedte: 320 });
+    try {
+      const breedte = await page.evaluate(() => {
+        const vak = document.createElement("div");
+        vak.style.width = "200px";
+        vak.innerHTML = '<a class="button" href="#">Toetsingskaderondersteuningsdocumentatie</a>';
+        document.body.appendChild(vak);
+        return vak.firstChild.getBoundingClientRect().width;
+      });
+      assert.ok(breedte <= 200.5, `knop ${breedte}px breed`);
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("opeenvolgende citaten wisselen van hoek", async () => {
+    const page = await open("/", { breedte: 1280 });
+    try {
+      const hoeken = await page.evaluate(() => {
+        const vak = document.createElement("div");
+        vak.innerHTML = "<blockquote>a</blockquote><blockquote>b</blockquote><blockquote>c</blockquote>";
+        document.body.appendChild(vak);
+        return [...vak.children].map((el) => getComputedStyle(el).borderRadius);
+      });
+      assert.notEqual(hoeken[0], hoeken[1], hoeken.join(" | "));
+      assert.notEqual(hoeken[1], hoeken[2], hoeken.join(" | "));
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("een kaartenraster in de artikelkolom heeft hooguit twee kolommen", async () => {
+    const page = await open("/onderdelen/lange-woorden/", { breedte: 1280 });
+    try {
+      const kolommen = await page.evaluate(() => {
+        const tekst = document.querySelector("article:not(.wide) .artikel-tekst");
+        const raster = document.createElement("ul");
+        raster.className = "card-grid";
+        raster.innerHTML = "<li>a</li><li>b</li><li>c</li>";
+        tekst.appendChild(raster);
+        return getComputedStyle(raster).gridTemplateColumns.split(" ").length;
+      });
+      assert.equal(kolommen, 2);
+    } finally {
+      await page.close();
+    }
+  });
+});

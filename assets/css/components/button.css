@@ -27,6 +27,10 @@ button,
    toestand (.search-filter), onder een klasse met toestand
    (.page-aside-toggle:hover, .search-filter.active), ongeacht de volgorde van
    de bestanden. */
+a.button {
+  overflow-wrap: anywhere;
+}
+
 button:hover,
 .button:hover {
   text-decoration: none;

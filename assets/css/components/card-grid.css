@@ -25,6 +25,13 @@
   }
 }
 
+/* In de artikelkolom (800px) worden drie kolommen te smal. */
+article:not(.wide) .artikel-tekst .card-grid {
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .card-grid.columns-2 {
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
