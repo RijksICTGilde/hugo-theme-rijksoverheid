@@ -384,6 +384,54 @@ describe("zoekveld (2.4.7)", () => {
   });
 });
 
+describe("zoekmarkering niet alleen in kleur (1.4.1)", () => {
+  test("een markering in lopende tekst is vetter dan de tekst eromheen", async () => {
+    const page = await open("/onderdelen/links/?q=pagina");
+    try {
+      const marks = await page.evaluate(() =>
+        [...document.querySelectorAll("mark[data-search-highlight]")].map((mark) => ({
+          ouder: Number(getComputedStyle(mark.parentElement).fontWeight),
+          mark: Number(getComputedStyle(mark).fontWeight),
+          tekst: mark.parentElement.textContent.trim().replace(/\s+/g, " ").slice(0, 40),
+        })),
+      );
+      const lopend = marks.filter((m) => m.ouder < 600);
+      assert.ok(lopend.length > 0, "geen markering in lopende tekst bij ?q=pagina: de controle ziet niets");
+      assert.deepEqual(
+        lopend.filter((m) => m.mark <= m.ouder).map((m) => `${m.tekst} (${m.mark})`),
+        [],
+        "markeringen die alleen in kleur verschillen van de tekst eromheen",
+      );
+    } finally {
+      await page.close();
+    }
+  });
+
+  test("in een zoekresultaat is de markering vet, en onderstreept in de titel die al vet is", async () => {
+    const page = await open("/");
+    try {
+      const knop = await zichtbaar(page, ".search-trigger");
+      assert.ok(knop, "geen zichtbare .search-trigger");
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      await page.type("#search-input", "pagina");
+      await page.waitForSelector("#search-results .search-result-title mark");
+      const stand = await page.evaluate(() => {
+        const alle = (selector) => [...document.querySelectorAll(selector)].map((el) => getComputedStyle(el));
+        return {
+          fragment: alle(".search-result-snippet mark").map((s) => Number(s.fontWeight)),
+          titel: alle(".search-result-title mark").map((s) => s.textDecorationLine),
+        };
+      });
+      assert.ok(stand.fragment.length > 0, "geen markering in de tekst van een zoekresultaat");
+      assert.deepEqual(stand.fragment.filter((gewicht) => gewicht < 700), [], "een markering in de tekst van een resultaat is niet vet");
+      assert.deepEqual(stand.titel.filter((lijn) => !lijn.includes("underline")), [], "een markering in de titel van een resultaat is niet onderstreept");
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
   const ROUTE = "/onderdelen/lange-pagina/?q=inleiding";
   const STANDEN = [
