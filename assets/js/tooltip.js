@@ -10,7 +10,7 @@
 (function () {
   if (!document.querySelector("[data-tooltip]")) return;
 
-  const RUIMTE = 6;
+  const RUIMTE = 2;
   const MARGE = 8;
   const ballon = document.createElement("div");
   ballon.className = "tooltip";
