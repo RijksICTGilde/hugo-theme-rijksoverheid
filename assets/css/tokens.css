@@ -46,7 +46,7 @@
   --color-accent-danger: var(--primitives-color-critical-600);
 
   /* Tekstkleuren */
-  --color-text: var(--theme-neutral-950);
+  --color-text: light-dark(var(--theme-neutral-950), var(--theme-neutral-925));
   --color-text-heading: var(--theme-neutral-950);
   --color-text-muted: var(--theme-neutral-800);
   --color-text-inverse: #ffffff;
