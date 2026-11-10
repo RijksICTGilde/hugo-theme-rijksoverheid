@@ -408,6 +408,21 @@ describe("zoekmarkering niet alleen in kleur (1.4.1)", () => {
     }
   });
 
+  test("in tekst die al vet is, zoals een kop, is de markering onderstreept", async () => {
+    const page = await open("/onderdelen/lange-pagina/?q=opsommingen");
+    try {
+      const marks = await page.evaluate(() =>
+        [...document.querySelectorAll("mark[data-search-highlight]")]
+          .filter((mark) => Number(getComputedStyle(mark.parentElement).fontWeight) >= 600)
+          .map((mark) => ({ lijn: getComputedStyle(mark).textDecorationLine, tekst: mark.parentElement.textContent.trim().slice(0, 40) })),
+      );
+      assert.ok(marks.length > 0, "geen markering in vette tekst bij ?q=opsommingen: de controle ziet niets");
+      assert.deepEqual(marks.filter((m) => !m.lijn.includes("underline")).map((m) => m.tekst), []);
+    } finally {
+      await page.close();
+    }
+  });
+
   test("in een zoekresultaat is de markering vet, en onderstreept in de titel die al vet is", async () => {
     const page = await open("/");
     try {
@@ -434,7 +449,7 @@ describe("zoekmarkering niet alleen in kleur (1.4.1)", () => {
 });
 
 describe("melding over de zoekmarkering (2.4.3, 2.4.11)", () => {
-  const ROUTE = "/onderdelen/lange-pagina/?q=inleiding";
+  const ROUTE = "/onderdelen/lange-pagina/?q=opsommingen";
   const SMAL_LAAG = { width: 320, height: 640 };
   const STANDEN = [
     { naam: "320px breed", breedte: 320 },

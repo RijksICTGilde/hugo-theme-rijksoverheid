@@ -216,11 +216,17 @@ b {
   font-weight: 700;
 }
 
-/* Zonder vet leunt de markering alleen op kleur: het vlak haalt 1,35:1. */
+/* Zonder vet leunt de markering alleen op kleur: het vlak haalt 1,35:1. In
+   tekst die al vet is, onderscheidt vet niets; daar onderstreept ze. */
 mark {
   background-color: var(--color-highlight);
   color: var(--color-highlight-text);
   font-weight: 700;
+}
+
+:is(h1, h2, h3, h4, h5, h6, b, strong, th) mark {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .semibold {
