@@ -16,6 +16,7 @@
     "toetsenbord": "node --test tests/laag2/toetsenbord.test.js",
     "escape": "node --test tests/laag2/escape.test.js",
     "opmaak": "node --test tests/laag2/opmaak.test.js",
+    "focus": "node --test tests/laag2/focus.test.js",
     "a11y-review": "node --test tests/laag2/a11y-review.test.js"
   },
   "devDependencies": {
