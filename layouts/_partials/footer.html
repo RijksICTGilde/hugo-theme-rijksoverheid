@@ -1,7 +1,8 @@
 <footer>
   {{- $ancestors := .Ancestors.Reverse -}}
   {{- $kruimelpad := and (not .IsHome) (gt (len $ancestors) 1) -}}
-  {{- if or $kruimelpad .Params.show_lastmod }}
+  {{- $lastmod := partial "lastmod.html" . -}}
+  {{- if or $kruimelpad (trim $lastmod " \n\t") }}
   <div class="page-meta">
     {{- if $kruimelpad }}
     <nav class="breadcrumb" aria-label="Kruimelpad">
@@ -13,7 +14,7 @@
       </ol>
     </nav>
     {{- end }}
-    {{ partial "lastmod.html" . }}
+    {{ $lastmod }}
   </div>
   {{- end }}
   {{- /* Alleen op de homepage: de voet staat op elke pagina, de melding hoeft maar één keer. */ -}}
