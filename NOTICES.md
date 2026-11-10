@@ -11,7 +11,7 @@ Bestanden:
 - `static/fonts/RijksSansWeb-Regular.woff2`
 - `static/fonts/RijksSansWeb-Italic.woff2`
 
-Bron: `@nldd/design-system` 0.9.0, `dist/fonts/`.
+Bron: `@nldd/design-system` 0.16.2, `dist/fonts/`.
 
 Auteursrecht voorbehouden door de Staat der Nederlanden (Ministerie van Algemene Zaken), conform regeling van 16 juni 2008 (Stcrt. 2008, nr. 115) en artikel 15b van de Auteurswet 1912.
 
@@ -38,7 +38,7 @@ Bestanden:
 - `static/images/icons/*.svg`, gegenereerd door `tools/nldd/iconen.js`
 - `assets/css/nldd-primitives.css`, gegenereerd door `tools/nldd/tokens.js`
 
-Bron: [`@nldd/design-system`](https://github.com/NederlandseDigitaleDienst/design-system) 0.9.0 van de Nederlandse Digitale Dienst, gelicentieerd onder de **EUPL-1.2** (<https://eupl.eu/1.2/nl>). De gegenereerde bestanden zijn afgeleid werk van dat pakket; de huisstijlkleuren daarin vallen onder de voorwaarden bij "Rijkslogo en huisstijl" hierboven.
+Bron: [`@nldd/design-system`](https://github.com/NederlandseDigitaleDienst/design-system) 0.16.2 van de Nederlandse Digitale Dienst, gelicentieerd onder de **EUPL-1.2** (<https://eupl.eu/1.2/nl>). De gegenereerde bestanden zijn afgeleid werk van dat pakket; de huisstijlkleuren daarin vallen onder de voorwaarden bij "Rijkslogo en huisstijl" hierboven.
 
 ## Fuse.js
 
