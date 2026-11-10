@@ -102,7 +102,7 @@
   /* Zonder dit houdt het veld zijn intrinsieke breedte en duwt het de
      sluitknop uit beeld. */
   min-width: 0;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
   font-size: 1.125rem;
   font-family: var(--font-sans);
   color: var(--color-text);

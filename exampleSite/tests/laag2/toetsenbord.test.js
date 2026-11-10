@@ -346,6 +346,44 @@ describe("focus (2.4.3, 2.4.7)", () => {
   });
 });
 
+describe("zoekveld (2.4.7)", () => {
+  test("Shift+Tab van Sluiten naar het veld toont een focusring die de tekst niet raakt", async () => {
+    const page = await open("/");
+    try {
+      const knop = await zichtbaar(page, ".search-trigger");
+      assert.ok(knop, "geen zichtbare .search-trigger");
+      await knop.focus();
+      await page.keyboard.press("Enter");
+      await page.type("#search-input", "pagina");
+      await page.keyboard.press("Tab");
+      assert.equal((await actief(page))?.id, "search-close", "de Tab vanuit het zoekveld gaat niet naar Sluiten");
+      await page.keyboard.down("Shift");
+      await page.keyboard.press("Tab");
+      await page.keyboard.up("Shift");
+      const veld = await page.evaluate(() => {
+        const el = document.activeElement;
+        const s = getComputedStyle(el);
+        // Van de tekst tot de binnenkant van de ring: padding, rand en de ruimte tussen rand en ring.
+        const afstand = (kant) => parseFloat(s[`padding${kant}`]) + parseFloat(s[`border${kant}Width`]) + parseFloat(s.outlineOffset);
+        return {
+          id: el.id,
+          ring: el.matches(":focus-visible") && s.outlineStyle !== "none" && parseFloat(s.outlineWidth) >= 2,
+          links: afstand("Left"),
+          rechts: afstand("Right"),
+        };
+      });
+      assert.equal(veld.id, "search-input", "Shift+Tab vanaf Sluiten gaat niet naar het zoekveld");
+      assert.ok(veld.ring, "het zoekveld heeft geen zichtbare focusring");
+      assert.ok(
+        veld.links >= 8 && veld.rechts >= 8,
+        `de tekst ligt ${veld.links}px (links) en ${veld.rechts}px (rechts) van de focusring; verwacht minstens 8px`,
+      );
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("focus niet afgedekt door de markeerbalk (2.4.11)", () => {
   const ROUTE = "/onderdelen/lange-pagina/?q=inleiding";
   const STANDEN = [
