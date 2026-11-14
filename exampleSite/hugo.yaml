@@ -119,6 +119,9 @@ menus:
     - name: Buiten de zoekindex
       pageRef: /onderdelen/buiten-de-zoekindex
       weight: 7
+    - name: Boomschema
+      pageRef: /onderdelen/boom
+      weight: 8
 
   footer-links:
     - name: Nieuws

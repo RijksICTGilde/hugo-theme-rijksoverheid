@@ -30,6 +30,7 @@ const VERWACHTE_ROUTES = [
   "/nieuws/nieuwe-website-online/",
   "/nieuws/toegankelijkheid-getest/",
   "/onderdelen/",
+  "/onderdelen/boom/",
   "/onderdelen/buiten-de-zoekindex/",
   "/onderdelen/diagram/",
   "/onderdelen/lange-pagina/",
