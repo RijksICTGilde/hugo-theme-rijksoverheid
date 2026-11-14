@@ -11,6 +11,7 @@ Een boomschema laat zien wat bij wat hoort. De lijnen zijn alleen opmaak. Een sc
 ## Soorten berichten
 
 {{< boom bijschrift="De soorten berichten, per familie onder *bericht*." >}}
+
 - **Bericht**
   - **Notificatie**: wijst op iets
     - [Ontvangstbevestiging](#soorten-berichten)
@@ -24,6 +25,7 @@ Een boomschema laat zien wat bij wat hoort. De lijnen zijn alleen opmaak. Een sc
 ## Zonder bijschrift
 
 {{< boom >}}
+
 - Gemeente
   - Afdeling
     - Team
