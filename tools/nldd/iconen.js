@@ -29,6 +29,7 @@ const ICONS = {
   "chevron-down": { name: "chevron-down", class: "icon-expand" },
   "arrow-up": { name: "arrow-up", class: "icon-arrow-up" },
   info: { name: "info-circle" },
+  waarschuwing: { name: "exclamation-triangle" },
   lock: { name: "lock-closed" },
   download: { name: "arrow-down-in-bucket" },
   "externe-link": { name: "square-arrow-right-top" },

@@ -7,7 +7,8 @@
   Params:
     titel     optioneel
     variant   optioneel: info | muted | warning | success | danger
-              (zonder variant de info-kleur; het info-icoon alleen bij info)
+              (zonder variant de info-kleur; het info-icoon alleen bij info,
+              het waarschuwingsicoon bij warning)
     corner    optioneel: bottom-right | bottom-left | upper-left
               (standaard upper-right)
     kopniveau optioneel: 2 tot en met 6, standaard params.infoblok.kopniveau
@@ -32,12 +33,12 @@
 {{- if or (lt $niveau 2) (gt $niveau 6) -}}
   {{- errorf "callout: kopniveau %d ongeldig (kies 2 tot en met 6)" $niveau -}}
 {{- end -}}
-{{- $icoon := eq $variant "info" -}}
+{{- $icoon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
 <div class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
   {{- if or $icoon $titel }}
   <header>
-    {{- if $icoon }}
-    {{- partial "icon.html" "info" -}}
+    {{- with $icoon }}
+    {{- partial "icon.html" . -}}
     {{- end }}
     {{- with $titel }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
   </header>

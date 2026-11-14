@@ -131,6 +131,10 @@ blockquote.quote {
 
 .callout.warning {
   background-color: var(--color-bg-warning);
+
+  header svg {
+    color: var(--color-accent-warning);
+  }
 }
 
 .callout.danger {

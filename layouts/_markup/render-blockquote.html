@@ -5,7 +5,7 @@
        Alerttype naar variant:
          note, info          -> info (standaard, met info-icoon)
          tip                 -> success
-         important, warning  -> warning
+         important, warning  -> warning (met waarschuwingsicoon)
          caution             -> danger
        Andere typen krijgen de standaardopmaak zonder variantklasse.
 
@@ -21,12 +21,12 @@
 {{- if or (lt $niveau 2) (gt $niveau 6) -}}
   {{- errorf "params.infoblok.kopniveau %d ongeldig (kies 2 tot en met 6)" $niveau -}}
 {{- end -}}
-{{- $icoon := eq $variant "info" -}}
+{{- $icoon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
 <div class="callout{{ with $variant }} {{ . }}{{ end }}">
   {{- if or $icoon .AlertTitle }}
   <header>
-    {{- if $icoon }}
-    {{- partial "icon.html" "info" -}}
+    {{- with $icoon }}
+    {{- partial "icon.html" . -}}
     {{- end }}
     {{- with .AlertTitle }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
   </header>

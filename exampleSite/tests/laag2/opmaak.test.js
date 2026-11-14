@@ -803,3 +803,37 @@ describe("links in eigen opmaak (1.4.1)", () => {
     }
   });
 });
+
+describe("iconen in infoblokken (1.4.11)", () => {
+  for (const schema of ["light", "dark"]) {
+    test(`een waarschuwing heeft een eigen icoon met 3:1 tegen het vlak, net als info (${schema})`, async () => {
+      const page = await open(`/onderdelen/lange-pagina/?scheme=${schema}`);
+      try {
+        const blokken = await page.$$eval(".callout", (els) =>
+          els.map((el) => {
+            const svg = el.querySelector(":scope > header > svg");
+            return {
+              variant: ["info", "warning", "success", "danger"].find((v) => el.classList.contains(v)) ?? "",
+              icoon: svg ? svg.innerHTML.replace(/\s+/g, " ").trim() : null,
+              kleur: svg ? getComputedStyle(svg).color : null,
+              vlak: getComputedStyle(el).backgroundColor,
+            };
+          }),
+        );
+        const per = (variant) => blokken.filter((b) => b.variant === variant);
+        assert.ok(per("warning").length >= 2 && per("info").length >= 2, JSON.stringify(blokken));
+        const iconen = (variant) => [...new Set(per(variant).map((b) => b.icoon))];
+        assert.equal(iconen("warning").length, 1, `waarschuwingen zonder of met verschillende iconen: ${JSON.stringify(iconen("warning"))}`);
+        assert.ok(iconen("warning")[0], "een waarschuwing zonder icoon");
+        assert.notEqual(iconen("warning")[0], iconen("info")[0], "de waarschuwing heeft het info-icoon");
+        assert.deepEqual([...per("success"), ...per("danger")].filter((b) => b.icoon), [], "succes of gevaar met een icoon");
+        for (const b of [...per("info"), ...per("warning")]) {
+          const verhouding = await contrast(page, b.kleur, b.vlak);
+          assert.ok(verhouding >= 3, `${b.variant}: icoon ${b.kleur} op ${b.vlak} haalt ${verhouding.toFixed(2)}:1`);
+        }
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
