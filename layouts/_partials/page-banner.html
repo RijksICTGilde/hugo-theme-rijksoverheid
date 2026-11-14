@@ -1,5 +1,5 @@
 {{/*
-  Page-banner partial — optionele site-wide melding bovenaan elke pagina.
+  Page-banner partial: optionele site-wide melding bovenaan elke pagina.
 
   Activeren door in hugo.yaml params.page_banner toe te voegen:
     params:
@@ -12,7 +12,7 @@
 */}}
 {{- $b := site.Params.page_banner -}}
 {{- if and $b $b.text -}}
-<div class="page-banner page-banner--{{ $b.type | default "info" }}" role="status">
+<div class="page-banner page-banner--{{ $b.type | default "info" }}" role="region" aria-label="Melding">
   <p>{{ with $b.strong }}<strong>{{ . }}</strong> {{ end }}{{ $b.text }}</p>
 </div>
 {{- end -}}

@@ -1,0 +1,42 @@
+/* Grote uitgelichte quote: <figure class="pull-quote"><blockquote>...</blockquote>
+   <figcaption>bron</figcaption></figure> (shortcode quote). */
+.pull-quote {
+  margin: 2.5rem auto;
+  max-width: var(--article-max-width);
+  padding-block: 0.25rem;
+  padding-inline: 2rem 0;
+  border-inline-start: 4px solid var(--color-rijksoranje);
+}
+
+.pull-quote blockquote {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  line-height: 1.35;
+  font-style: italic;
+  color: var(--color-text-heading);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.pull-quote blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.pull-quote figcaption {
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-style: normal;
+  text-align: start;
+  color: var(--color-text-muted);
+}
+
+@media print {
+  .pull-quote {
+    break-inside: avoid;
+  }
+}

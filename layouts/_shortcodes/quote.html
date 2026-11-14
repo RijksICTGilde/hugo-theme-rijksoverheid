@@ -1,0 +1,11 @@
+{{- /* Grote uitgelichte quote van een persoon. Gebruik:
+       {{< quote source="Naam, functie" >}}Citaat{{< /quote >}}
+       Alleen voor een echt citaat; een infoblok is de shortcode callout. */ -}}
+<figure class="pull-quote">
+  <blockquote>
+    {{ .Inner | strings.TrimSpace | .Page.RenderString (dict "display" "block") }}
+  </blockquote>
+  {{- with .Get "source" }}
+  <figcaption>{{ . }}</figcaption>
+  {{- end }}
+</figure>

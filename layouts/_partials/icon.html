@@ -1,7 +1,17 @@
+{{- /* Inline SVG-icoon uit static/images/icons/. Iconen zijn decoratief: zonder
+       aria-hidden en focusable="false" in het bestand zet deze partial ze er
+       zelf op, zodat een icoon nooit een naam of tabstop krijgt. */ -}}
 {{- $name := . -}}
 {{- $path := printf "static/images/icons/%s.svg" $name -}}
 {{- if fileExists $path -}}
-  {{- os.ReadFile $path | safeHTML -}}
+  {{- $svg := os.ReadFile $path -}}
+  {{- if not (strings.Contains $svg "aria-hidden=") -}}
+    {{- $svg = replaceRE `<svg\b` `<svg aria-hidden="true"` $svg 1 -}}
+  {{- end -}}
+  {{- if not (strings.Contains $svg "focusable=") -}}
+    {{- $svg = replaceRE `<svg\b` `<svg focusable="false"` $svg 1 -}}
+  {{- end -}}
+  {{- $svg | safeHTML -}}
 {{- else -}}
   {{- errorf "Icon niet gevonden: %s" $name -}}
 {{- end -}}

@@ -1,0 +1,75 @@
+{{- /* Titel, beschrijving, favicons en deelgegevens (Open Graph, Twitter).
+       Gedeeld door head.html en layouts die een eigen <head> hebben. */ -}}
+{{- $pageTitle := .Site.Title -}}
+{{- $metaTitle := or .Params.page_title .Title -}}
+{{- if eq .Kind "404" -}}
+  {{- /* Hugo noemt deze pagina "404 Page not found", op een Nederlandse site. */ -}}
+  {{- $metaTitle = "Pagina niet gevonden" -}}
+{{- end -}}
+{{- if .IsHome -}}
+  {{- with .Site.Params.tagline -}}
+    {{- $pageTitle = printf "%s: %s" $.Site.Title . -}}
+  {{- end -}}
+{{- else if $metaTitle -}}
+  {{- $pageTitle = printf "%s · %s" $metaTitle .Site.Title -}}
+{{- end -}}
+<title>{{ $pageTitle }}</title>
+{{- $description := .Description -}}
+{{- if eq .Kind "404" -}}
+  {{- $description = "Deze pagina bestaat niet of is verplaatst." -}}
+{{- end -}}
+{{- if not $description -}}
+  {{- if .Content -}}
+    {{- /* Zonder koppen: .Plain begint anders met de eerste kop, waardoor een
+         gedeelde link opent met "Algemeen" in plaats van met de inhoud. Ook
+         zonder de verborgen meldingen van render-link ("opent in een nieuw
+         venster", "besloten omgeving"). */ -}}
+    {{- $description = .Content
+      | replaceRE `(?s)<h[1-6][^>]*>.*?</h[1-6]>` " "
+      | replaceRE `(?s)<span class="visually-hidden[^"]*">.*?</span>` ""
+      | plainify | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace | truncate 160 -}}
+  {{- else -}}
+    {{- $description = .Site.Params.description -}}
+  {{- end -}}
+{{- else if gt (len $description) 160 -}}
+  {{- warnf "Description te lang (%d tekens) op pagina: %s - max 160 tekens aanbevolen" (len $description) .RelPermalink -}}
+{{- end -}}
+<meta name="description" content="{{ $description }}" />
+<link rel="canonical" href="{{ .Permalink }}" />
+{{- with .OutputFormats.Get "markdown" }}
+<link rel="alternate" type="text/markdown" href="{{ .Permalink }}" title="Deze pagina als Markdown" />
+{{- end }}
+{{- with or (.OutputFormats.Get "rss") (.Site.Home.OutputFormats.Get "rss") }}
+<link rel="alternate" type="{{ .MediaType.Type }}" href="{{ .Permalink }}" title="{{ $.Site.Title }}" />
+{{- end }}
+
+{{ partial "favicons.html" . }}
+
+{{/* Open Graph */}}
+{{- $ogPad := partial "og-image.html" . -}}
+{{- $ogGroot := ne $ogPad "favicon-192x192.png" -}}
+{{- $ogBreed := cond $ogGroot 1200 192 -}}
+{{- $ogHoog := cond $ogGroot 630 192 -}}
+{{- $ogType := dict ".jpg" "image/jpeg" ".jpeg" "image/jpeg" ".png" "image/png" ".webp" "image/webp" ".gif" "image/gif" -}}
+{{- $ogImage := absURL $ogPad }}
+<meta property="og:title" content="{{ $pageTitle }}" />
+<meta property="og:description" content="{{ $description }}" />
+<meta property="og:url" content="{{ .Permalink }}" />
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+<meta property="og:locale" content="nl_NL" />
+<meta property="og:image" content="{{ $ogImage }}" />
+{{- with index $ogType (lower (path.Ext $ogPad)) }}
+<meta property="og:image:type" content="{{ . }}" />
+{{- end }}
+<meta property="og:image:width" content="{{ $ogBreed }}" />
+<meta property="og:image:height" content="{{ $ogHoog }}" />
+<meta property="og:image:alt" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ or .Params.page_title .Title .Site.Title }}, {{ .Site.Title }}{{ end }}" />
+
+{{/* Twitter Card */}}
+<meta name="twitter:card" content="{{ cond $ogGroot "summary_large_image" "summary" }}" />
+<meta name="twitter:title" content="{{ $pageTitle }}" />
+<meta name="twitter:description" content="{{ $description }}" />
+<meta name="twitter:image" content="{{ $ogImage }}" />
+<meta name="twitter:image:width" content="{{ $ogBreed }}" />
+<meta name="twitter:image:height" content="{{ $ogHoog }}" />

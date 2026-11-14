@@ -1,43 +1,44 @@
 (function () {
-  const toc = document.getElementById("toc");
-  const toggleButton = document.querySelector(".toc-toggle");
-  const STORAGE_KEY = "toc-open";
+  // Moet gelijk zijn aan het breekpunt in css/components/page-aside.css.
+  const BREEKPUNT = "59.375rem";
+  const breed = window.matchMedia("(width >= " + BREEKPUNT + ")");
 
-  // TOC toggle functionaliteit
-  if (toc && toggleButton) {
-    // Herstel voorkeur uit localStorage
-    const savedState = localStorage.getItem(STORAGE_KEY);
-    if (savedState === "true") {
-      openToc();
+  const vlak = document.querySelector(".page-aside");
+
+  // De rechterkolom heeft een eigen schuifvlak. De CSS kent alleen de hoogte
+  // zoals het blok geplakt staat; bovenaan de pagina staat het lager, onder de
+  // sitekop, en zou de onderkant buiten beeld vallen.
+  let vorigeHoogte = "";
+  function pasHoogteAan() {
+    if (!vlak) return;
+    const rand = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const ruimte = window.innerHeight - vlak.getBoundingClientRect().top - rand;
+    const hoogte = breed.matches ? Math.max(ruimte, 0) + "px" : "";
+    if (hoogte === vorigeHoogte) return;
+    if (hoogte) {
+      vlak.style.setProperty("max-height", hoogte);
+    } else {
+      vlak.style.removeProperty("max-height");
     }
+    vorigeHoogte = hoogte;
+  }
 
-    toggleButton.addEventListener("click", function () {
-      const isOpen = toc.classList.contains("is-open");
-      if (isOpen) {
-        closeToc();
-      } else {
-        openToc();
-      }
-    });
+  // Houd de actieve link zichtbaar in het schuifvlak van de kolom.
+  function toonInSchuifvlak(link) {
+    if (!vlak || vlak.scrollHeight <= vlak.clientHeight) return;
 
-    function openToc() {
-      toc.classList.add("is-open");
-      toggleButton.setAttribute("aria-expanded", "true");
-      toggleButton.querySelector(".visually-hidden").textContent =
-        "Inhoudsopgave verbergen";
-      localStorage.setItem(STORAGE_KEY, "true");
-    }
+    const l = link.getBoundingClientRect();
+    const v = vlak.getBoundingClientRect();
 
-    function closeToc() {
-      toc.classList.remove("is-open");
-      toggleButton.setAttribute("aria-expanded", "false");
-      toggleButton.querySelector(".visually-hidden").textContent =
-        "Inhoudsopgave tonen";
-      localStorage.setItem(STORAGE_KEY, "false");
+    if (l.top < v.top) {
+      vlak.scrollTop -= v.top - l.top;
+    } else if (l.bottom > v.bottom) {
+      vlak.scrollTop += l.bottom - v.bottom;
     }
   }
 
-  // Active link highlighting.
+  // Markeer de actieve sectie in de inhoudsopgave tijdens het scrollen. Alleen
+  // koppen met een link in de inhoudsopgave tellen mee.
   const tocLinks = Array.from(document.querySelectorAll(".toc a[href^='#']"));
   const entries = tocLinks
     .map((link) => {
@@ -46,8 +47,6 @@
       return el ? { link, el } : null;
     })
     .filter(Boolean);
-
-  if (!entries.length) return;
 
   // Een kop is "gepasseerd" zodra hij boven 20% van het venster staat. Koppen
   // in het laatste schermstuk halen die lijn nooit: de pagina is op voordat ze
@@ -65,6 +64,7 @@
     return base + (window.innerHeight - base) * progress;
   }
 
+  let vorigeActieve = null;
   function updateActiveLink() {
     const threshold = getThreshold();
 
@@ -78,7 +78,17 @@
     }
 
     entries.forEach((entry) => entry.link.classList.remove("active"));
-    if (current) current.link.classList.add("active");
+    const actief = current ? current.link : null;
+    if (actief) {
+      actief.classList.add("active");
+      if (actief !== vorigeActieve) toonInSchuifvlak(actief);
+    }
+    vorigeActieve = actief;
+  }
+
+  function bijwerken() {
+    pasHoogteAan();
+    if (entries.length) updateActiveLink();
   }
 
   let ticking = false;
@@ -87,12 +97,65 @@
       ticking = true;
       window.requestAnimationFrame(() => {
         ticking = false;
-        updateActiveLink();
+        bijwerken();
       });
     }
   }
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll, { passive: true });
-  updateActiveLink();
+  if (vlak || entries.length) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    breed.addEventListener("change", onScroll);
+    bijwerken();
+  }
+
+  // Op smal scherm wordt elk blok in de rechterkolom een uitklapregel met een
+  // knop in de kop. Zonder JavaScript blijven de blokken open.
+  const chevron = document.getElementById("page-aside-chevron");
+  const blokken = vlak
+    ? Array.from(vlak.querySelectorAll(":scope > nav"))
+        .map((blok) => ({
+          kop: blok.querySelector(":scope > h2"),
+          inhoud: blok.querySelector(":scope > h2 + *"),
+        }))
+        .filter((blok) => blok.kop && blok.inhoud)
+    : [];
+
+  if (!chevron || !blokken.length) return;
+
+  blokken.forEach((blok, i) => {
+    if (!blok.inhoud.id) blok.inhoud.id = "page-aside-blok-" + (i + 1);
+  });
+
+  function maakKnop(blok) {
+    if (blok.kop.querySelector(".page-aside-toggle")) return;
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.className = "page-aside-toggle";
+    knop.setAttribute("aria-expanded", "false");
+    knop.setAttribute("aria-controls", blok.inhoud.id);
+    knop.append(chevron.content.cloneNode(true), ...blok.kop.childNodes);
+    knop.addEventListener("click", () => {
+      const open = knop.getAttribute("aria-expanded") === "true";
+      knop.setAttribute("aria-expanded", String(!open));
+      blok.inhoud.hidden = open;
+    });
+    blok.kop.append(knop);
+    blok.inhoud.hidden = true;
+  }
+
+  function haalKnopWeg(blok) {
+    const knop = blok.kop.querySelector(".page-aside-toggle");
+    if (!knop) return;
+    knop.querySelector("svg").remove();
+    blok.kop.replaceChildren(...knop.childNodes);
+    blok.inhoud.hidden = false;
+  }
+
+  function pasAan() {
+    blokken.forEach(breed.matches ? haalKnopWeg : maakKnop);
+  }
+
+  breed.addEventListener("change", pasAan);
+  pasAan();
 })();

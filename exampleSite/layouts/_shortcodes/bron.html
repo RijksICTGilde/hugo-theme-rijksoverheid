@@ -1,0 +1,2 @@
+{{- /* Voorbeeld van een bron-tooltip midden in de tekst: {{< bron woord="..." nummer="1" >}} */ -}}
+{{- partial "reftext.html" (dict "tekst" (printf "%s{ref:%s}" (.Get "woord") (.Get "nummer")) "page" .Page) -}}

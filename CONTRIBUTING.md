@@ -24,8 +24,9 @@ issue, zodat we vooraf afstemmen of de richting past.
 
 Vereisten:
 
-* Hugo Extended versie 0.162 of nieuwer.
+* Hugo 0.162.0 of nieuwer; de standaardeditie volstaat.
 * Go versie 1.26 of nieuwer voor Hugo Modules.
+* Node 22 of nieuwer voor de controles in `exampleSite/`.
 * Python 3 voor de `pre-commit` hooks.
 
 Stappen om lokaal te werken:
@@ -34,8 +35,11 @@ Stappen om lokaal te werken:
 2. Installeer `pre-commit` met `pip install pre-commit` en activeer met
    `pre-commit install`. Dit zorgt dat checks bij elke commit draaien.
 3. Werk aan een eigen branch met een korte, beschrijvende naam.
-4. Test je wijziging in een echte Hugo-site. Een minimale aanpak is in de
-   `README.md` beschreven onder "Lokale theme-ontwikkeling".
+4. Bouw en controleer je wijziging met de voorbeeldsite: zie
+   [exampleSite/README.md](exampleSite/README.md). Geef een nieuw onderdeel
+   daar een voorbeeld, zodat de controles het raken. Wil je het ook in een
+   eigen site zien, gebruik dan de `replace` uit "Lokale
+   theme-ontwikkeling" in de `README.md`.
 
 ## Stijl en conventies
 
@@ -44,24 +48,41 @@ Stappen om lokaal te werken:
 * CSS staat onder `assets/css/`. Componenten krijgen een eigen bestand
   onder `assets/css/components/`. Gebruik design tokens uit `tokens.css`
   in plaats van vaste kleuren of maten.
-* JavaScript staat onder `assets/js/` en is plain ES5/ES2015. Geen
-  buildstap, geen frameworks. Verzamel scripts in `scripts.html` zodat
-  Content Security Policy zonder `unsafe-inline` mogelijk blijft.
+* JavaScript staat onder `assets/js/`: gewone scripts (ES2020) zonder
+  buildstap en zonder frameworks. Alleen Fuse.js gaat door `js.Build`,
+  omdat het als ES-module komt. Alle scripts komen via `scripts.html` in
+  één bundel, zodat een Content Security Policy zonder `unsafe-inline`
+  werkt: geen inline scripts, geen `<style>` en geen `style`-attributen.
 * Bestandsnamen en CSS-classnamen in kebab-case.
 * Commit messages in Conventional Commits-stijl, bijvoorbeeld
   `feat: voeg page-banner variant toe` of `fix: corrigeer aria-label op
   zoekmodal`.
 
+## Gegenereerde bestanden en onderdelen van derden
+
+* `assets/css/nldd-primitives.css` en `static/images/icons/*.svg` komen uit
+  het NLDD Designsysteem, via `tools/nldd/`. Pas ze niet met de hand aan;
+  zie [tools/nldd/README.md](tools/nldd/README.md). De CI controleert dat ze
+  gelijk zijn aan wat de generator maakt.
+* Komt er een onderdeel van derden bij, of een nieuwe versie (een font,
+  een icoon, een bibliotheek zoals Fuse.js), werk dan
+  [NOTICES.md](NOTICES.md) bij met de herkomst en de licentie.
+
 ## Toegankelijkheid
 
-Dit theme volgt WCAG 2.2 niveau AA. Bij elke wijziging die de DOM,
-focus order of interactie raakt, controleer minimaal:
+Dit theme mikt op WCAG 2.2 niveau AA. Bij elke wijziging die de DOM,
+de focusvolgorde of de bediening raakt, controleer minimaal:
 
-* Toetsenbordbediening werkt zonder muis.
-* Focus is altijd zichtbaar.
+* Toetsenbordbediening werkt zonder muis, en Escape sluit wat openging met
+  de focus terug op de knop.
+* Focus is altijd zichtbaar en wordt niet bedekt.
 * Decoratieve elementen krijgen lege `alt` of `aria-hidden`.
 * Betekenisvolle iconen krijgen een tekstuele toelichting.
-* Kleurcontrast voor tekst is minstens 4.5 op 1.
+* Contrast is minstens 4,5:1 voor tekst en 3:1 voor bedieningselementen en
+  focusringen, in licht én donker.
+* Geen horizontaal scrollen op 320 pixels breed en bij 200% tekst.
+* Laag 1 en laag 2 van de voorbeeldsite slagen. Ze vinden niet alles: probeer
+  een wijziging aan de bediening ook met een schermlezer.
 
 ## Pull requests
 

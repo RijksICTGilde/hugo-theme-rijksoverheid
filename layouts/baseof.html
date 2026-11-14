@@ -7,14 +7,23 @@
     {{ partial "page-banner.html" . }}
     <a href="#main-content" class="skip-link">Ga naar de inhoud</a>
     {{ partial "header.html" . }}
+    {{- $zoeken := partial "zoeken-aan.html" . }}
     {{- /* tabindex="-1": zonder dat is <main> geen focusdoel en verhuist bij de
            skip-link alleen de scrollpositie mee, niet de focus (WCAG 2.4.1). */}}
     <main id="main-content" tabindex="-1">
+      {{- /* De melding over de zoekmarkering; search.js toont haar bij ?q=. Als
+             eerste kind van <main> is ze de eerste focusstop van de inhoud en
+             sluit ze aan op de navigatie (toast.css). */}}
+      {{- if $zoeken }}
+      <button type="button" id="highlight-bar" class="toast" hidden>
+        Zoekterm "<span id="highlight-bar-query"></span>" is gemarkeerd. Verwijder de markering.
+      </button>
+      {{- end }}
       {{- block "main" . }}{{ end -}}
     </main>
     {{ partial "footer.html" . }}
-    {{ partial "search.html" . }}
-    {{ partial "scripts.html" . }}
+    {{ if $zoeken }}{{ partial "search.html" . }}{{ end }}
     {{- partial "back-to-top.html" . -}}
+    {{ partial "scripts.html" . }}
   </body>
 </html>

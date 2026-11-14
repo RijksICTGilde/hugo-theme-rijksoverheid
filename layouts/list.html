@@ -1,13 +1,14 @@
 {{ define "main" }}
-{{ if .Params.manual_layout }}
+{{- /* hide_tiles is een andere naam voor manual_layout. Een sectie met
+       sectienavigatie en eigen tekst is een leespagina: de kaarten staan dan
+       onder de tekst (article.html). */ -}}
+{{ if or .Params.manual_layout .Params.hide_tiles (and .Params.sectienavigatie .Content) }}
   {{- partial "article.html" . -}}
 {{ else }}
 <section>
   <h1>{{ .Title }}</h1>
-  {{ .Content }}
-  {{ with .Pages.ByWeight }}
-  {{ partial "card-grid.html" . }}
-  {{ end }}
+  {{ partial "inhoud.html" .Content }}
+  {{ partial "sectie-kaarten.html" . }}
 </section>
 {{ end }}
 {{ end }}

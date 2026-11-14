@@ -1,0 +1,9 @@
+{{- /* Hook: pad van de deelafbeelding van een pagina, relatief aan de siteroot
+       (of een absolute URL), formaat 1200 bij 630. Een site vervangt dit
+       bestand voor een afbeelding per pagina. Geeft de hook het favicon terug,
+       dan zet meta.html een kleine kaart in plaats van een grote. */ -}}
+{{- $pad := "favicon-192x192.png" -}}
+{{- with site.Params.og -}}
+  {{- with .afbeelding }}{{ $pad = . }}{{ end -}}
+{{- end -}}
+{{- return $pad -}}

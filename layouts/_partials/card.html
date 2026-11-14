@@ -1,13 +1,22 @@
+{{- /* Kaart voor een pagina. Aanroepen met een pagina (kop h2) of met een
+       dict: (dict "pagina" . "niveau" 3). */ -}}
+{{- $pagina := . -}}
+{{- $niveau := 2 -}}
+{{- if reflect.IsMap . -}}
+  {{- $pagina = .pagina -}}
+  {{- $niveau = int (.niveau | default 2) -}}
+{{- end -}}
+{{- $kop := printf "h%d" $niveau -}}
 <article class="card">
   <header>
-    {{ with .Params.image }}
-    <img src="{{ relURL (strings.TrimPrefix "/" .) }}" alt="{{ $.Params.image_alt }}">
+    {{ with $pagina.Params.image }}
+    <img src="{{ relURL (strings.TrimPrefix "/" .) }}" alt="{{ $pagina.Params.image_alt }}" loading="lazy">
     {{ end }}
-    <h2>
-      <a href="{{ .RelPermalink }}">{{ .Params.card_title | default .Title }}</a>
-    </h2>
+    {{ printf "<%s>" $kop | safeHTML }}
+      <a href="{{ $pagina.RelPermalink }}">{{ $pagina.Params.card_title | default $pagina.Title }}</a>
+    {{ printf "</%s>" $kop | safeHTML }}
   </header>
-  {{ with .Params.card_description | default .Params.description }}
+  {{ with $pagina.Params.card_description | default $pagina.Params.description }}
   <p>{{ . }}</p>
   {{ end }}
 </article>

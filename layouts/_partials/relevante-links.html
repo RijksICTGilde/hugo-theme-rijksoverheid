@@ -1,0 +1,50 @@
+{{- /* Relevante pagina's en links in de rechterkolom. Twee bronnen:
+         sectienavigatie: true      op een sectie: de sectie en al zijn
+                                    pagina's, op de sectie zelf en op elke
+                                    pagina erin, met de huidige gemarkeerd
+         relevante_links:           op een pagina
+           - titel: "De intentieverklaring"
+             pagina: "/documenten/intentieverklaring"   # interne pagina
+           - titel: "Externe bron"
+             url: "https://voorbeeld.nl"                 # of een URL
+       Samen in één blok: "Relevante pagina's", "Relevante links" of, bij
+       allebei, "Relevante pagina's en links". De links gaan via
+       render-link.html, zodat externe en besloten links dezelfde rel en
+       meldingen krijgen als in de tekst. Rendert niets zonder een van beide. */ -}}
+{{- $p := . -}}
+{{- $sectie := false -}}
+{{- range (slice $p | append $p.Ancestors) -}}
+  {{- if and (not $sectie) (eq .Kind "section") .Params.sectienavigatie }}{{ $sectie = . }}{{ end -}}
+{{- end -}}
+{{- $links := slice -}}
+{{- range $p.Params.relevante_links -}}
+  {{- $item := . -}}
+  {{- $href := $item.url -}}
+  {{- with $item.pagina -}}
+    {{- with site.GetPage . -}}
+      {{- $href = .RelPermalink -}}
+    {{- else -}}
+      {{- warnf "Relevante link '%s' op pagina %s wijst naar %s, maar die pagina bestaat niet." ($item.titel | default .) $p.Path . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- with $href }}{{ $links = $links | append (dict "href" . "titel" ($item.titel | default .)) }}{{ end -}}
+{{- end -}}
+{{- $kop := "" -}}
+{{- if and $sectie $links }}{{ $kop = "Relevante pagina's en links" -}}
+{{- else if $sectie }}{{ $kop = "Relevante pagina's" -}}
+{{- else if $links }}{{ $kop = "Relevante links" }}{{ end -}}
+{{- with $kop -}}
+<nav class="{{ if $sectie }}relevante-paginas{{ else }}relevante-links{{ end }}" aria-label="{{ . }}">
+  <h2>{{ . }}</h2>
+  <ul>
+    {{- with $sectie }}
+    {{- range (slice . | append .Pages.ByWeight) }}
+    <li><a href="{{ .RelPermalink }}"{{ if eq .RelPermalink $p.RelPermalink }} aria-current="page"{{ end }}>{{ .Params.card_title | default .Title }}</a></li>
+    {{- end }}
+    {{- end }}
+    {{- range $links }}
+    <li class="relevante-link">{{ partial "render-link.html" (dict "href" .href "text" .titel) }}</li>
+    {{- end }}
+  </ul>
+</nav>
+{{- end -}}
