@@ -3,7 +3,8 @@
  * browser en in de toegankelijkheidsboom van Chromium:
  *   - woordmerk (1.3.1, 2.5.3): de naam naast het lint staat in de boom.
  *     Zonder params.logo.url is het logo geen link; met url is het een
- *     gewone link waarvan de naam de zichtbare tekst bevat;
+ *     gewone link waarvan de naam de zichtbare tekst bevat. Zonder
+ *     woordmerk heet het beeldmerk Rijksoverheid (1.1.1);
  *   - bronterm (4.1.2): een knop met de term als naam en de brontekst als
  *     beschrijving, met unieke id's, ook als dezelfde bron vaker voorkomt en
  *     reftext.html vaker op een pagina draait. Zonder woord ervoor is het
@@ -13,8 +14,9 @@
  *   - zoekknoppen: zonder JavaScript openen ze niets, dus staan ze er niet.
  *
  * Een logo zonder url, een bron die vaker voorkomt en infoblokken zonder
- * titel staan niet in de voorbeeldsite. Daarvoor bouwt deze test een kleine
- * proefsite met het theme in tmp/a11y-review; daar is hugo voor nodig.
+ * titel staan niet in de voorbeeldsite. Daarvoor bouwt deze test twee kleine
+ * proefsites met het theme in tmp/a11y-review en tmp/a11y-review-zonder-logo;
+ * daar is hugo voor nodig.
  */
 
 import { test, before, after, describe } from "node:test";
@@ -97,21 +99,28 @@ title: Infoblokken
 `,
 };
 
+/** Dezelfde proefsite zonder params.logo: geen link en geen woordmerk. */
+const PROEFSITE_ZONDER_LOGO = {
+  "hugo.yaml": "baseURL: https://proef.example/\ntitle: Proefsite\ndefaultContentLanguage: nl\ndisableKinds: [taxonomy, term]\n",
+  "content/_index.md": PROEFSITE["content/_index.md"],
+};
+
 let browser;
 let site;
 let proef;
+let zonderLogo;
 
-/** Schrijft de proefsite naar tmp/ en bouwt hem met het theme uit THEME_DIR. */
-function bouwProefsite() {
-  for (const [naam, inhoud] of Object.entries(PROEFSITE)) {
-    const pad = join(PROEF, "site", naam);
+/** Schrijft een proefsite naar tmp/ en bouwt hem met het theme uit THEME_DIR. */
+function bouwProefsite(bestanden, map) {
+  for (const [naam, inhoud] of Object.entries(bestanden)) {
+    const pad = join(map, "site", naam);
     mkdirSync(dirname(pad), { recursive: true });
     writeFileSync(pad, inhoud);
   }
   try {
     execFileSync(
       "hugo",
-      ["--quiet", "--panicOnWarning", "--cleanDestinationDir", "--source", join(PROEF, "site"), "--themesDir", dirname(THEME_DIR), "--theme", basename(THEME_DIR), "--destination", join(PROEF, "public")],
+      ["--quiet", "--panicOnWarning", "--cleanDestinationDir", "--source", join(map, "site"), "--themesDir", dirname(THEME_DIR), "--theme", basename(THEME_DIR), "--destination", join(map, "public")],
       { stdio: "pipe" },
     );
   } catch (err) {
@@ -119,13 +128,19 @@ function bouwProefsite() {
   }
 }
 
+async function dien(map) {
+  const server = await startServer(join(map, "public"));
+  return { server, url: `http://127.0.0.1:${server.address().port}` };
+}
+
 before(async () => {
   assert.ok(existsSync(SITE.dir), `${SITE.dir} bestaat niet; draai eerst npm run build`);
-  bouwProefsite();
+  bouwProefsite(PROEFSITE, PROEF);
+  bouwProefsite(PROEFSITE_ZONDER_LOGO, `${PROEF}-zonder-logo`);
   const server = await startServer(SITE.dir);
   site = { server, url: `http://127.0.0.1:${server.address().port}` };
-  const proefServer = await startServer(join(PROEF, "public"));
-  proef = { server: proefServer, url: `http://127.0.0.1:${proefServer.address().port}` };
+  proef = await dien(PROEF);
+  zonderLogo = await dien(`${PROEF}-zonder-logo`);
   browser = await puppeteer.launch({ args: PUPPETEER_ARGS });
 });
 
@@ -133,6 +148,7 @@ after(async () => {
   await browser?.close();
   site?.server.close();
   proef?.server.close();
+  zonderLogo?.server.close();
 });
 
 /** Opent een pagina in een nieuw tabblad en geeft die terug; sluit zelf af. */
@@ -181,6 +197,23 @@ describe("woordmerk naast het lint (1.3.1, 2.5.3)", () => {
       }
     });
   }
+
+  test("zonder params.logo heet het beeldmerk Rijksoverheid en is het geen link (1.1.1)", async () => {
+    const page = await open(zonderLogo, "/");
+    try {
+      const logo = await page.$eval(".site-logo", (el) => ({
+        bedienbaar: el.querySelectorAll("a, button, [tabindex]").length,
+        verborgen: el.querySelectorAll("[aria-hidden]").length,
+        alt: el.querySelector("img")?.getAttribute("alt"),
+      }));
+      assert.deepEqual(logo, { bedienbaar: 0, verborgen: 0, alt: "Rijksoverheid" });
+      const boom = await knopen(page, ".site-logo");
+      const beeld = boom.find((k) => k.role === "image" || k.role === "img");
+      assert.equal(beeld?.name, "Rijksoverheid", JSON.stringify(boom));
+    } finally {
+      await page.close();
+    }
+  });
 
   test("met params.logo.url is het logo een link in de tabvolgorde, met de zichtbare tekst in de naam", async () => {
     const page = await open(site, "/");

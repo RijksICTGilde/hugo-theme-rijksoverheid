@@ -48,9 +48,11 @@
         {{- end }}
       </a>
       {{- else }}
-      {{- /* Geen link: de sitenaam ernaast gaat al naar de homepage. */}}
+      {{- /* Geen link: de sitenaam ernaast gaat al naar de homepage. Zonder
+             woordmerk zegt alleen de alt-tekst dat de site van de
+             Rijksoverheid is. */}}
       <span class="site-logo-link">
-        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="" />
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Rijksoverheid{{ end }}" />
         {{- with $woordmerk }}
         {{ partial "logo-woordmerk.html" . }}
         {{- end }}
