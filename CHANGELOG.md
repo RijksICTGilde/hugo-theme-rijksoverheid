@@ -29,7 +29,7 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * **RijksSans** vervangt RO-Sans en RO-Serif. `--font-serif` is een verouderde
   alias van `--font-sans`; de tagline staat in schuine sans.
 * **Iconen uit NLDD.** `toc-open.svg`, `toc-close.svg`, `mail.svg`, `sun.svg`
-  en `moon.svg` zijn weg; `chevron-down.svg` is nieuw.
+  en `moon.svg` zijn weg; `chevron-down.svg` en `waarschuwing.svg` zijn nieuw.
 * **Externe links** openen in hetzelfde tabblad, zonder icoon. Met
   `params.links.nieuw_venster: true` komt het oude gedrag terug.
 * **Infoblok.** Alerts en de shortcode `callout` geven een
@@ -71,7 +71,7 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 
 ### Toegevoegd
 
-* `tools/nldd/`: generator voor de kleuren en iconen uit NLDD 0.16.2, met
+* `tools/nldd/`: generator voor de kleuren en iconen uit NLDD 0.23.0, met
   `check.js` als controle in CI. `NOTICES.md` met de herkomst en licenties van
   fonts, logo, iconen en Fuse.js.
 * Tokens `--color-surface`, `--color-bg-success`, `--color-bg-warning`,
@@ -96,14 +96,17 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   tabellen in een eigen schuifvlak, een printstijl, figuren, labels, een
   pull-quote, citaten die na elkaar van hoek wisselen en een tooltip die dicht
   bij zijn element staat, blijft staan en sluit met Escape.
-* Shortcodes `quote`, `table-without-header` en `emoji`. `callout` heeft
-  `kopniveau`; `card-grid` heeft `niveau` en `klassen`, zodat `boxed`,
+* Shortcodes `quote`, `table-without-header`, `emoji` en `boom`, een
+  boomschema dat een schermlezer als lijst met niveaus voorleest. `callout`
+  heeft `kopniveau`; `card-grid` heeft `niveau` en `klassen`, zodat `boxed`,
   `clickable` en `columns-2` ook via de shortcode werken
   ([#27](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/27)).
 * Params `links.nieuw_venster`, `links.besloten`, `linkcontrole` (besloten
   links overslaan in htmltest), `infoblok.kopniveau`,
   `search.threshold`, `search.max_results`, `search.section_weights`,
   `afzender`, `llms.secties` (met `tekst` en `volledig`) en `og.afbeelding`.
+* Een waarschuwing (`> [!WARNING]`, `> [!IMPORTANT]` en
+  `callout variant="warning"`) heeft een icoon, zoals info.
 * Front matter `zoekindex: false`: de pagina blijft uit de zoekindex.
 * Hooks `font-preload.html` en `head-extra.html` voor de head,
   `lastmod-datum.html` voor de datum achter "laatst bijgewerkt",
@@ -146,6 +149,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   eronder haalt 3:1. Een `$` in de brontekst of de URL blijft staan.
 * Het woordmerk naast het lint is leesbaar voor hulptechnologie; zonder
   `params.logo.url` stond het in een verborgen link (WCAG 1.3.1).
+* Zonder `params.logo` heet het beeldmerk in de kop Rijksoverheid in plaats
+  van een lege alt-tekst: een schermlezer hoorde nergens van wie de site is
+  (WCAG 1.1.1).
 * De melding boven de pagina is een regio "Melding" in plaats van een
   `role="status"` die bij het laden niets meldt.
 * Zonder JavaScript staan er geen zoekknoppen meer die niets doen.

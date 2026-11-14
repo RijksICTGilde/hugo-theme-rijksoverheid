@@ -203,8 +203,8 @@ uit de laatste kop in de tekst van de sectie.
   een pad (`intranet.example.nl`, `example.org/intern`).
 - **Infoblokken.** GitHub-alerts worden een infoblok met een echte kop:
   `> [!NOTE]` en `> [!INFO]` worden info, `> [!TIP]` succes, `> [!IMPORTANT]` en
-  `> [!WARNING]` waarschuwing, `> [!CAUTION]` gevaar. Een titel zet je achter het
-  type: `> [!WARNING] Let op`.
+  `> [!WARNING]` waarschuwing, `> [!CAUTION]` gevaar. Info en waarschuwing hebben
+  een icoon. Een titel zet je achter het type: `> [!WARNING] Let op`.
 - **Tabellen** staan in een eigen schuifvlak met een naam ("Tabel 1"), zodat een
   brede tabel de pagina niet laat scrollen. Op de regel direct onder de tabel
   geeft `{aria-label="..."}` een eigen naam, en houdt `{print-bijeen="ja"}` de
@@ -238,6 +238,7 @@ codeblokken hun namen.
 | `tiles` | `{{< tiles field="tiles" columns="2\|3" niveau="3" >}}`: kaarten uit de front matter |
 | `quote` | `{{< quote source="..." >}}...{{< /quote >}}`: citaat met bron |
 | `table-without-header` | Tabel zonder koprij, met de eerste kolom als rijkop |
+| `boom` | `{{< boom bijschrift="..." >}}` om een geneste Markdown-lijst: een boomschema met lijnen, dat een schermlezer als lijst met niveaus voorleest |
 | `emoji` | `{{< emoji teken="..." aria-label="..." >}}`, of `aria-hidden="true"` als hij alleen versiert |
 
 ### Zoeken
