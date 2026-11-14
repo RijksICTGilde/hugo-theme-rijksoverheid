@@ -8,6 +8,6 @@
     "check": "node check.js"
   },
   "devDependencies": {
-    "@nldd/design-system": "0.16.2"
+    "@nldd/design-system": "0.23.0"
   }
 }
