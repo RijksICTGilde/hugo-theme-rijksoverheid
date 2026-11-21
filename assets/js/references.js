@@ -5,7 +5,10 @@
 (function () {
   function openDetailsFor(hash) {
     if (!hash || hash.charAt(0) !== '#') return;
-    var el = document.getElementById(hash.slice(1));
+    var id = hash.slice(1);
+    // location.hash is percent-gecodeerd; een los procentteken is een URIError.
+    try { id = decodeURIComponent(id); } catch (e) {}
+    var el = document.getElementById(id);
     if (!el) return;
     var d = el.closest('details');
     if (d && !d.open) {
@@ -46,10 +49,11 @@
   document.addEventListener('focusin', onShow);
 
   /* Escape sluit de open tooltip zonder focus of muis te verplaatsen (1.4.13).
-     Listener staat vóór die van search.js in de bundel; stopImmediatePropagation
-     voorkomt dat dezelfde toets ook de zoektermmarkering weghaalt. */
+     Capture-fase: deze Escape komt voor die van base.js, die eerder in de
+     bundel zit; preventDefault houdt de andere Escape-handlers af. */
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    if (document.querySelector('dialog[open]')) return;
     var open = document.querySelectorAll('.ref-wrapper:hover, .ref-wrapper:focus-within');
     var closed = false;
     for (var i = 0; i < open.length; i++) {
@@ -57,8 +61,8 @@
       open[i].classList.add('is-dismissed');
       closed = true;
     }
-    if (closed) e.stopImmediatePropagation();
-  });
+    if (closed) e.preventDefault();
+  }, true);
 
   /* Pas weer tonen na een nieuwe hover of focus: de class gaat eraf zodra
      zowel de muis als de focus buiten de wrapper is. */
