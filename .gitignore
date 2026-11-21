@@ -4,3 +4,11 @@ resources/
 .hugo_build.lock
 node_modules/
 style-dictionary/tokens/
+
+# exampleSite
+exampleSite/public/
+exampleSite/public-nieuw-venster/
+exampleSite/resources/
+exampleSite/node_modules/
+exampleSite/.hugo_build.lock
+exampleSite/tmp/
