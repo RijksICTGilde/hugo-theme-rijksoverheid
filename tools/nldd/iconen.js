@@ -21,7 +21,7 @@ const ROOT = resolve(HERE, "..", "..");
 const NLDD_DIR = resolve(process.env.NLDD_DIR || join(HERE, "node_modules", "@nldd", "design-system"));
 const OUTPUT_DIR = "static/images/icons";
 
-// bestandsnaam -> NLDD-icoon (canonieke naam), plus de klasse die CSS of JS verwacht
+// bestandsnaam -> icoon van NLDD DS (canonieke naam), plus de klasse die CSS of JS verwacht
 const ICONS = {
   menu: { name: "list", class: "menu-icon" },
   x: { name: "dismiss", class: "x-icon" },

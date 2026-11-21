@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Controleert of de gegenereerde NLDD-bestanden in de repo gelijk zijn aan wat
+ * Controleert of de gegenereerde bestanden uit NLDD DS in de repo gelijk zijn aan wat
  * de generatoren uit het geïnstalleerde @nldd/design-system maken. Genereert
  * naar een tijdelijke map en vergelijkt byte voor byte; exit 1 bij een
  * verschil of een ontbrekend bestand.

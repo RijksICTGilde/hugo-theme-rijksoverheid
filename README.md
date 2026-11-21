@@ -15,7 +15,7 @@ Fonts, logo en iconen hebben een eigen licentie; zie [NOTICES.md](NOTICES.md).
 
 | Gereedschap | Minimale versie | Opmerking |
 |---|---|---|
-| Hugo | 0.162.0 | De standaardeditie volstaat; Extended is niet nodig |
+| Hugo | 0.162.0 | Extended is niet nodig |
 | Go | 1.26 | Nodig voor Hugo Modules |
 
 Het theme zet `module.hugoVersion.min`; met een oudere Hugo krijg je een

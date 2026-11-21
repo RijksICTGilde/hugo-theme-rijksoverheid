@@ -10,7 +10,7 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 Het theme is opnieuw opgebouwd vanuit
 [moza-site](https://github.com/MinBZK/moza-site): kleuren, lettertype en
 iconen uit het NLDD Designsysteem, en de structuur en de
-toegankelijkheidsfixes van moza na een WCAG-onderzoek. Wat het theme al beter
+toegankelijkheidsfixes van MOZa na een WCAG-onderzoek. Wat het theme al beter
 deed (het mobiele menu, de scroll-spy, het afbreken van koppen, de
 focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 "Overstappen" voordat je bijwerkt.
@@ -77,6 +77,81 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * **Head.** `head.html` roept nu `meta.html` en `head-css.html` aan. De
   zoekindex (`index.json`) heeft een item per kop, per uitklapblok en per
   sectie.
+
+### Overstappen
+
+* Werk bij met een vaste versie:
+  `hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.3.0`.
+  Met `hugo mod get -u` gaat een site op v0.2 zonder waarschuwing naar v0.3.
+  Zonder `tools.go` haalt `go mod tidy` het theme uit `go.mod`, waarna de
+  build stil de nieuwste versie neemt.
+* Heb je eigen versies van `article.html`, `baseof.html`, `lastmod.html`,
+  `scripts.html`, `index.json` of `search.js`, vergelijk ze dan met deze
+  versie:
+  * een eigen `scripts.html` laadt Fuse met
+    `resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020")`
+    (`lib/fuse/fuse.min.js` bestaat niet meer, de build stopt) en neemt
+    `js/tooltip.js` op;
+  * een eigen `baseof.html` zet de knop `#highlight-bar` uit die van het theme
+    als eerste in `<main>`; zonder die knop markeert het zoeken niets;
+  * een eigen `search.js` vult `#search-status`, anders meldt een schermlezer
+    geen resultaten (WCAG 4.1.3). Hij slaat `#highlight-bar` over bij het
+    markeren en laat een Escape met `e.defaultPrevented` liggen:
+    `references.js` en `tooltip.js` sluiten hun ballon daarmee, anders
+    verdwijnt de markering ook;
+  * een eigen `index.json` geeft tekst zonder HTML-entiteiten
+    (`htmlUnescape` na `plainify`): `search.js` decodeert ze niet meer;
+  * een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
+    rechterkolom werkt alleen als `.page-aside` binnen `<article>`, met de
+    tekst in `<div class="article-text">`. Gebruik `page-aside.html` en voor
+    eigen blokken de hook `page-aside-extra.html`;
+  * `footer.html` toont "laatst bijgewerkt" nu zelf; haal een eigen aanroep
+    van `lastmod.html` in de artikelvoet weg, anders staat de zin er twee
+    keer. Voor alleen een andere datum is er de hook `lastmod-date.html`.
+* Een eigen layout die `icon.html` aanroept met `toc-open`, `toc-close`,
+  `mail`, `sun` of `moon` stopt met een fout. Haal de aanroep weg, bij
+  `toc-open` en `toc-close` met de knop `.toc-toggle` eromheen: die heeft geen
+  CSS en geen JavaScript meer. Of zet het icoon in `static/images/icons/` van
+  de site.
+* CSS op `blockquote.callout` wordt `.callout`; CSS op `[data-theme]` wordt
+  `[data-scheme]`. Eigen kaart-markup wordt een lijst:
+  `<ul class="card-grid" role="list">` met per kaart
+  `<li><article class="card">`. De opmaak van `article > footer p` en
+  `section > footer p` (gedempt en cursief) is weg.
+* Alleen een link zonder class in lopende tekst is onderstreept; een link met
+  een eigen class daar onderstreep je zelf (WCAG 1.4.1).
+* Bewerk je gerenderde links na, bijvoorbeeld met een reguliere expressie,
+  test dat dan opnieuw: een externe link heeft standaard geen verborgen
+  melding "(opent in een nieuw venster)" meer.
+* Zet `markup.highlight.noClasses: false` en, voor de nieuwe uitvoer, de
+  `outputs` uit de README. Gebruik `locale` in plaats van het verouderde
+  `languageCode`. Zet `build.noJSConfigInAssets: true`, anders schrijft het
+  zoeken `assets/jsconfig.json` in de site.
+* Het theme levert nu `rss.xml` met de volledige tekst en `robots.txt` met de
+  sitemap; een eigen bestand in de site gaat voor.
+* Reken het contrast na als je `--color-primary` of `--color-banner` zelf
+  zet: de kleuren eromheen zijn veranderd.
+* Een site die bijwerkt met Dependabot, zet een `tools.go` in de root; zie de
+  README.
+* Haal `params.footer.tagline` weg; de build waarschuwt zolang het er staat.
+  De voet toont nu `params.tagline`; was de oude tekst anders, dan staat die
+  niet meer in de voet.
+* Haal `hero.image_alt` weg; de build waarschuwt zolang het een waarde heeft.
+  Wat de foto vertelt, zet je in `hero.text`.
+* Hernoem wat je uit v0.2 gebruikt; de build waarschuwt zolang een oude naam
+  er staat:
+  * front matter `show_referenties` en `referenties` worden `show_references`
+    en `references`, met `text` in plaats van `tekst` per bron, en de sleutel
+    `tekst` van `reftext.html` wordt `text`;
+  * `callout titel="..."` wordt `title="..."`;
+  * de menu's `footer-links` en `footer-rechts` worden `footer-left` en
+    `footer-right`, en `params.footer.links` en `params.footer.rechts` worden
+    `footer.left` en `footer.right`;
+  * `params.logo.woordmerk` wordt `params.logo.wordmark`.
+* Een eigen layout die `referenties.html` of `logo-woordmerk.html` aanroept,
+  stopt met een fout: die heten nu `references.html` en `logo-wordmark.html`.
+  Eigen CSS op `.site-logo-woordmerk` of `.nieuw-venster-melding` wordt
+  `.site-logo-wordmark` en `.new-window-notice`.
 
 ### Toegevoegd
 
@@ -203,81 +278,6 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * RO-Sans, RO-Serif en het ongebruikte `ro-icons-2.3.woff`.
 * `params.search.enable: true` is niet meer nodig; `false` zet zoeken nog wel
   uit.
-
-### Overstappen
-
-* Werk bij met een vaste versie:
-  `hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.3.0`.
-  Met `hugo mod get -u` gaat een site op v0.2 zonder waarschuwing naar v0.3.
-  Zonder `tools.go` haalt `go mod tidy` het theme uit `go.mod`, waarna de
-  build stil de nieuwste versie neemt.
-* Heb je eigen versies van `article.html`, `baseof.html`, `lastmod.html`,
-  `scripts.html`, `index.json` of `search.js`, vergelijk ze dan met deze
-  versie:
-  * een eigen `scripts.html` laadt Fuse met
-    `resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020")`
-    (`lib/fuse/fuse.min.js` bestaat niet meer, de build stopt) en neemt
-    `js/tooltip.js` op;
-  * een eigen `baseof.html` zet de knop `#highlight-bar` uit die van het theme
-    als eerste in `<main>`; zonder die knop markeert het zoeken niets;
-  * een eigen `search.js` vult `#search-status`, anders meldt een schermlezer
-    geen resultaten (WCAG 4.1.3). Hij slaat `#highlight-bar` over bij het
-    markeren en laat een Escape met `e.defaultPrevented` liggen:
-    `references.js` en `tooltip.js` sluiten hun ballon daarmee, anders
-    verdwijnt de markering ook;
-  * een eigen `index.json` geeft tekst zonder HTML-entiteiten
-    (`htmlUnescape` na `plainify`): `search.js` decodeert ze niet meer;
-  * een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
-    rechterkolom werkt alleen als `.page-aside` binnen `<article>`, met de
-    tekst in `<div class="article-text">`. Gebruik `page-aside.html` en voor
-    eigen blokken de hook `page-aside-extra.html`;
-  * `footer.html` toont "laatst bijgewerkt" nu zelf; haal een eigen aanroep
-    van `lastmod.html` in de artikelvoet weg, anders staat de zin er twee
-    keer. Voor alleen een andere datum is er de hook `lastmod-date.html`.
-* Een eigen layout die `icon.html` aanroept met `toc-open`, `toc-close`,
-  `mail`, `sun` of `moon` stopt met een fout. Haal de aanroep weg, bij
-  `toc-open` en `toc-close` met de knop `.toc-toggle` eromheen: die heeft geen
-  CSS en geen JavaScript meer. Of zet het icoon in `static/images/icons/` van
-  de site.
-* CSS op `blockquote.callout` wordt `.callout`; CSS op `[data-theme]` wordt
-  `[data-scheme]`. Eigen kaart-markup wordt een lijst:
-  `<ul class="card-grid" role="list">` met per kaart
-  `<li><article class="card">`. De opmaak van `article > footer p` en
-  `section > footer p` (gedempt en cursief) is weg.
-* Alleen een link zonder class in lopende tekst is onderstreept; een link met
-  een eigen class daar onderstreep je zelf (WCAG 1.4.1).
-* Bewerk je gerenderde links na, bijvoorbeeld met een reguliere expressie,
-  test dat dan opnieuw: een externe link heeft standaard geen verborgen
-  melding "(opent in een nieuw venster)" meer.
-* Zet `markup.highlight.noClasses: false` en, voor de nieuwe uitvoer, de
-  `outputs` uit de README. Gebruik `locale` in plaats van het verouderde
-  `languageCode`. Zet `build.noJSConfigInAssets: true`, anders schrijft het
-  zoeken `assets/jsconfig.json` in de site.
-* Het theme levert nu `rss.xml` met de volledige tekst en `robots.txt` met de
-  sitemap; een eigen bestand in de site gaat voor.
-* Reken het contrast na als je `--color-primary` of `--color-banner` zelf
-  zet: de kleuren eromheen zijn veranderd.
-* Een site die bijwerkt met Dependabot, zet een `tools.go` in de root; zie de
-  README.
-* Haal `params.footer.tagline` weg; de build waarschuwt zolang het er staat.
-  De voet toont nu `params.tagline`; was de oude tekst anders, dan staat die
-  niet meer in de voet.
-* Haal `hero.image_alt` weg; de build waarschuwt zolang het een waarde heeft.
-  Wat de foto vertelt, zet je in `hero.text`.
-* Hernoem wat je uit v0.2 gebruikt; de build waarschuwt zolang een oude naam
-  er staat:
-  * front matter `show_referenties` en `referenties` worden `show_references`
-    en `references`, met `text` in plaats van `tekst` per bron, en de sleutel
-    `tekst` van `reftext.html` wordt `text`;
-  * `callout titel="..."` wordt `title="..."`;
-  * de menu's `footer-links` en `footer-rechts` worden `footer-left` en
-    `footer-right`, en `params.footer.links` en `params.footer.rechts` worden
-    `footer.left` en `footer.right`;
-  * `params.logo.woordmerk` wordt `params.logo.wordmark`.
-* Een eigen layout die `referenties.html` of `logo-woordmerk.html` aanroept,
-  stopt met een fout: die heten nu `references.html` en `logo-wordmark.html`.
-  Eigen CSS op `.site-logo-woordmerk` of `.nieuw-venster-melding` wordt
-  `.site-logo-wordmark` en `.new-window-notice`.
 
 ## [0.2.3] - 2026-10-06
 

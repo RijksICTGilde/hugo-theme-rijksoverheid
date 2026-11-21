@@ -9,8 +9,6 @@ module:
     - source: static
       target: static
 
-# Hugo neemt outputFormats uit een module over, outputs niet: die zet de site
-# zelf (home: llms, llmsfull; sectie: llms, llmsfull; pagina: markdown).
 outputFormats:
   llms:
     baseName: llms

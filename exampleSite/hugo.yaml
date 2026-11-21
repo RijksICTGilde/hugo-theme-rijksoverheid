@@ -23,8 +23,8 @@ module:
     - path: github.com/RijksICTGilde/hugo-theme-rijksoverheid
 
 build:
-  # Anders schrijft js.Build (Fuse voor het zoeken) assets/jsconfig.json in de
-  # site. Hugo neemt build niet over uit een module; elke site zet dit zelf.
+  # Anders schrijft js.Build (Fuse voor het zoeken) assets/jsconfig.json in
+  # de site.
   noJSConfigInAssets: true
 
 markup:

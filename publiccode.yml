@@ -16,8 +16,8 @@ categories:
 developmentStatus: beta
 
 organisation:
-  name: Rijks ICT Gilde
-  uri: "https://github.com/RijksICTGilde"
+  name: Rijksorganisatie ODI, Digi Gilde
+  uri: "https://www.rijksorganisatieodi.nl/"
 
 description:
   nl:
@@ -67,8 +67,9 @@ localisation:
 maintenance:
   type: internal
   contacts:
-    - name: RijksICTGilde
-      affiliation: Ministerie van Binnenlandse Zaken en Koninkrijksrelaties
+    - name: Digi Gilde
+      email: digigilde@rijksoverheid.nl
+      affiliation: Rijksorganisatie ODI, Ministerie van Binnenlandse Zaken en Koninkrijksrelaties
 
 dependsOn:
   open:

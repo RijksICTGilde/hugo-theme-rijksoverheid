@@ -5,10 +5,10 @@
  *
  * Neemt alle kleurschalen, de referentiekleuren, de functionele aliassen en
  * de typografieschaal over, en voegt een eigen verzadigde neutrale schaal toe
- * (--theme-neutral-<stap>): dezelfde lichtheid en tint als NLDD's coolgray,
+ * (--theme-neutral-<stap>): dezelfde lichtheid en tint als coolgray van NLDD DS,
  * maar met meer verzadiging aan de donkere kant, zodat de donkere
- * achtergrond blauw blijft in plaats van grijs. NLDD's eigen
- * --primitives-color-neutral-* blijft ongewijzigd.
+ * achtergrond blauw blijft in plaats van grijs. De eigen
+ * --primitives-color-neutral-* van NLDD DS blijft ongewijzigd.
  *
  * Het pakketpad is te overschrijven met NLDD_DIR.
  *
@@ -24,7 +24,7 @@ const ROOT = resolve(HERE, "..", "..");
 const NLDD_DIR = resolve(process.env.NLDD_DIR || join(HERE, "node_modules", "@nldd", "design-system"));
 const OUTPUT = "assets/css/nldd-primitives.css";
 
-// Functionele aliassen, zelfde koppeling als in NLDD's variables.css
+// Functionele aliassen, zelfde koppeling als in variables.css van NLDD DS
 const ALIASES = {
   neutral: "coolgray",
   accent: "lintblauw",
@@ -55,7 +55,7 @@ function parsePalettes(css) {
   return scales;
 }
 
-// Exacte huisstijlkleuren (niet themagevoelig), zoals NLDD ze meelevert
+// Exacte huisstijlkleuren (niet themagevoelig), zoals NLDD DS ze meelevert
 function parseReferences(css) {
   const refs = {};
   const re = /--primitives-color-reference-([a-z]+):\s*([^;]+);/g;

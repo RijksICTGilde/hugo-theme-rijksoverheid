@@ -1,14 +1,9 @@
 CLAUDE.md
-public/
-resources/
 .hugo_build.lock
 node_modules/
-style-dictionary/tokens/
+public/
+resources/
 
-# exampleSite
-exampleSite/public/
+# Voorbeeldsite: de tweede build en de proefsites van de tests
 exampleSite/public-nieuw-venster/
-exampleSite/resources/
-exampleSite/node_modules/
-exampleSite/.hugo_build.lock
 exampleSite/tmp/
