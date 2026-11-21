@@ -93,25 +93,19 @@ body > footer {
     > * {
       margin: 0;
     }
-
-    > * + * {
-      margin-top: 0.75rem;
-    }
   }
 
-  /* De kop toont de ondertitel vanaf 600px (header.css). */
+  /* De kop toont de ondertitel vanaf 600px (header.css). Ruimte eronder in
+     plaats van boven de zin erna: verborgen telt hij anders nog mee. */
   .footer-subtitle {
-    font-size: 1.125rem;
-    line-height: 1.5;
-    color: var(--color-text-inverse);
-    overflow-wrap: anywhere;
+    margin-bottom: 0.75rem;
 
     @media (min-width: 600px) {
       display: none;
     }
   }
 
-  .tagline {
+  :is(.tagline, .footer-subtitle) {
     font-family: var(--font-sans);
     font-size: 1.5rem;
     line-height: 1.2;
