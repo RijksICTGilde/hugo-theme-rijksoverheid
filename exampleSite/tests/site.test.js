@@ -156,6 +156,16 @@ for (const build of builds()) {
       }
     });
 
+    test("de voet toont de ondertitel met de langere zin uit footer.tagline eronder", () => {
+      const html = pagina("/");
+      const intro = html.match(/<div class="?footer-intro"?>([\s\S]*?)<\/div>/);
+      assert.ok(intro, "geen .footer-intro in de voet");
+      const tagline = intro[1].indexOf("Zo ziet elk onderdeel van het theme eruit");
+      const lang = intro[1].indexOf("Een voorbeeld van een langere zin in de voet");
+      assert.ok(tagline >= 0, "params.tagline staat niet in de voet");
+      assert.ok(lang > tagline, "params.footer.tagline staat niet onder de ondertitel");
+    });
+
     describe("themakeuze in de voet", () => {
       const html = pagina("/");
       const aantal = (h, naam, filter) => tags(h).filter((t) => !t.sluit && t.naam === naam && (!filter || filter(t.attrs))).length;

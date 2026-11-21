@@ -160,6 +160,7 @@ params:
   footer:
     left: Zie ook
     right: Over deze site
+    tagline: Een voorbeeld van een langere zin in de voet, onder de ondertitel.
 
   logo:
     url: https://www.rijksoverheid.nl/

@@ -18,17 +18,24 @@
   </div>
   {{- end }}
   {{- /* Alleen op de homepage: de voet staat op elke pagina, de melding hoeft maar één keer. */ -}}
-  {{- if and .IsHome site.Params.footer.tagline }}
-  {{- warnf "params.footer.tagline wordt niet meer gebruikt en kan weg: de voet toont nu params.tagline." }}
-  {{- end }}
   {{- if and .IsHome (or (index site.Menus "footer-links") (index site.Menus "footer-rechts")) }}
   {{- warnf "De menu's footer-links en footer-rechts heten nu footer-left en footer-right." }}
   {{- end }}
   {{- if and .IsHome (or site.Params.footer.links site.Params.footer.rechts) }}
   {{- warnf "params.footer.links en params.footer.rechts heten nu footer.left en footer.right." }}
   {{- end }}
-  {{- with site.Params.tagline }}
-  <p class="tagline">{{ . }}</p>
+  {{- /* params.tagline staat altijd in de voet: op een smal scherm valt hij uit
+         de kop weg (WCAG 1.4.10). params.footer.tagline is een langere zin
+         eronder. */ -}}
+  {{- if or site.Params.tagline site.Params.footer.tagline }}
+  <div class="footer-intro">
+    {{- with site.Params.tagline }}
+    <p class="tagline">{{ . }}</p>
+    {{- end }}
+    {{- with site.Params.footer.tagline }}
+    <p class="footer-tagline">{{ . }}</p>
+    {{- end }}
+  </div>
   {{- end }}
   {{- $links := index site.Menus "footer-left" -}}
   {{- $right := index site.Menus "footer-right" -}}

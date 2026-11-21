@@ -60,7 +60,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `Site: tagline`.
 * **Ondertitel.** De voet toont `params.tagline`, dezelfde zin als naast de
   sitenaam. Op een smal scherm staat de ondertitel niet in de kop; zonder de
-  voet was hij daar weg (WCAG 1.4.10). `params.footer.tagline` vervalt.
+  voet was hij daar weg (WCAG 1.4.10). `params.footer.tagline` staat er
+  als langere zin onder.
 * **Hero.** De foto is altijd decoratie, met een lege alt: onder 550px valt
   hij weg, en een beschrijving dan ook (WCAG 1.4.10). `hero.image_alt`
   vervalt.
@@ -133,9 +134,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   zet: de kleuren eromheen zijn veranderd.
 * Een site die bijwerkt met Dependabot, zet een `tools.go` in de root; zie de
   README.
-* Haal `params.footer.tagline` weg; de build waarschuwt zolang het er staat.
-  De voet toont nu `params.tagline`; was de oude tekst anders, dan staat die
-  niet meer in de voet.
+* De voet toont `params.tagline` boven `params.footer.tagline`. Zet je in
+  `footer.tagline` dezelfde zin als in `tagline`, haal hem dan weg, anders
+  staat hij er twee keer.
 * Haal `hero.image_alt` weg; de build waarschuwt zolang het een waarde heeft.
   Wat de foto vertelt, zet je in `hero.text`.
 * Hernoem wat je uit v0.2 gebruikt; de build waarschuwt zolang een oude naam

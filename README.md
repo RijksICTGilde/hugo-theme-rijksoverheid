@@ -117,6 +117,7 @@ Alles is optioneel.
 | `description` | | Beschrijving voor pagina's zonder eigen `description` |
 | `logo.url`, `logo.wordmark`, `logo.label` | geen link | Woordmerk naast het lint, en een logolink naar een andere site met een verborgen label |
 | `footer.left`, `footer.right` | | De koppen van de twee linkkolommen in de voet |
+| `footer.tagline` | | Een langere zin in de voet, onder de ondertitel |
 | `organization.name`, `organization.url`, `organization.text` | | Regel in de voet met de organisatie achter de site |
 | `links.new_window` | `false` | `true` opent externe links in een nieuw venster, met melding en icoon |
 | `links.private` | `samenwerkruimten.nl`, `digilab.overheid.nl/chat` | Hosts waarvan links besloten zijn (slot en melding), eventueel met een pad; geldt ook voor subdomeinen en paden eronder. Een lege lijst zet het uit |
