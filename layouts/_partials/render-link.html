@@ -34,28 +34,28 @@
 */ -}}
 {{- $u := urls.Parse .href -}}
 {{- $isExternal := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
-{{- $nieuwVenster := false -}}
-{{- $besloten := slice "samenwerkruimten.nl" "digilab.overheid.nl/chat" -}}
+{{- $newWindow := false -}}
+{{- $private := slice "samenwerkruimten.nl" "digilab.overheid.nl/chat" -}}
 {{- with site.Params.links -}}
-  {{- $nieuwVenster = .new_window -}}
-  {{- if isset . "private" }}{{ $besloten = .private }}{{ end -}}
+  {{- $newWindow = .new_window -}}
+  {{- if isset . "private" }}{{ $private = .private }}{{ end -}}
 {{- end -}}
 {{- $isPrivate := .private -}}
 {{- if and $isExternal (not $isPrivate) -}}
   {{- $host := lower $u.Hostname -}}
-  {{- range $besloten -}}
+  {{- range $private -}}
     {{- $b := urls.Parse (printf "//%s" .) -}}
     {{- $bHost := lower $b.Hostname -}}
-    {{- $opHost := or (eq $host $bHost) (hasSuffix $host (printf ".%s" $bHost)) -}}
+    {{- $onHost := or (eq $host $bHost) (hasSuffix $host (printf ".%s" $bHost)) -}}
     {{- /* Met een slash erachter valt /chatbot niet onder /chat. */ -}}
-    {{- $onderPad := hasPrefix (printf "%s/" $u.Path) (printf "%s/" (strings.TrimSuffix "/" $b.Path)) -}}
-    {{- if and $opHost $onderPad }}{{ $isPrivate = true }}{{ end -}}
+    {{- $underPath := hasPrefix (printf "%s/" $u.Path) (printf "%s/" (strings.TrimSuffix "/" $b.Path)) -}}
+    {{- if and $onHost $underPath }}{{ $isPrivate = true }}{{ end -}}
   {{- end -}}
 {{- end -}}
 {{- if $isPrivate -}}
-<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $nieuwVenster }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="external private noreferrer"{{ end }}{{ if site.Params.linkcheck }} data-proofer-ignore{{ end }}>{{ .text }}<span class="visually-hidden new-window-notice"> (besloten omgeving{{ if $nieuwVenster }}, opent in een nieuw venster{{ end }})</span></a>
+<a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }}{{ if $newWindow }} target="_blank" rel="external private noopener noreferrer"{{ else }} rel="external private noreferrer"{{ end }}{{ if site.Params.linkcheck }} data-proofer-ignore{{ end }}>{{ .text }}<span class="visually-hidden new-window-notice"> (besloten omgeving{{ if $newWindow }}, opent in een nieuw venster{{ end }})</span></a>
 {{- else if $isExternal -}}
-{{- if $nieuwVenster -}}
+{{- if $newWindow -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} target="_blank" rel="external noopener noreferrer">{{ .text }}<span class="visually-hidden new-window-notice"> (opent in een nieuw venster)</span></a>
 {{- else -}}
 <a href="{{ .href }}"{{ with .title }} title="{{ . }}"{{ end }} rel="external noreferrer">{{ .text }}</a>

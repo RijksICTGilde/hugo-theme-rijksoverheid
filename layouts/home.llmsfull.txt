@@ -22,15 +22,15 @@
 {{- end }}
 {{- range site.Params.llms.sections }}
 {{- if ne .full false }}
-{{- $paginas := where site.RegularPages "Section" .section }}
-{{- with .limit }}{{ $paginas = first . $paginas }}{{ end }}
+{{- $pages := where site.RegularPages "Section" .section }}
+{{- with .limit }}{{ $pages = first . $pages }}{{ end }}
 
 # {{ .heading | default .section }}
 {{- with .text }}
 
 {{ . }}
 {{- end }}
-{{- range $paginas }}
+{{- range $pages }}
 
 ## {{ .Title }}
 

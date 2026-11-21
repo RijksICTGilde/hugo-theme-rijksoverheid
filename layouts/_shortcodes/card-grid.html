@@ -10,34 +10,34 @@
 {{- if not $section -}}
   {{- errorf "card-grid shortcode: 'section' parameter is verplicht" -}}
 {{- end -}}
-{{- $niveau := 2 -}}
+{{- $level := 2 -}}
 {{- with .Get "heading-level" -}}
-  {{- $niveau = int . -}}
+  {{- $level = int . -}}
 {{- else -}}
   {{- /* Zoek de aanroep voor deze sectie in de bron; staat dezelfde sectie er
          twee keer, geef dan heading-level mee. */ -}}
   {{- $raw := .Page.RawContent -}}
-  {{- $aanroep := "" -}}
+  {{- $shortcodeCall := "" -}}
   {{- range findRE `\{\{[<%]\s*card-grid\b[^}]*[>%]\}\}` $raw -}}
-    {{- if and (not $aanroep) (strings.Contains . $section) }}{{ $aanroep = . }}{{ end -}}
+    {{- if and (not $shortcodeCall) (strings.Contains . $section) }}{{ $shortcodeCall = . }}{{ end -}}
   {{- end -}}
-  {{- with $aanroep -}}
+  {{- with $shortcodeCall -}}
     {{- with findRE `(?m)^#{1,6}[ \t]|<h[1-6][ >]` (index (split $raw .) 0) -}}
-      {{- $laatste := index . (sub (len .) 1) -}}
-      {{- $kop := 0 -}}
-      {{- if hasPrefix $laatste "#" -}}
-        {{- $kop = len (trim $laatste " \t") -}}
+      {{- $last := index . (sub (len .) 1) -}}
+      {{- $heading := 0 -}}
+      {{- if hasPrefix $last "#" -}}
+        {{- $heading = len (trim $last " \t") -}}
       {{- else -}}
-        {{- $kop = int (substr $laatste 2 1) -}}
+        {{- $heading = int (substr $last 2 1) -}}
       {{- end -}}
-      {{- $niveau = int (math.Min 6 (add 1 $kop)) -}}
+      {{- $level = int (math.Min 6 (add 1 $heading)) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- with site.GetPage $section -}}
   {{- with .Pages.ByWeight -}}
 <section>
-  {{ partial "card-grid.html" (dict "pages" . "headingLevel" $niveau "classes" ($.Get "classes")) }}
+  {{ partial "card-grid.html" (dict "pages" . "headingLevel" $level "classes" ($.Get "classes")) }}
 </section>
   {{- end -}}
 {{- else -}}

@@ -17,39 +17,39 @@
 {{- $tiles := index .Page.Params $field -}}
 {{- $cols := .Get "columns" -}}
 {{- $aria := .Get "aria" -}}
-{{- $niveau := 2 -}}
+{{- $level := 2 -}}
 {{- with .Get "heading-level" -}}
-  {{- $niveau = int . -}}
+  {{- $level = int . -}}
 {{- else -}}
   {{- /* Zoek de aanroep met dezelfde field in de bron; staan er twee met
          dezelfde field, geef dan heading-level mee. */ -}}
   {{- $raw := .Page.RawContent -}}
-  {{- $aanroep := "" -}}
+  {{- $shortcodeCall := "" -}}
   {{- range findRE `\{\{[<%]\s*tiles\b[^}]*[>%]\}\}` $raw -}}
     {{- $f := "tiles" -}}
     {{- with findRESubmatch `field\s*=\s*"([^"]*)"` . }}{{ $f = index . 0 1 }}{{ end -}}
-    {{- if and (not $aanroep) (eq $f $field) }}{{ $aanroep = . }}{{ end -}}
+    {{- if and (not $shortcodeCall) (eq $f $field) }}{{ $shortcodeCall = . }}{{ end -}}
   {{- end -}}
-  {{- with $aanroep -}}
+  {{- with $shortcodeCall -}}
     {{- with findRE `(?m)^#{1,6}[ \t]|<h[1-6][ >]` (index (split $raw .) 0) -}}
-      {{- $laatste := index . (sub (len .) 1) -}}
-      {{- $kop := 0 -}}
-      {{- if hasPrefix $laatste "#" -}}
-        {{- $kop = len (trim $laatste " \t") -}}
+      {{- $last := index . (sub (len .) 1) -}}
+      {{- $heading := 0 -}}
+      {{- if hasPrefix $last "#" -}}
+        {{- $heading = len (trim $last " \t") -}}
       {{- else -}}
-        {{- $kop = int (substr $laatste 2 1) -}}
+        {{- $heading = int (substr $last 2 1) -}}
       {{- end -}}
-      {{- $niveau = int (math.Min 6 (add 1 $kop)) -}}
+      {{- $level = int (math.Min 6 (add 1 $heading)) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{- $kop := printf "h%d" $niveau -}}
+{{- $heading := printf "h%d" $level -}}
 {{- with $tiles -}}
 <ul class="card-grid{{ with $cols }} columns-{{ . }}{{ end }}" role="list"{{ with $aria }} aria-label="{{ . }}"{{ end }}>
   {{- range . }}
   <li>
     <article class="card">
-      <header>{{ printf "<%s>" $kop | safeHTML }}{{ .title }}{{ printf "</%s>" $kop | safeHTML }}</header>
+      <header>{{ printf "<%s>" $heading | safeHTML }}{{ .title }}{{ printf "</%s>" $heading | safeHTML }}</header>
       {{- /* Als blok renderen: dan staat de tekst in een <p>, en krijgt een link
              erin de onderstreping uit base.css (WCAG 1.4.1). */}}
       {{ with .body }}{{ $.Page.RenderString (dict "display" "block") . }}{{ end }}

@@ -65,58 +65,58 @@
 {{- /* Nummer en slug per blok bewaren onder zijn Ordinal: rendert Hugo de
      inhoud nog een keer (een ander uitvoerformaat), dan krijgt hetzelfde
      blok hetzelfde nummer in plaats van een doorgeteld nummer. */ -}}
-{{- $blokken := .Page.Store.Get "mermaid-blokken" | default dict -}}
-{{- $sleutel := printf "b%d" .Ordinal -}}
-{{- $blok := index $blokken $sleutel -}}
-{{- if not $blok -}}
-  {{- $nummer := add (len $blokken) 1 -}}
-  {{- $basis := "" -}}
+{{- $blocks := .Page.Store.Get "mermaid-blocks" | default dict -}}
+{{- $key := printf "b%d" .Ordinal -}}
+{{- $block := index $blocks $key -}}
+{{- if not $block -}}
+  {{- $number := add (len $blocks) 1 -}}
+  {{- $base := "" -}}
   {{- $slug := "" -}}
   {{- if $accTitle -}}
     {{- /* \s plus \v, \p{Z} en U+FEFF is de witruimte van \s in JavaScript. */ -}}
-    {{- $basis = $accTitle | lower | replaceRE `[\s\v\p{Z}\x{FEFF}]+` "-" | replaceRE `[^a-z0-9-]` "" | replaceRE `-+` "-" | replaceRE `^-|-$` "" -}}
-    {{- $eerder := 0 -}}
-    {{- range $blokken -}}
-      {{- if eq .basis $basis -}}{{ $eerder = add $eerder 1 }}{{- end -}}
+    {{- $base = $accTitle | lower | replaceRE `[\s\v\p{Z}\x{FEFF}]+` "-" | replaceRE `[^a-z0-9-]` "" | replaceRE `-+` "-" | replaceRE `^-|-$` "" -}}
+    {{- $earlier := 0 -}}
+    {{- range $blocks -}}
+      {{- if eq .base $base -}}{{ $earlier = add $earlier 1 }}{{- end -}}
     {{- end -}}
-    {{- $slug = cond (gt $eerder 0) (printf "%s-%d" $basis (add $eerder 1)) $basis -}}
+    {{- $slug = cond (gt $earlier 0) (printf "%s-%d" $base (add $earlier 1)) $base -}}
   {{- else -}}
-    {{- $slug = printf "diagram-%d" $nummer -}}
+    {{- $slug = printf "diagram-%d" $number -}}
   {{- end -}}
-  {{- $blok = dict "nummer" $nummer "basis" $basis "slug" $slug -}}
-  {{- .Page.Store.Set "mermaid-blokken" (merge $blokken (dict $sleutel $blok)) -}}
+  {{- $block = dict "number" $number "base" $base "slug" $slug -}}
+  {{- .Page.Store.Set "mermaid-blocks" (merge $blocks (dict $key $block)) -}}
 {{- end -}}
-{{- $slug := $blok.slug -}}
+{{- $slug := $block.slug -}}
 
-{{- $lightPad := path.Join "images/render" $subdir (printf "%s-light.svg" $slug) -}}
-{{- $darkPad := path.Join "images/render" $subdir (printf "%s-dark.svg" $slug) -}}
-{{- $lightFile := path.Join "static" $lightPad -}}
-{{- $darkFile := path.Join "static" $darkPad -}}
+{{- $lightPath := path.Join "images/render" $subdir (printf "%s-light.svg" $slug) -}}
+{{- $darkPath := path.Join "images/render" $subdir (printf "%s-dark.svg" $slug) -}}
+{{- $lightFile := path.Join "static" $lightPath -}}
+{{- $darkFile := path.Join "static" $darkPath -}}
 
 {{- if and (os.FileExists $lightFile) (os.FileExists $darkFile) -}}
 {{- /* De bestandsnaam verandert niet bij een nieuwe render; de inhoudshash in de
      URL voorkomt dat browser of CDN een oude SVG blijft tonen. */ -}}
 {{- $lightSVG := os.ReadFile $lightFile -}}
-{{- $lightUrl := printf "%s?v=%s" $lightPad (substr ($lightSVG | md5) 0 8) | relURL -}}
-{{- $darkUrl := printf "%s?v=%s" $darkPad (substr (os.ReadFile $darkFile | md5) 0 8) | relURL -}}
+{{- $lightUrl := printf "%s?v=%s" $lightPath (substr ($lightSVG | md5) 0 8) | relURL -}}
+{{- $darkUrl := printf "%s?v=%s" $darkPath (substr (os.ReadFile $darkFile | md5) 0 8) | relURL -}}
 {{- $viewBox := findRESubmatch `viewBox="[-\d.]+[ ,]+[-\d.]+[ ,]+([\d.]+)[ ,]+([\d.]+)"` $lightSVG 1 -}}
 {{- if not $viewBox -}}
   {{- errorf "Diagram '%s' op pagina %s heeft geen leesbare viewBox." $slug .Page.File.Path -}}
 {{- end -}}
-{{- $breedte := int (math.Ceil (index (index $viewBox 0) 1)) -}}
-{{- $hoogte := int (math.Ceil (index (index $viewBox 0) 2)) -}}
+{{- $width := int (math.Ceil (index (index $viewBox 0) 1)) -}}
+{{- $height := int (math.Ceil (index (index $viewBox 0) 2)) -}}
 {{- $alt := $accTitle | default $accDescr -}}
 {{- if not $alt -}}
   {{- warnf "Diagram '%s' op pagina %s heeft geen accTitle of accDescr; geef het een tekstalternatief (WCAG 1.1.1)." $slug .Page.File.Path -}}
-  {{- $alt = printf "Diagram %d" $blok.nummer -}}
+  {{- $alt = printf "Diagram %d" $block.number -}}
 {{- end -}}
-{{- $beschrijving := "" -}}
-{{- if $accTitle -}}{{ $beschrijving = $accDescr }}{{- end -}}
+{{- $description := "" -}}
+{{- if $accTitle -}}{{ $description = $accDescr }}{{- end -}}
 {{- $kB := int (math.Ceil (div (float (len $lightSVG)) 1024)) -}}
 <div class="mermaid-diagram">
-  <img class="mermaid-img mermaid-img--light" src="{{ $lightUrl }}" alt="{{ $alt }}" width="{{ $breedte }}" height="{{ $hoogte }}" loading="lazy">
-  <img class="mermaid-img mermaid-img--dark" src="{{ $darkUrl }}" alt="{{ $alt }}" width="{{ $breedte }}" height="{{ $hoogte }}" loading="lazy">
-  {{- with $beschrijving }}
+  <img class="mermaid-img mermaid-img--light" src="{{ $lightUrl }}" alt="{{ $alt }}" width="{{ $width }}" height="{{ $height }}" loading="lazy">
+  <img class="mermaid-img mermaid-img--dark" src="{{ $darkUrl }}" alt="{{ $alt }}" width="{{ $width }}" height="{{ $height }}" loading="lazy">
+  {{- with $description }}
   <p class="mermaid-description visually-hidden">{{ . }}</p>
   {{- end }}
   <a class="mermaid-download button-ghost" href="{{ $lightUrl }}" download="{{ $slug }}.svg" data-tooltip="Download als afbeelding">
@@ -125,5 +125,5 @@
   </a>
 </div>
 {{- else -}}
-{{- errorf "Mermaid SVGs ontbreken voor '%s' op pagina %s: verwacht static/%s en static/%s." $slug .Page.File.Path $lightPad $darkPad -}}
+{{- errorf "Mermaid SVGs ontbreken voor '%s' op pagina %s: verwacht static/%s en static/%s." $slug .Page.File.Path $lightPath $darkPath -}}
 {{- end -}}

@@ -16,15 +16,15 @@
 {{- end }}
 {{- end }}
 {{- range site.Params.llms.sections }}
-{{- $paginas := where site.RegularPages "Section" .section }}
-{{- with .limit }}{{ $paginas = first . $paginas }}{{ end }}
+{{- $pages := where site.RegularPages "Section" .section }}
+{{- with .limit }}{{ $pages = first . $pages }}{{ end }}
 
 ## {{ .heading | default .section }}
 {{- with .text }}
 
 {{ . }}
 {{ end }}
-{{- range $paginas }}
+{{- range $pages }}
 - [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .RelPermalink }}{{ else }}{{ .RelPermalink }}{{ end }}){{ with .Description }}: {{ . }}{{ end }}
 {{- end }}
 {{- end }}

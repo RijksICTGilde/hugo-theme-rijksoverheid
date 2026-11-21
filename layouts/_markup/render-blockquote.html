@@ -12,31 +12,31 @@
        Zonder titel draagt alleen de kleur het type; daarom krijgen tip,
        important, warning en caution dan een verborgen typenaam (WCAG 1.4.1). */ -}}
 {{- if eq .Type "alert" -}}
-{{- $varianten := dict "note" "info" "info" "info" "tip" "success" "important" "warning" "warning" "warning" "caution" "danger" -}}
-{{- $variant := index $varianten .AlertType -}}
-{{- $niveau := 3 -}}
+{{- $variants := dict "note" "info" "info" "info" "tip" "success" "important" "warning" "warning" "warning" "caution" "danger" -}}
+{{- $variant := index $variants .AlertType -}}
+{{- $level := 3 -}}
 {{- with site.Params.callout -}}
-  {{- with .heading_level -}}{{ $niveau = int . }}{{- end -}}
+  {{- with .heading_level -}}{{ $level = int . }}{{- end -}}
 {{- end -}}
-{{- if or (lt $niveau 2) (gt $niveau 6) -}}
-  {{- errorf "params.callout.heading_level %d ongeldig (kies 2 tot en met 6)" $niveau -}}
+{{- if or (lt $level 2) (gt $level 6) -}}
+  {{- errorf "params.callout.heading_level %d ongeldig (kies 2 tot en met 6)" $level -}}
 {{- end -}}
-{{- $icoon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
+{{- $icon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
 <div class="callout{{ with $variant }} {{ . }}{{ end }}">
-  {{- if or $icoon .AlertTitle }}
+  {{- if or $icon .AlertTitle }}
   <header>
-    {{- with $icoon }}
+    {{- with $icon }}
     {{- partial "icon.html" . -}}
     {{- end }}
-    {{- with .AlertTitle }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
+    {{- with .AlertTitle }}<h{{ $level }} class="title">{{ . }}</h{{ $level }}>{{ end }}
   </header>
   {{- end }}
-  {{- $tekst := .Text }}
+  {{- $text := .Text }}
   {{- if not .AlertTitle }}
-    {{- $tekst = partial "callout-type-name.html" (dict "alert" .AlertType "text" $tekst) }}
+    {{- $text = partial "callout-type-name.html" (dict "alert" .AlertType "text" $text) }}
   {{- end }}
   <div class="content">
-    {{ $tekst }}
+    {{ $text }}
   </div>
 </div>
 {{- else -}}

@@ -45,12 +45,12 @@
 
 {{ partial "favicons.html" . }}
 
-{{- $ogPad := partial "og-image.html" . -}}
-{{- $ogGroot := ne $ogPad "favicon-192x192.png" -}}
-{{- $ogBreed := cond $ogGroot 1200 192 -}}
-{{- $ogHoog := cond $ogGroot 630 192 -}}
+{{- $ogPath := partial "og-image.html" . -}}
+{{- $ogLarge := ne $ogPath "favicon-192x192.png" -}}
+{{- $ogWidth := cond $ogLarge 1200 192 -}}
+{{- $ogHeight := cond $ogLarge 630 192 -}}
 {{- $ogType := dict ".jpg" "image/jpeg" ".jpeg" "image/jpeg" ".png" "image/png" ".webp" "image/webp" ".gif" "image/gif" -}}
-{{- $ogImage := absURL $ogPad }}
+{{- $ogImage := absURL $ogPath }}
 <meta property="og:title" content="{{ $pageTitle }}" />
 <meta property="og:description" content="{{ $description }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
@@ -58,16 +58,16 @@
 <meta property="og:site_name" content="{{ .Site.Title }}" />
 <meta property="og:locale" content="nl_NL" />
 <meta property="og:image" content="{{ $ogImage }}" />
-{{- with index $ogType (lower (path.Ext $ogPad)) }}
+{{- with index $ogType (lower (path.Ext $ogPath)) }}
 <meta property="og:image:type" content="{{ . }}" />
 {{- end }}
-<meta property="og:image:width" content="{{ $ogBreed }}" />
-<meta property="og:image:height" content="{{ $ogHoog }}" />
+<meta property="og:image:width" content="{{ $ogWidth }}" />
+<meta property="og:image:height" content="{{ $ogHeight }}" />
 <meta property="og:image:alt" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ or .Params.page_title .Title .Site.Title }}, {{ .Site.Title }}{{ end }}" />
 
-<meta name="twitter:card" content="{{ cond $ogGroot "summary_large_image" "summary" }}" />
+<meta name="twitter:card" content="{{ cond $ogLarge "summary_large_image" "summary" }}" />
 <meta name="twitter:title" content="{{ $pageTitle }}" />
 <meta name="twitter:description" content="{{ $description }}" />
 <meta name="twitter:image" content="{{ $ogImage }}" />
-<meta name="twitter:image:width" content="{{ $ogBreed }}" />
-<meta name="twitter:image:height" content="{{ $ogHoog }}" />
+<meta name="twitter:image:width" content="{{ $ogWidth }}" />
+<meta name="twitter:image:height" content="{{ $ogHeight }}" />

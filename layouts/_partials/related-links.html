@@ -12,9 +12,9 @@
        render-link.html, zodat externe en besloten links dezelfde rel en
        meldingen krijgen als in de tekst. Rendert niets zonder een van beide. */ -}}
 {{- $p := . -}}
-{{- $sectie := false -}}
+{{- $section := false -}}
 {{- range (slice $p | append $p.Ancestors) -}}
-  {{- if and (not $sectie) (eq .Kind "section") .Params.aside_nav }}{{ $sectie = . }}{{ end -}}
+  {{- if and (not $section) (eq .Kind "section") .Params.aside_nav }}{{ $section = . }}{{ end -}}
 {{- end -}}
 {{- $links := slice -}}
 {{- range $p.Params.related_links -}}
@@ -29,15 +29,15 @@
   {{- end -}}
   {{- with $href }}{{ $links = $links | append (dict "href" . "title" ($item.title | default .)) }}{{ end -}}
 {{- end -}}
-{{- $kop := "" -}}
-{{- if and $sectie $links }}{{ $kop = "Relevante pagina's en links" -}}
-{{- else if $sectie }}{{ $kop = "Relevante pagina's" -}}
-{{- else if $links }}{{ $kop = "Relevante links" }}{{ end -}}
-{{- with $kop -}}
-<nav class="{{ if $sectie }}related-pages{{ else }}related-links{{ end }}" aria-label="{{ . }}">
+{{- $heading := "" -}}
+{{- if and $section $links }}{{ $heading = "Relevante pagina's en links" -}}
+{{- else if $section }}{{ $heading = "Relevante pagina's" -}}
+{{- else if $links }}{{ $heading = "Relevante links" }}{{ end -}}
+{{- with $heading -}}
+<nav class="{{ if $section }}related-pages{{ else }}related-links{{ end }}" aria-label="{{ . }}">
   <h2>{{ . }}</h2>
   <ul>
-    {{- with $sectie }}
+    {{- with $section }}
     {{- range (slice . | append .Pages.ByWeight) }}
     <li><a href="{{ .RelPermalink }}"{{ if eq .RelPermalink $p.RelPermalink }} aria-current="page"{{ end }}>{{ .Params.card_title | default .Title }}</a></li>
     {{- end }}

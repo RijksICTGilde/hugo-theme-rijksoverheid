@@ -13,20 +13,20 @@
   Geen minify: de minifier van Hugo haalt in geneste CSS de spaties rond + in
   calc() weg (calc(50% - x / 2+1rem)), en dan vervalt de hele declaratie.
 */ -}}
-{{- $vast := slice "nldd-primitives.css" "tokens.css" "fonts.css" "base.css" "layout.css" -}}
-{{- $lijst := slice -}}
-{{- range $vast -}}
+{{- $fixed := slice "nldd-primitives.css" "tokens.css" "fonts.css" "base.css" "layout.css" -}}
+{{- $list := slice -}}
+{{- range $fixed -}}
   {{- with resources.Get (printf "css/%s" .) -}}
-    {{- $lijst = $lijst | append . -}}
+    {{- $list = $list | append . -}}
   {{- else -}}
     {{- errorf "head-css.html: assets/css/%s ontbreekt" . -}}
   {{- end -}}
 {{- end -}}
-{{- $lijst = $lijst | append (sort (resources.Match "css/components/*.css") "Name") -}}
+{{- $list = $list | append (sort (resources.Match "css/components/*.css") "Name") -}}
 {{- range sort (resources.Match "css/*.css") "Name" -}}
-  {{- if not (in $vast (path.Base .Name)) -}}
-    {{- $lijst = $lijst | append . -}}
+  {{- if not (in $fixed (path.Base .Name)) -}}
+    {{- $list = $list | append . -}}
   {{- end -}}
 {{- end -}}
-{{- $css := $lijst | resources.Concat "css/style.css" | resources.ExecuteAsTemplate "css/style.css" . | fingerprint "md5" -}}
+{{- $css := $list | resources.Concat "css/style.css" | resources.ExecuteAsTemplate "css/style.css" . | fingerprint "md5" -}}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" />

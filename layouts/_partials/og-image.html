@@ -2,8 +2,8 @@
        (of een absolute URL), formaat 1200 bij 630. Een site vervangt dit
        bestand voor een afbeelding per pagina. Geeft de hook het favicon terug,
        dan zet meta.html een kleine kaart in plaats van een grote. */ -}}
-{{- $pad := "favicon-192x192.png" -}}
+{{- $path := "favicon-192x192.png" -}}
 {{- with site.Params.og -}}
-  {{- with .image }}{{ $pad = . }}{{ end -}}
+  {{- with .image }}{{ $path = . }}{{ end -}}
 {{- end -}}
-{{- return $pad -}}
+{{- return $path -}}

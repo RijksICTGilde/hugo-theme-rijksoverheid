@@ -29,7 +29,7 @@
      staat links uitgelijnd op de term; rechts in de regel steekt hij anders
      buiten beeld en geeft hij horizontale scroll (1.4.10). Meten zonder
      transform: offsetWidth plus het eerste regelfragment van de wrapper. */
-  var MARGE = 16;
+  var MARGIN = 16;
   function placeTooltip(wrapper) {
     var tip = wrapper.querySelector('.ref-tooltip');
     var rects = wrapper.getClientRects();
@@ -37,8 +37,8 @@
     var vw = document.documentElement.clientWidth;
     var left = rects[0].left;
     // Alleen naar links schuiven, en nooit voorbij de linkermarge.
-    var shift = Math.min(0, vw - MARGE - (left + tip.offsetWidth));
-    shift = Math.max(shift, Math.min(0, MARGE - left));
+    var shift = Math.min(0, vw - MARGIN - (left + tip.offsetWidth));
+    shift = Math.max(shift, Math.min(0, MARGIN - left));
     tip.style.setProperty('--ref-offset-x', Math.round(shift) + 'px');
   }
   function onShow(e) {

@@ -1,10 +1,10 @@
 <footer>
   {{- $ancestors := .Ancestors.Reverse -}}
-  {{- $kruimelpad := and (not .IsHome) (gt (len $ancestors) 1) -}}
+  {{- $breadcrumb := and (not .IsHome) (gt (len $ancestors) 1) -}}
   {{- $lastmod := partial "lastmod.html" . -}}
-  {{- if or $kruimelpad (trim $lastmod " \n\t") }}
+  {{- if or $breadcrumb (trim $lastmod " \n\t") }}
   <div class="page-meta">
-    {{- if $kruimelpad }}
+    {{- if $breadcrumb }}
     <nav class="breadcrumb" aria-label="Kruimelpad">
       <ol>
         {{- range $ancestors -}}
@@ -31,13 +31,13 @@
   <p class="tagline">{{ . }}</p>
   {{- end }}
   {{- $links := index site.Menus "footer-left" -}}
-  {{- $rechts := index site.Menus "footer-right" -}}
-  {{- if or $links $rechts }}
+  {{- $right := index site.Menus "footer-right" -}}
+  {{- if or $links $right }}
   <div class="footer-columns">
     {{- with $links }}
-    {{- $kop := site.Params.footer.left | default "Zie ook" }}
-    <nav aria-label="{{ $kop }}">
-      <h2>{{ $kop }}</h2>
+    {{- $heading := site.Params.footer.left | default "Zie ook" }}
+    <nav aria-label="{{ $heading }}">
+      <h2>{{ $heading }}</h2>
       <ul>
         {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
@@ -45,10 +45,10 @@
       </ul>
     </nav>
     {{- end }}
-    {{- with $rechts }}
-    {{- $kop := site.Params.footer.right | default "Over deze site" }}
-    <nav aria-label="{{ $kop }}">
-      <h2>{{ $kop }}</h2>
+    {{- with $right }}
+    {{- $heading := site.Params.footer.right | default "Over deze site" }}
+    <nav aria-label="{{ $heading }}">
+      <h2>{{ $heading }}</h2>
       <ul>
         {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>

@@ -1,25 +1,25 @@
 {{- /* Kaart voor een pagina. Aanroepen met een pagina (kop h2) of met een
        dict: (dict "page" . "headingLevel" 3). */ -}}
-{{- $pagina := . -}}
-{{- $niveau := 2 -}}
+{{- $page := . -}}
+{{- $level := 2 -}}
 {{- if reflect.IsMap . -}}
-  {{- $pagina = .page -}}
-  {{- $niveau = int (.headingLevel | default 2) -}}
+  {{- $page = .page -}}
+  {{- $level = int (.headingLevel | default 2) -}}
 {{- end -}}
-{{- $kop := printf "h%d" $niveau -}}
+{{- $heading := printf "h%d" $level -}}
 <article class="card">
   <header>
-    {{ with $pagina.Params.image }}
-    <img src="{{ relURL (strings.TrimPrefix "/" .) }}" alt="{{ $pagina.Params.image_alt }}" loading="lazy">
+    {{ with $page.Params.image }}
+    <img src="{{ relURL (strings.TrimPrefix "/" .) }}" alt="{{ $page.Params.image_alt }}" loading="lazy">
     {{ end }}
-    {{ printf "<%s>" $kop | safeHTML }}
-      <a href="{{ $pagina.RelPermalink }}">{{ $pagina.Params.card_title | default $pagina.Title }}</a>
-    {{ printf "</%s>" $kop | safeHTML }}
+    {{ printf "<%s>" $heading | safeHTML }}
+      <a href="{{ $page.RelPermalink }}">{{ $page.Params.card_title | default $page.Title }}</a>
+    {{ printf "</%s>" $heading | safeHTML }}
   </header>
-  {{ if $pagina.Params.card_date }}
-  <p class="card-date"><time datetime="{{ $pagina.Date.Format "2006-01-02" }}">{{ $pagina.Date | time.Format ":date_long" }}</time></p>
+  {{ if $page.Params.card_date }}
+  <p class="card-date"><time datetime="{{ $page.Date.Format "2006-01-02" }}">{{ $page.Date | time.Format ":date_long" }}</time></p>
   {{ end }}
-  {{ with $pagina.Params.card_description | default $pagina.Params.description }}
+  {{ with $page.Params.card_description | default $page.Params.description }}
   <p>{{ . }}</p>
   {{ end }}
 </article>

@@ -1,8 +1,8 @@
 {{- /* Dezelfde voorwaarde als in list.html: alleen een leespagina toont de
        datum. Een lijstpagina heeft geen eigen tekst waar de datum iets over
        zegt, ook niet met show_lastmod (bijvoorbeeld via cascade in hugo.yaml). */ -}}
-{{- $isLeespagina := or .IsPage .Params.manual_layout .Params.hide_tiles (and .Params.aside_nav .Content) -}}
-{{- if and .Params.show_lastmod $isLeespagina -}}
-{{- $datum := partial "lastmod-date.html" . -}}
-<p class="lastmod">Deze pagina is voor het laatst bijgewerkt op <time datetime="{{ $datum.Format "2006-01-02" }}">{{ $datum | time.Format ":date_long" }}</time>.</p>
+{{- $isReadingPage := or .IsPage .Params.manual_layout .Params.hide_tiles (and .Params.aside_nav .Content) -}}
+{{- if and .Params.show_lastmod $isReadingPage -}}
+{{- $date := partial "lastmod-date.html" . -}}
+<p class="lastmod">Deze pagina is voor het laatst bijgewerkt op <time datetime="{{ $date.Format "2006-01-02" }}">{{ $date | time.Format ":date_long" }}</time>.</p>
 {{- end -}}

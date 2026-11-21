@@ -12,11 +12,11 @@
     {{- warnf "reftext.html krijgt tekst; die sleutel heet nu text." -}}
   {{- end -}}
 {{- end -}}
-{{- $tekst := .text | markdownify -}}
+{{- $text := .text | markdownify -}}
 {{- $base := "x" | relURL -}}
 {{- $base = strings.TrimSuffix "x" $base -}}
 {{- if ne $base "/" -}}
-  {{- $tekst = replace $tekst "href=\"/" (printf "href=\"%s" $base) -}}
+  {{- $text = replace $text "href=\"/" (printf "href=\"%s" $base) -}}
 {{- end -}}
 {{- $page := .page -}}
 {{- range $i, $ref := $page.Params.references -}}
@@ -34,22 +34,22 @@
          eerste is het anker voor de ↩-link onderaan (refback-N). Hugo server
          bewaart .Page.Store na een templatewijziging; de teller loopt dan door
          en dat anker ontbreekt tot een herstart. */ -}}
-  {{- $sleutel := printf "reftext-%d" $num -}}
-  {{- range findRE $pattern $tekst -}}
-    {{- $page.Store.Add $sleutel 1 -}}
-    {{- $volgnummer := $page.Store.Get $sleutel -}}
-    {{- $tipId := printf "ref-tip-%d-%d" $num $volgnummer -}}
-    {{- $anker := cond (eq $volgnummer 1) (printf " id=\"refback-%d\"" $num) "" -}}
+  {{- $key := printf "reftext-%d" $num -}}
+  {{- range findRE $pattern $text -}}
+    {{- $page.Store.Add $key 1 -}}
+    {{- $sequenceNumber := $page.Store.Get $key -}}
+    {{- $tipId := printf "ref-tip-%d-%d" $num $sequenceNumber -}}
+    {{- $anchor := cond (eq $sequenceNumber 1) (printf " id=\"refback-%d\"" $num) "" -}}
     {{- /* Zonder woord ervoor (na een tag of een andere {ref:N}) is het
            nummer de term; een lege knop heeft geen naam en is niet te zien. */ -}}
     {{- $term := "${1}" -}}
-    {{- $naam := "" -}}
-    {{- if not (index (findRESubmatch $pattern $tekst 1) 0 1) -}}
+    {{- $name := "" -}}
+    {{- if not (index (findRESubmatch $pattern $text 1) 0 1) -}}
       {{- $term = printf "<sup>%d</sup>" $num -}}
-      {{- $naam = printf " aria-label=\"Bron %d\"" $num -}}
+      {{- $name = printf " aria-label=\"Bron %d\"" $num -}}
     {{- end -}}
-    {{- $replace := printf "<span class=\"ref-wrapper\"%s><button type=\"button\" class=\"ref-term\"%s aria-describedby=\"%s\">%s</button><span class=\"ref-tooltip\"><span role=\"tooltip\" id=\"%s\">%s</span>%s</span></span>${2}" $anker $naam $tipId $term $tipId $textEsc $linkHTML -}}
-    {{- $tekst = replaceRE $pattern $replace $tekst 1 -}}
+    {{- $replace := printf "<span class=\"ref-wrapper\"%s><button type=\"button\" class=\"ref-term\"%s aria-describedby=\"%s\">%s</button><span class=\"ref-tooltip\"><span role=\"tooltip\" id=\"%s\">%s</span>%s</span></span>${2}" $anchor $name $tipId $term $tipId $textEsc $linkHTML -}}
+    {{- $text = replaceRE $pattern $replace $text 1 -}}
   {{- end -}}
 {{- end -}}
-{{- $tekst | safeHTML -}}
+{{- $text | safeHTML -}}

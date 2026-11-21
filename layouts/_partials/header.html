@@ -5,7 +5,7 @@
 {{- /* Namen en adressen uit het hoofdmenu, om in het mobiele menu een
        sectielink met dezelfde naam maar een ander doel te onderscheiden. */ -}}
 {{- $mainUrls := slice -}}
-{{- range site.Menus.main -}}{{ $mainUrls = $mainUrls | append (dict "naam" .Name "url" .URL) }}{{- end -}}
+{{- range site.Menus.main -}}{{ $mainUrls = $mainUrls | append (dict "name" .Name "url" .URL) }}{{- end -}}
 
 <header>
   <div class="banner">
@@ -24,29 +24,29 @@
            - label: verborgen toevoeging aan de linknaam die zegt waar de
              link heen gaat, bijvoorbeeld "naar de website van ...". */ -}}
     {{- $logo := site.Params.logo | default dict -}}
-    {{- $woordmerk := $logo.wordmark -}}
+    {{- $wordmark := $logo.wordmark -}}
     {{- if and .IsHome (isset $logo "woordmerk") }}
     {{- warnf "params.logo.woordmerk heet nu params.logo.wordmark." }}
     {{- end }}
     <div class="site-logo">
       {{- with $logo.url }}
       {{- $u := urls.Parse . -}}
-      {{- $extern := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
-      {{- $nieuwVenster := and $extern site.Params.links.new_window -}}
+      {{- $external := and $u.IsAbs (hasPrefix $u.Scheme "http") -}}
+      {{- $newWindow := and $external site.Params.links.new_window -}}
       {{- /* Een link naar een andere site is niet overbodig naast de sitenaam,
              dus bereikbaar voor iedereen. Met een woordmerk is dat de naam en
              is het lint decoratief; anders draagt de alt-tekst van het lint
              de naam. Het label staat achter de zichtbare tekst (WCAG 2.5.3). */}}
       <a href="{{ . }}" class="site-logo-link"
-        {{- if $nieuwVenster }} target="_blank" rel="external noopener noreferrer"{{ else if $extern }} rel="external noreferrer"{{ end }}>
-        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Logo Rijksoverheid{{ end }}" />
-        {{- with $woordmerk }}
+        {{- if $newWindow }} target="_blank" rel="external noopener noreferrer"{{ else if $external }} rel="external noreferrer"{{ end }}>
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $wordmark }}Logo Rijksoverheid{{ end }}" />
+        {{- with $wordmark }}
         {{ partial "logo-wordmark.html" . }}
         {{- end }}
         {{- with $logo.label }}
         <span class="visually-hidden"> ({{ . }})</span>
         {{- end }}
-        {{- if $nieuwVenster }}
+        {{- if $newWindow }}
         <span class="visually-hidden new-window-notice"> (opent in een nieuw venster)</span>
         {{- end }}
       </a>
@@ -55,8 +55,8 @@
              woordmerk zegt alleen de alt-tekst dat de site van de
              Rijksoverheid is. */}}
       <span class="site-logo-link">
-        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $woordmerk }}Rijksoverheid{{ end }}" />
-        {{- with $woordmerk }}
+        <img src="{{ relURL "images/logo-rijksoverheid.svg" }}" alt="{{ if not $wordmark }}Rijksoverheid{{ end }}" />
+        {{- with $wordmark }}
         {{ partial "logo-wordmark.html" . }}
         {{- end }}
       </span>
@@ -71,9 +71,9 @@
       {{- with site.Menus.main }}
       <ul>
         {{- range . -}}
-        {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
+        {{- $state := partial "inline/header-state.html" (dict "page" $ "url" .URL) -}}
         <li>
-          <a href="{{ .URL }}" data-text="{{ .Name }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ end }}>
+          <a href="{{ .URL }}" data-text="{{ .Name }}"{{ with $state }} class="active" aria-current="{{ . }}"{{ end }}>
             {{- .Name -}}
           </a>
         </li>
@@ -110,8 +110,8 @@
       {{- with site.Menus.main }}
       <ul>
         {{- range . -}}
-        {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
-        <li><a href="{{ .URL }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Name }}</a></li>
+        {{- $state := partial "inline/header-state.html" (dict "page" $ "url" .URL) -}}
+        <li><a href="{{ .URL }}"{{ with $state }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Name }}</a></li>
         {{- end -}}
       </ul>
       {{- end }}
@@ -123,16 +123,16 @@
           {{- with after 1 . }}
           <ul>
             {{- range . -}}
-            {{- $stand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .URL) -}}
-            {{- $kinderen := slice -}}
-            {{- with .Page }}{{ $kinderen = .Sections | default .RegularPages }}{{ end -}}
+            {{- $state := partial "inline/header-state.html" (dict "page" $ "url" .URL) -}}
+            {{- $children := slice -}}
+            {{- with .Page }}{{ $children = .Sections | default .RegularPages }}{{ end -}}
             <li>
-              <a href="{{ .URL }}"{{ with $stand }} class="active" aria-current="{{ . }}"{{ else }}{{ if .Params.bold }} class="bold"{{ end }}{{ end }}>{{ .Name }}{{ partial "inline/kop-onderscheid.html" (dict "naam" .Name "url" .URL "hoofdmenu" $mainUrls "sectie" $root.Name) }}</a>
-              {{- with $kinderen }}
+              <a href="{{ .URL }}"{{ with $state }} class="active" aria-current="{{ . }}"{{ else }}{{ if .Params.bold }} class="bold"{{ end }}{{ end }}>{{ .Name }}{{ partial "inline/header-disambiguation.html" (dict "name" .Name "url" .URL "mainMenu" $mainUrls "section" $root.Name) }}</a>
+              {{- with $children }}
               <ul>
                 {{- range .ByWeight -}}
-                {{- $kindStand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .RelPermalink) -}}
-                <li><a href="{{ .RelPermalink }}"{{ with $kindStand }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Title }}{{ partial "inline/kop-onderscheid.html" (dict "naam" .Title "url" .RelPermalink "hoofdmenu" $mainUrls "sectie" $root.Name) }}</a></li>
+                {{- $childState := partial "inline/header-state.html" (dict "page" $ "url" .RelPermalink) -}}
+                <li><a href="{{ .RelPermalink }}"{{ with $childState }} class="active" aria-current="{{ . }}"{{ end }}>{{ .Title }}{{ partial "inline/header-disambiguation.html" (dict "name" .Title "url" .RelPermalink "mainMenu" $mainUrls "section" $root.Name) }}</a></li>
                 {{- end -}}
               </ul>
               {{- end }}
@@ -160,9 +160,9 @@
         {{- $isActive := eq $.RelPermalink .URL -}}
         {{- $isChildActive := and (hasPrefix $.RelPermalink .URL) (not $isActive) -}}
         {{- $class := cond $isActive "active" (cond .Params.bold "bold" "") -}}
-        {{- $kinderen := slice -}}
-        {{- with .Page }}{{ $kinderen = .Sections | default .RegularPages }}{{ end -}}
-        {{- $showExpand := and (gt (len $kinderen) 0) (gt $index 0) -}}
+        {{- $children := slice -}}
+        {{- with .Page }}{{ $children = .Sections | default .RegularPages }}{{ end -}}
+        {{- $showExpand := and (gt (len $children) 0) (gt $index 0) -}}
         {{- $inSection := and $showExpand (or $isActive $isChildActive) -}}
         {{- $showToggle := and $showExpand (not $inSection) -}}
         {{- $liClass := cond $showToggle "has-subnav" (cond $inSection "in-section" "") -}}
@@ -181,9 +181,9 @@
         {{- if $showExpand }}
         <li class="subnav-panel" id="subnav-panel-{{ $index }}"{{ if not $inSection }} hidden{{ end }}>
           <ul>
-            {{- range $kinderen.ByWeight -}}
-            {{- $kindStand := partial "inline/kop-stand.html" (dict "pagina" $ "url" .RelPermalink) -}}
-            <li><a href="{{ .RelPermalink }}"{{ with $kindStand }} class="current" aria-current="{{ . }}"{{ end }}>{{ .Title }}</a></li>
+            {{- range $children.ByWeight -}}
+            {{- $childState := partial "inline/header-state.html" (dict "page" $ "url" .RelPermalink) -}}
+            <li><a href="{{ .RelPermalink }}"{{ with $childState }} class="current" aria-current="{{ . }}"{{ end }}>{{ .Title }}</a></li>
             {{- end -}}
           </ul>
         </li>
@@ -197,24 +197,24 @@
 {{- /* "page" als url de huidige pagina is, "true" als de huidige pagina
        eronder valt, anders leeg. De homepage valt niet onder zichzelf: met
        hasPrefix zou hij op elke pagina actief zijn, ook onder een subpad. */ -}}
-{{- define "_partials/inline/kop-stand.html" -}}
-  {{- $stand := "" -}}
+{{- define "_partials/inline/header-state.html" -}}
+  {{- $state := "" -}}
   {{- $url := .url -}}
-  {{- $huidig := .pagina.RelPermalink -}}
-  {{- if eq $huidig $url -}}
-    {{- $stand = "page" -}}
-  {{- else if and $url (ne $url site.Home.RelPermalink) (hasPrefix $huidig $url) -}}
-    {{- $stand = "true" -}}
+  {{- $current := .page.RelPermalink -}}
+  {{- if eq $current $url -}}
+    {{- $state = "page" -}}
+  {{- else if and $url (ne $url site.Home.RelPermalink) (hasPrefix $current $url) -}}
+    {{- $state = "true" -}}
   {{- end -}}
-  {{- return $stand -}}
+  {{- return $state -}}
 {{- end -}}
 
 {{- /* Verborgen " (Sectie)" achter een link die net zo heet als een item in
        het hoofdmenu maar ergens anders heen gaat (WCAG 2.4.4). */ -}}
-{{- define "_partials/inline/kop-onderscheid.html" -}}
-  {{- $dubbel := false -}}
-  {{- range .hoofdmenu -}}
-    {{- if and (eq .naam $.naam) (ne .url $.url) }}{{ $dubbel = true }}{{ end -}}
+{{- define "_partials/inline/header-disambiguation.html" -}}
+  {{- $duplicate := false -}}
+  {{- range .mainMenu -}}
+    {{- if and (eq .name $.name) (ne .url $.url) }}{{ $duplicate = true }}{{ end -}}
   {{- end -}}
-  {{- if $dubbel -}}<span class="visually-hidden"> ({{ .sectie }})</span>{{- end -}}
+  {{- if $duplicate -}}<span class="visually-hidden"> ({{ .section }})</span>{{- end -}}
 {{- end -}}

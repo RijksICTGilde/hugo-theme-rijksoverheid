@@ -11,35 +11,35 @@
 
        Zonder label=".." heet de wikkel "Tabel"; content.html maakt daar
        "Tabel 1", "Tabel 2" van, zodat elke regio een eigen naam heeft. */ -}}
-{{- $regels := slice -}}
-{{- $koprij := "" -}}
+{{- $lines := slice -}}
+{{- $headerRow := "" -}}
 {{- range split (trim .Inner "\n ") "\n" -}}
-  {{- $regel := trim . " " -}}
-  {{- if hasPrefix $regel "|" -}}
-    {{- if findRE `^\|[\s:|-]+\|$` $regel -}}
-      {{- if not $regels -}}
-        {{- errorf "table-without-header: de scheidingsregel `%s` staat op de eerste regel; zet er een koprij boven of haal hem weg, op pagina %s" $regel $.Page.File.Path -}}
+  {{- $line := trim . " " -}}
+  {{- if hasPrefix $line "|" -}}
+    {{- if findRE `^\|[\s:|-]+\|$` $line -}}
+      {{- if not $lines -}}
+        {{- errorf "table-without-header: de scheidingsregel `%s` staat op de eerste regel; zet er een koprij boven of haal hem weg, op pagina %s" $line $.Page.File.Path -}}
       {{- end -}}
-      {{- $koprij = index (last 1 $regels) 0 -}}
+      {{- $headerRow = index (last 1 $lines) 0 -}}
     {{- else -}}
-      {{- $regels = $regels | append $regel -}}
+      {{- $lines = $lines | append $line -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
-{{- if $koprij -}}
-  {{- $regels = after 1 $regels -}}
+{{- if $headerRow -}}
+  {{- $lines = after 1 $lines -}}
 {{- end -}}
-{{- if not $regels -}}
+{{- if not $lines -}}
   {{- errorf "table-without-header: verwacht rijen in de vorm `| a | b |`, op pagina %s" .Page.File.Path -}}
 {{- end -}}
 <div class="table-wrap" role="region" tabindex="0" aria-label="{{ .Get "label" | default "Tabel" }}">
 <table{{ with .Get "print-together" }} data-print-together{{ end }}>
   <tbody>
-    {{- range $regels }}
-    {{- $cellen := split (trim . "|") "|" }}
+    {{- range $lines }}
+    {{- $cells := split (trim . "|") "|" }}
     <tr>
-      <th scope="row">{{ trim (index $cellen 0) " " | markdownify }}</th>
-      {{- range after 1 $cellen }}
+      <th scope="row">{{ trim (index $cells 0) " " | markdownify }}</th>
+      {{- range after 1 $cells }}
       <td>{{ trim . " " | markdownify }}</td>
       {{- end }}
     </tr>

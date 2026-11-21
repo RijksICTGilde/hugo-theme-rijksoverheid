@@ -5,18 +5,18 @@
        pagina's.
        role="list" blijft nodig: Safari laat de lijstrol vallen bij
        list-style: none. */ -}}
-{{- $paginas := . -}}
-{{- $niveau := 2 -}}
-{{- $klassen := "" -}}
+{{- $pages := . -}}
+{{- $level := 2 -}}
+{{- $classes := "" -}}
 {{- if reflect.IsMap . -}}
-  {{- $paginas = .pages -}}
-  {{- $niveau = int (.headingLevel | default 2) -}}
-  {{- $klassen = .classes | default "" -}}
+  {{- $pages = .pages -}}
+  {{- $level = int (.headingLevel | default 2) -}}
+  {{- $classes = .classes | default "" -}}
 {{- end -}}
-{{- with $paginas -}}
-<ul class="card-grid{{ with $klassen }} {{ . }}{{ end }}" role="list">
+{{- with $pages -}}
+<ul class="card-grid{{ with $classes }} {{ . }}{{ end }}" role="list">
   {{- range . -}}
-  <li>{{- partial "card.html" (dict "page" . "headingLevel" $niveau) -}}</li>
+  <li>{{- partial "card.html" (dict "page" . "headingLevel" $level) -}}</li>
   {{- end -}}
 </ul>
 {{- end -}}

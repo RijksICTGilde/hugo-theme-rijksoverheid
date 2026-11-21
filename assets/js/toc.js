@@ -1,38 +1,38 @@
 (function () {
   // Moet gelijk zijn aan het breekpunt in css/components/page-aside.css.
-  const BREEKPUNT = "59.375rem";
-  const breed = window.matchMedia("(width >= " + BREEKPUNT + ")");
+  const BREAKPOINT = "59.375rem";
+  const wide = window.matchMedia("(width >= " + BREAKPOINT + ")");
 
-  const vlak = document.querySelector(".page-aside");
+  const panel = document.querySelector(".page-aside");
 
   // De rechterkolom heeft een eigen schuifvlak. De CSS kent alleen de hoogte
   // zoals het blok geplakt staat; bovenaan de pagina staat het lager, onder de
   // sitekop, en zou de onderkant buiten beeld vallen.
-  let vorigeHoogte = "";
-  function pasHoogteAan() {
-    if (!vlak) return;
-    const rand = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const ruimte = window.innerHeight - vlak.getBoundingClientRect().top - rand;
-    const hoogte = breed.matches ? Math.max(ruimte, 0) + "px" : "";
-    if (hoogte === vorigeHoogte) return;
-    if (hoogte) {
-      vlak.style.setProperty("max-height", hoogte);
+  let previousHeight = "";
+  function fitHeight() {
+    if (!panel) return;
+    const margin = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const space = window.innerHeight - panel.getBoundingClientRect().top - margin;
+    const height = wide.matches ? Math.max(space, 0) + "px" : "";
+    if (height === previousHeight) return;
+    if (height) {
+      panel.style.setProperty("max-height", height);
     } else {
-      vlak.style.removeProperty("max-height");
+      panel.style.removeProperty("max-height");
     }
-    vorigeHoogte = hoogte;
+    previousHeight = height;
   }
 
-  function toonInSchuifvlak(link) {
-    if (!vlak || vlak.scrollHeight <= vlak.clientHeight) return;
+  function scrollIntoPanel(link) {
+    if (!panel || panel.scrollHeight <= panel.clientHeight) return;
 
     const l = link.getBoundingClientRect();
-    const v = vlak.getBoundingClientRect();
+    const v = panel.getBoundingClientRect();
 
     if (l.top < v.top) {
-      vlak.scrollTop -= v.top - l.top;
+      panel.scrollTop -= v.top - l.top;
     } else if (l.bottom > v.bottom) {
-      vlak.scrollTop += l.bottom - v.bottom;
+      panel.scrollTop += l.bottom - v.bottom;
     }
   }
 
@@ -62,7 +62,7 @@
     return base + (window.innerHeight - base) * progress;
   }
 
-  let vorigeActieve = null;
+  let previousActive = null;
   function updateActiveLink() {
     const threshold = getThreshold();
 
@@ -76,16 +76,16 @@
     }
 
     entries.forEach((entry) => entry.link.classList.remove("active"));
-    const actief = current ? current.link : null;
-    if (actief) {
-      actief.classList.add("active");
-      if (actief !== vorigeActieve) toonInSchuifvlak(actief);
+    const active = current ? current.link : null;
+    if (active) {
+      active.classList.add("active");
+      if (active !== previousActive) scrollIntoPanel(active);
     }
-    vorigeActieve = actief;
+    previousActive = active;
   }
 
-  function bijwerken() {
-    pasHoogteAan();
+  function update() {
+    fitHeight();
     if (entries.length) updateActiveLink();
   }
 
@@ -95,65 +95,65 @@
       ticking = true;
       window.requestAnimationFrame(() => {
         ticking = false;
-        bijwerken();
+        update();
       });
     }
   }
 
-  if (vlak || entries.length) {
+  if (panel || entries.length) {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    breed.addEventListener("change", onScroll);
-    bijwerken();
+    wide.addEventListener("change", onScroll);
+    update();
   }
 
   // Op smal scherm wordt elk blok in de rechterkolom een uitklapregel met een
   // knop in de kop. Zonder JavaScript blijven de blokken open.
   const chevron = document.getElementById("page-aside-chevron");
-  const blokken = vlak
-    ? Array.from(vlak.querySelectorAll(":scope > nav"))
-        .map((blok) => ({
-          kop: blok.querySelector(":scope > h2"),
-          inhoud: blok.querySelector(":scope > h2 + *"),
+  const blocks = panel
+    ? Array.from(panel.querySelectorAll(":scope > nav"))
+        .map((block) => ({
+          heading: block.querySelector(":scope > h2"),
+          content: block.querySelector(":scope > h2 + *"),
         }))
-        .filter((blok) => blok.kop && blok.inhoud)
+        .filter((block) => block.heading && block.content)
     : [];
 
-  if (!chevron || !blokken.length) return;
+  if (!chevron || !blocks.length) return;
 
-  blokken.forEach((blok, i) => {
-    if (!blok.inhoud.id) blok.inhoud.id = "page-aside-blok-" + (i + 1);
+  blocks.forEach((block, i) => {
+    if (!block.content.id) block.content.id = "page-aside-block-" + (i + 1);
   });
 
-  function maakKnop(blok) {
-    if (blok.kop.querySelector(".page-aside-toggle")) return;
-    const knop = document.createElement("button");
-    knop.type = "button";
-    knop.className = "page-aside-toggle";
-    knop.setAttribute("aria-expanded", "false");
-    knop.setAttribute("aria-controls", blok.inhoud.id);
-    knop.append(chevron.content.cloneNode(true), ...blok.kop.childNodes);
-    knop.addEventListener("click", () => {
-      const open = knop.getAttribute("aria-expanded") === "true";
-      knop.setAttribute("aria-expanded", String(!open));
-      blok.inhoud.hidden = open;
+  function addButton(block) {
+    if (block.heading.querySelector(".page-aside-toggle")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "page-aside-toggle";
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", block.content.id);
+    button.append(chevron.content.cloneNode(true), ...block.heading.childNodes);
+    button.addEventListener("click", () => {
+      const open = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!open));
+      block.content.hidden = open;
     });
-    blok.kop.append(knop);
-    blok.inhoud.hidden = true;
+    block.heading.append(button);
+    block.content.hidden = true;
   }
 
-  function haalKnopWeg(blok) {
-    const knop = blok.kop.querySelector(".page-aside-toggle");
-    if (!knop) return;
-    knop.querySelector("svg").remove();
-    blok.kop.replaceChildren(...knop.childNodes);
-    blok.inhoud.hidden = false;
+  function removeButton(block) {
+    const button = block.heading.querySelector(".page-aside-toggle");
+    if (!button) return;
+    button.querySelector("svg").remove();
+    block.heading.replaceChildren(...button.childNodes);
+    block.content.hidden = false;
   }
 
-  function pasAan() {
-    blokken.forEach(breed.matches ? haalKnopWeg : maakKnop);
+  function syncButtons() {
+    blocks.forEach(wide.matches ? removeButton : addButton);
   }
 
-  breed.addEventListener("change", pasAan);
-  pasAan();
+  wide.addEventListener("change", syncButtons);
+  syncButtons();
 })();

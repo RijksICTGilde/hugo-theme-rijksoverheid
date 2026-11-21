@@ -12,8 +12,8 @@
   var prioSections = [];
   var sectionWeights = {};
   var maxResults = 10;
-  var ingedruktOpAchtergrond = false;
-  var losgelatenOpAchtergrond = false;
+  var pressedOnBackdrop = false;
+  var releasedOnBackdrop = false;
 
   var fuseOptions = {
     keys: [
@@ -448,22 +448,22 @@
     // bij de click: bij een tik volgt die na pointerup, en zonder venster komt
     // hij aan bij wat eronder ligt.
     searchModal.addEventListener('pointerdown', function (e) {
-      ingedruktOpAchtergrond = e.target === searchModal;
+      pressedOnBackdrop = e.target === searchModal;
     });
 
     searchModal.addEventListener('pointerup', function (e) {
-      losgelatenOpAchtergrond = e.target === searchModal;
+      releasedOnBackdrop = e.target === searchModal;
     });
 
     searchModal.addEventListener('pointercancel', function () {
-      ingedruktOpAchtergrond = false;
+      pressedOnBackdrop = false;
     });
 
     searchModal.addEventListener('click', function (e) {
-      var opAchtergrond = e.target === searchModal && ingedruktOpAchtergrond && losgelatenOpAchtergrond;
-      ingedruktOpAchtergrond = false;
-      losgelatenOpAchtergrond = false;
-      if (opAchtergrond) {
+      var onBackdrop = e.target === searchModal && pressedOnBackdrop && releasedOnBackdrop;
+      pressedOnBackdrop = false;
+      releasedOnBackdrop = false;
+      if (onBackdrop) {
         closeModal();
       }
     });

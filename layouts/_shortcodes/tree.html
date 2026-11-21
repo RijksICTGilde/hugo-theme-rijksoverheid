@@ -15,10 +15,10 @@
   Safari laat de lijstrol vallen bij list-style: none; role="list" houdt de
   niveaus hoorbaar.
 */ -}}
-{{- $lijst := .Page.RenderString (dict "display" "block") (trim .Inner "\n") -}}
-{{- $lijst = replace $lijst "<ul>" `<ul role="list">` -}}
+{{- $list := .Page.RenderString (dict "display" "block") (trim .Inner "\n") -}}
+{{- $list = replace $list "<ul>" `<ul role="list">` -}}
 <figure class="tree">
-  {{ $lijst | safeHTML }}
+  {{ $list | safeHTML }}
   {{- with .Get "caption" }}
   <figcaption>{{ . | markdownify }}</figcaption>
   {{- end }}

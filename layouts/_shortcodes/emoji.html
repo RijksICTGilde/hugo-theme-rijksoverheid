@@ -9,32 +9,32 @@
 {{- if not .IsNamedParams -}}
   {{- errorf "%s: emoji kent alleen benoemde parameters, bijvoorbeeld symbol=\"💡\"" .Position -}}
 {{- else -}}
-{{- range $naam, $_ := .Params -}}
-  {{- if not (in (slice "symbol" "aria-label" "aria-hidden") $naam) -}}
-    {{- errorf "%s: onbekende parameter %q voor emoji; kies uit symbol, aria-label, aria-hidden" $.Position $naam -}}
+{{- range $name, $_ := .Params -}}
+  {{- if not (in (slice "symbol" "aria-label" "aria-hidden") $name) -}}
+    {{- errorf "%s: onbekende parameter %q voor emoji; kies uit symbol, aria-label, aria-hidden" $.Position $name -}}
   {{- end -}}
 {{- end -}}
-{{- $teken := .Get "symbol" -}}
+{{- $symbol := .Get "symbol" -}}
 {{- $label := .Get "aria-label" -}}
-{{- $verborgen := false -}}
+{{- $hidden := false -}}
 {{- with .Get "aria-hidden" -}}
   {{- if not (in (slice "true" "false") (string .)) -}}
     {{- errorf "%s: aria-hidden is true of false, niet %q" $.Position (string .) -}}
   {{- end -}}
-  {{- $verborgen = eq (string .) "true" -}}
+  {{- $hidden = eq (string .) "true" -}}
 {{- end -}}
-{{- if not $teken -}}
+{{- if not $symbol -}}
   {{- errorf "%s: emoji mist de parameter symbol" .Position -}}
 {{- end -}}
-{{- if and $label $verborgen -}}
+{{- if and $label $hidden -}}
   {{- errorf "%s: emoji heeft aria-label of aria-hidden=true, niet allebei" .Position -}}
 {{- end -}}
-{{- if not (or $label $verborgen) -}}
+{{- if not (or $label $hidden) -}}
   {{- errorf "%s: emoji mist een keuze voor schermlezers: geef aria-label=\"..\" (betekenisvol) of aria-hidden=true (versiering)" .Position -}}
 {{- end -}}
-{{- if $verborgen -}}
-<span aria-hidden="true">{{ $teken }}</span>
+{{- if $hidden -}}
+<span aria-hidden="true">{{ $symbol }}</span>
 {{- else -}}
-<span role="img" aria-label="{{ $label }}">{{ $teken }}</span>
+<span role="img" aria-label="{{ $label }}">{{ $symbol }}</span>
 {{- end -}}
 {{- end -}}

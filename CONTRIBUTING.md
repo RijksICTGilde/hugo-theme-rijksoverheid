@@ -54,9 +54,10 @@ Stappen om lokaal te werken:
   één bundel, zodat een Content Security Policy zonder `unsafe-inline`
   werkt: geen inline scripts, geen `<style>` en geen `style`-attributen.
 * Namen in code zijn Engels, zoals in Hugo en NLDD DS: bestanden, params, front
-  matter, parameters van shortcodes, sleutels van hooks, classes en
-  CSS-variabelen. Commentaar, documentatie, teksten in de interface en ids
-  in een URL zijn Nederlands.
+  matter, parameters van shortcodes, sleutels van hooks, classes,
+  CSS-variabelen en variabelen in templates en scripts. Commentaar,
+  documentatie, teksten in de interface, ids in een URL en de toetsen in
+  `exampleSite/tests/` zijn Nederlands.
 * Bestandsnamen, CSS-classnamen en parameters van shortcodes in kebab-case;
   params en front matter in snake_case, zoals in Hugo.
 * Commit messages in Conventional Commits-stijl, bijvoorbeeld

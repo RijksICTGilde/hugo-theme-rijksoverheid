@@ -14,7 +14,7 @@
     heading-level optioneel: 2 tot en met 6, standaard params.callout.heading_level
               of 3
 */ -}}
-{{- $titel := .Get "title" -}}
+{{- $title := .Get "title" -}}
 {{- with .Get "titel" -}}
   {{- warnf "%s: de parameter titel van callout heet nu title." $.Position -}}
 {{- end -}}
@@ -28,29 +28,29 @@
 {{- if and $corner (not (in $validCorner $corner)) -}}
   {{- errorf "callout: corner %q ongeldig (kies: %s)" $corner (delimit $validCorner ", ") -}}
 {{- end -}}
-{{- $niveau := 3 -}}
+{{- $level := 3 -}}
 {{- with site.Params.callout -}}
-  {{- with .heading_level -}}{{ $niveau = int . }}{{- end -}}
+  {{- with .heading_level -}}{{ $level = int . }}{{- end -}}
 {{- end -}}
-{{- with .Get "heading-level" -}}{{ $niveau = int . }}{{- end -}}
-{{- if or (lt $niveau 2) (gt $niveau 6) -}}
-  {{- errorf "callout: heading-level %d ongeldig (kies 2 tot en met 6)" $niveau -}}
+{{- with .Get "heading-level" -}}{{ $level = int . }}{{- end -}}
+{{- if or (lt $level 2) (gt $level 6) -}}
+  {{- errorf "callout: heading-level %d ongeldig (kies 2 tot en met 6)" $level -}}
 {{- end -}}
-{{- $icoon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
+{{- $icon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
 <div class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
-  {{- if or $icoon $titel }}
+  {{- if or $icon $title }}
   <header>
-    {{- with $icoon }}
+    {{- with $icon }}
     {{- partial "icon.html" . -}}
     {{- end }}
-    {{- with $titel }}<h{{ $niveau }} class="title">{{ . }}</h{{ $niveau }}>{{ end }}
+    {{- with $title }}<h{{ $level }} class="title">{{ . }}</h{{ $level }}>{{ end }}
   </header>
   {{- end }}
-  {{- $tekst := .Inner | markdownify }}
-  {{- if not $titel }}
-    {{- $tekst = partial "callout-type-name.html" (dict "variant" $variant "text" $tekst) }}
+  {{- $text := .Inner | markdownify }}
+  {{- if not $title }}
+    {{- $text = partial "callout-type-name.html" (dict "variant" $variant "text" $text) }}
   {{- end }}
   <div class="content">
-    {{ $tekst }}
+    {{ $text }}
   </div>
 </div>

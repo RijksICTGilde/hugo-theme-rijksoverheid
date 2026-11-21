@@ -25,7 +25,7 @@
 
 {{- /* plainify plakt tekst van aangrenzende blokken aan elkaar; zet er een
        regeleinde, of bij een cel een spatie, tussen. */ -}}
-{{- define "partials/html-naar-tekst" -}}
+{{- define "partials/html-to-text" -}}
   {{- $html := . -}}
   {{- $html = replaceRE `<li[^>]*>` "\n· " $html -}}
   {{- $html = replaceRE `</t[dh]>` " " $html -}}
@@ -38,30 +38,30 @@
     {{- $pageTitle := .Title -}}
     {{- $pageUrl := .RelPermalink -}}
     {{- $pageSection := .Section -}}
-    {{- $inhoud := partial "heading-ids.html" .Content -}}
-    {{- $stukken := split (replaceRE `<h([23]) id="` "|||KOP|||<h${1} id=\"" $inhoud) "|||KOP|||" -}}
-    {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" (partial "html-naar-tekst" (index $stukken 0)) "section" $pageSection) -}}
-    {{- range $i, $stuk := $stukken -}}
+    {{- $content := partial "heading-ids.html" .Content -}}
+    {{- $chunks := split (replaceRE `<h([23]) id="` "|||HEADING|||<h${1} id=\"" $content) "|||HEADING|||" -}}
+    {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" (partial "html-to-text" (index $chunks 0)) "section" $pageSection) -}}
+    {{- range $i, $chunk := $chunks -}}
       {{- if gt $i 0 -}}
-        {{- $id := replaceRE `(?s)^<h[23] id="([^"]+)".*` "$1" $stuk -}}
-        {{- $kop := $stuk | replaceRE `(?s)^<h[23][^>]*>(.*?)</h[23]>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
-        {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)^<h[23][^>]*>.*?</h[23]>` "" $stuk) -}}
+        {{- $id := replaceRE `(?s)^<h[23] id="([^"]+)".*` "$1" $chunk -}}
+        {{- $heading := $chunk | replaceRE `(?s)^<h[23][^>]*>(.*?)</h[23]>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
+        {{- $text := partial "html-to-text" (replaceRE `(?s)^<h[23][^>]*>.*?</h[23]>` "" $chunk) -}}
         {{- /* Een kop met (bijna) geen eigen tekst, zoals een h2 direct voor een h3,
                blijft vindbaar op zijn titel; een korte tekst ("Ja.") blijft erachter. */ -}}
-        {{- if le (len $tekst) 10 -}}{{- $tekst = strings.TrimSpace (printf "%s %s" $kop $tekst) -}}{{- end -}}
-        {{- if $tekst -}}
-          {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
+        {{- if le (len $text) 10 -}}{{- $text = strings.TrimSpace (printf "%s %s" $heading $text) -}}{{- end -}}
+        {{- if $text -}}
+          {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $heading) "url" (printf "%s#%s" $pageUrl $id) "content" $text "section" $pageSection) -}}
         {{- end -}}
       {{- end -}}
     {{- end -}}
     {{- /* Een uitklapblok heeft een summary, geen kop, maar mensen zoeken er wel op. */ -}}
-    {{- range $blok := findRE `(?s)<details id="[^"]+"[^>]*>.*?</details>` $inhoud -}}
-      {{- $id := replaceRE `(?s)^<details id="([^"]+)".*` "$1" $blok -}}
-      {{- $kop := $blok | replaceRE `(?s)^.*?<summary[^>]*>(.*?)</summary>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
-      {{- $tekst := partial "html-naar-tekst" (replaceRE `(?s)<summary[^>]*>.*?</summary>` "" $blok) -}}
-      {{- if le (len $tekst) 10 -}}{{- $tekst = strings.TrimSpace (printf "%s %s" $kop $tekst) -}}{{- end -}}
-      {{- if $tekst -}}
-        {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $kop) "url" (printf "%s#%s" $pageUrl $id) "content" $tekst "section" $pageSection) -}}
+    {{- range $block := findRE `(?s)<details id="[^"]+"[^>]*>.*?</details>` $content -}}
+      {{- $id := replaceRE `(?s)^<details id="([^"]+)".*` "$1" $block -}}
+      {{- $heading := $block | replaceRE `(?s)^.*?<summary[^>]*>(.*?)</summary>.*` "$1" | plainify | htmlUnescape | strings.TrimSpace -}}
+      {{- $text := partial "html-to-text" (replaceRE `(?s)<summary[^>]*>.*?</summary>` "" $block) -}}
+      {{- if le (len $text) 10 -}}{{- $text = strings.TrimSpace (printf "%s %s" $heading $text) -}}{{- end -}}
+      {{- if $text -}}
+        {{- $index = $index | append (dict "title" (printf "%s: %s" $pageTitle $heading) "url" (printf "%s#%s" $pageUrl $id) "content" $text "section" $pageSection) -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}

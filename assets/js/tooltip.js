@@ -10,112 +10,112 @@
 (function () {
   if (!document.querySelector("[data-tooltip]")) return;
 
-  const RUIMTE = 2;
-  const MARGE = 8;
-  const ballon = document.createElement("div");
-  ballon.className = "tooltip";
-  ballon.setAttribute("aria-hidden", "true");
-  ballon.hidden = true;
-  document.body.appendChild(ballon);
+  const GAP = 2;
+  const MARGIN = 8;
+  const balloon = document.createElement("div");
+  balloon.className = "tooltip";
+  balloon.setAttribute("aria-hidden", "true");
+  balloon.hidden = true;
+  document.body.appendChild(balloon);
 
-  let actief = null;
-  let gesloten = null; // met Escape gesloten; pas weer te openen na verlaten
-  let opDeAanwijzer = false;
+  let active = null;
+  let dismissed = null; // met Escape gesloten; pas weer te openen na verlaten
+  let onPointer = false;
   let timer = 0;
 
-  const vindTrigger = (knoop) =>
-    knoop instanceof Element ? knoop.closest("[data-tooltip]") : null;
-  const hoortErbij = (knoop) =>
-    knoop instanceof Node && (ballon.contains(knoop) || (actief !== null && actief.contains(knoop)));
+  const findTrigger = (node) =>
+    node instanceof Element ? node.closest("[data-tooltip]") : null;
+  const belongsToTooltip = (node) =>
+    node instanceof Node && (balloon.contains(node) || (active !== null && active.contains(node)));
 
-  function plaats(el) {
+  function place(el) {
     const r = el.getBoundingClientRect();
     // Meten vanaf links 0, anders is de ballon smaller naarmate hij verder naar rechts staat.
-    ballon.style.setProperty("left", "0px");
-    const { width, height } = ballon.getBoundingClientRect();
-    const onder = r.bottom + RUIMTE;
-    const past = onder + height <= window.innerHeight - MARGE;
-    const boven = r.top - RUIMTE - height;
-    const toonBoven = !past && boven >= MARGE;
-    const links = Math.max(MARGE, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - MARGE));
-    ballon.style.setProperty("top", `${toonBoven ? boven : onder}px`);
-    ballon.style.setProperty("left", `${links}px`);
-    ballon.classList.toggle("tooltip-top", toonBoven);
+    balloon.style.setProperty("left", "0px");
+    const { width, height } = balloon.getBoundingClientRect();
+    const below = r.bottom + GAP;
+    const fits = below + height <= window.innerHeight - MARGIN;
+    const above = r.top - GAP - height;
+    const showAbove = !fits && above >= MARGIN;
+    const left = Math.max(MARGIN, Math.min(r.left + r.width / 2 - width / 2, window.innerWidth - width - MARGIN));
+    balloon.style.setProperty("top", `${showAbove ? above : below}px`);
+    balloon.style.setProperty("left", `${left}px`);
+    balloon.classList.toggle("tooltip-top", showAbove);
   }
 
-  function toon(el) {
-    if (gesloten === el) return;
+  function show(el) {
+    if (dismissed === el) return;
     window.clearTimeout(timer);
-    actief = el;
-    ballon.textContent = el.dataset.tooltip;
-    ballon.hidden = false;
-    plaats(el);
+    active = el;
+    balloon.textContent = el.dataset.tooltip;
+    balloon.hidden = false;
+    place(el);
   }
 
-  function verberg() {
+  function hide() {
     window.clearTimeout(timer);
-    actief = null;
-    opDeAanwijzer = false;
-    ballon.hidden = true;
+    active = null;
+    onPointer = false;
+    balloon.hidden = true;
   }
 
   // Even wachten: de aanwijzer kan onderweg zijn naar de ballon of naar een
   // volgend element.
-  function plan() {
+  function schedule() {
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
-      if (actief && !opDeAanwijzer && !actief.matches(":focus-visible")) verberg();
+      if (active && !onPointer && !active.matches(":focus-visible")) hide();
     }, 100);
   }
 
   document.addEventListener("pointerover", (e) => {
     if (e.pointerType === "touch") return;
-    if (gesloten && !gesloten.contains(e.target)) gesloten = null;
-    const el = vindTrigger(e.target);
+    if (dismissed && !dismissed.contains(e.target)) dismissed = null;
+    const el = findTrigger(e.target);
     if (el) {
-      opDeAanwijzer = true;
-      toon(el);
-    } else if (hoortErbij(e.target)) {
-      opDeAanwijzer = true;
+      onPointer = true;
+      show(el);
+    } else if (belongsToTooltip(e.target)) {
+      onPointer = true;
       window.clearTimeout(timer);
     }
   });
 
   document.addEventListener("pointerout", (e) => {
     if (e.pointerType === "touch") return;
-    const van = vindTrigger(e.target);
-    if (!van && !ballon.contains(e.target)) return;
-    if (hoortErbij(e.relatedTarget)) return;
-    if (van && gesloten === van && !van.contains(e.relatedTarget)) gesloten = null;
-    opDeAanwijzer = false;
-    plan();
+    const from = findTrigger(e.target);
+    if (!from && !balloon.contains(e.target)) return;
+    if (belongsToTooltip(e.relatedTarget)) return;
+    if (from && dismissed === from && !from.contains(e.relatedTarget)) dismissed = null;
+    onPointer = false;
+    schedule();
   });
 
   document.addEventListener("focusin", (e) => {
-    const el = vindTrigger(e.target);
-    if (el && el.matches(":focus-visible")) toon(el);
+    const el = findTrigger(e.target);
+    if (el && el.matches(":focus-visible")) show(el);
   });
 
   document.addEventListener("focusout", (e) => {
-    const el = vindTrigger(e.target);
+    const el = findTrigger(e.target);
     if (!el) return;
-    if (gesloten === el) gesloten = null;
-    if (actief === el && !opDeAanwijzer) verberg();
+    if (dismissed === el) dismissed = null;
+    if (active === el && !onPointer) hide();
   });
 
   // Capture-fase: deze Escape komt voor die van base.js, die eerder in de bundel zit.
-  const sluitMetEscape = (e) => {
-    if (e.key !== "Escape" || e.defaultPrevented || ballon.hidden) return;
+  const closeOnEscape = (e) => {
+    if (e.key !== "Escape" || e.defaultPrevented || balloon.hidden) return;
     if (document.querySelector("dialog[open]")) return;
-    gesloten = actief;
-    verberg();
+    dismissed = active;
+    hide();
     e.preventDefault();
   };
-  document.addEventListener("keydown", sluitMetEscape, { capture: true });
+  document.addEventListener("keydown", closeOnEscape, { capture: true });
 
-  const herplaats = () => {
-    if (actief && !ballon.hidden) plaats(actief);
+  const reposition = () => {
+    if (active && !balloon.hidden) place(active);
   };
-  window.addEventListener("scroll", herplaats, { passive: true, capture: true });
-  window.addEventListener("resize", herplaats, { passive: true });
+  window.addEventListener("scroll", reposition, { passive: true, capture: true });
+  window.addEventListener("resize", reposition, { passive: true });
 })();
