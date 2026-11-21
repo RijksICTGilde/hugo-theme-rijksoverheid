@@ -9,13 +9,67 @@ blockquote {
   }
 }
 
+blockquote + blockquote {
+  border-radius: var(--radius-bottom-right);
+}
+
+blockquote + blockquote + blockquote {
+  border-radius: var(--radius-upper-left);
+}
+
 blockquote.quote {
   font-style: italic;
 }
 
-blockquote.callout {
+/* Grote uitgelichte quote: <figure class="pull-quote"><blockquote>...</blockquote>
+   <figcaption>bron</figcaption></figure> (shortcode quote). */
+.pull-quote {
+  margin: 2.5rem auto;
+  max-width: var(--article-max-width);
+  padding-block: 0.25rem;
+  padding-inline: 2rem 0;
+  border-inline-start: 4px solid var(--color-rijksoranje);
+}
+
+.pull-quote blockquote {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  line-height: 1.35;
+  font-style: italic;
+  color: var(--color-text-heading);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.pull-quote blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.pull-quote figcaption {
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-style: normal;
+  text-align: start;
+  color: var(--color-text-muted);
+}
+
+@media print {
+  .pull-quote {
+    break-inside: avoid;
+  }
+}
+
+/* Infoblok: <div class="callout"> uit render-blockquote.html en de
+   callout-shortcode. */
+.callout {
   display: flex;
   flex-direction: column;
+  margin-top: 1rem;
   margin-bottom: 2rem;
   padding: 1rem;
   padding-bottom: 0;
@@ -25,9 +79,11 @@ blockquote.callout {
   &.corner-bottom-right {
     border-radius: var(--radius-bottom-right);
   }
+
   &.corner-bottom-left {
     border-radius: var(--radius-bottom-left);
   }
+
   &.corner-upper-left {
     border-radius: var(--radius-upper-left);
   }
@@ -37,12 +93,19 @@ blockquote.callout {
     align-items: center;
     gap: 0.5rem;
 
-    img {
+    svg {
+      flex-shrink: 0;
       width: 24px;
       height: 24px;
+      color: var(--color-accent-info);
     }
 
+    /* Flexitem naast het icoon: zonder min-width: 0 krimpt een lange kop
+       niet en loopt hij bij grote tekst buiten de pagina (WCAG 1.4.10). */
     .title {
+      margin: 0;
+      min-width: 0;
+      overflow-wrap: break-word;
       font-size: 1.7rem;
       font-weight: 600;
     }
@@ -53,6 +116,8 @@ blockquote.callout {
        gesplit kunnen worden door <mark>-highlights zonder dat elk
        fragment een eigen anonymous flex-item-rij wordt. */
     display: block;
+    min-width: 0;
+    overflow-wrap: break-word;
     padding-top: 0.5rem;
     padding-bottom: 1rem;
 
@@ -77,22 +142,59 @@ blockquote.callout {
   &:not(:has(header)) .content {
     padding-top: 0;
   }
+
+  /* Alleen een icoon, geen titel: icoon naast de tekst. */
+  &:has(header):not(:has(.title)) {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+
+    header {
+      flex-shrink: 0;
+      margin-top: calc((1lh - 24px) / 2);
+    }
+
+    .content {
+      flex: 1;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
 }
 
-/* Callout-varianten — opt-in via extra utility class.
-   Default callout = hemelblauw (--color-bg-info). */
-blockquote.callout.muted {
+/* Varianten: .callout.info is gelijk aan de standaard. */
+.callout.muted {
   background-color: var(--color-bg-muted);
 }
 
-blockquote.callout.warning {
-  background-color: light-dark(#fff8e1, #3a3219);
+.callout.success {
+  background-color: var(--color-bg-success);
 }
 
-blockquote.callout.success {
-  background-color: light-dark(#dcfce7, #14361f);
+.callout.warning {
+  background-color: var(--color-bg-warning);
+
+  header svg {
+    color: var(--color-accent-warning);
+  }
 }
 
-blockquote.callout.danger {
-  background-color: light-dark(#fee2e2, #3a1a1a);
+.callout.danger {
+  background-color: var(--color-bg-danger);
+}
+
+/* De standaardknop heeft in licht de kleur van het vlak, en zijn hover is
+   Rijksblauw. */
+.callout .button {
+  background-color: light-dark(var(--color-rijksblauw), var(--color-text));
+  border-color: light-dark(var(--color-rijksblauw), var(--color-text));
+  color: light-dark(var(--color-text-inverse), var(--color-bg-page));
+
+  &:hover,
+  &:focus-visible {
+    background-color: transparent;
+    border-color: light-dark(var(--color-rijksblauw), var(--color-text));
+    color: light-dark(var(--color-rijksblauw), var(--color-text));
+  }
 }
