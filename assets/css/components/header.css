@@ -157,7 +157,6 @@ header {
     a {
       color: var(--color-text-inverse);
       text-decoration: none;
-      text-underline-offset: 0.15em;
 
       &:hover {
         text-decoration: underline;

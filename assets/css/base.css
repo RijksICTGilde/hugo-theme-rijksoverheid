@@ -107,6 +107,7 @@ p {
 a {
   color: var(--color-link);
   text-decoration: none;
+  text-underline-offset: 0.15em;
 
   &:hover {
     text-decoration: underline;
