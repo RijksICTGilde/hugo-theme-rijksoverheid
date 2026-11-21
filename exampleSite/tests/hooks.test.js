@@ -152,6 +152,11 @@ describe("hooks in een eigen site", () => {
     assert.match(uit("hooks/export.md"), /^html=true tables=true$/m);
   });
 
+  test("table-without-header met parameters wordt in de .md een lijst, en voor pandoc een tabel met lege koprij", () => {
+    assert.match(uit("hooks/index.md"), /^- \*\*Adres:\*\* Postbus 1$/m);
+    assert.match(uit("hooks/export.md"), /^\| \| \|\n\| --- \| --- \|\n\| Adres \| Postbus 1 \|$/m);
+  });
+
   describe("zoekindex", () => {
     const sectie = (url) => JSON.parse(uit("index.json")).find((i) => i.url === url)?.section;
 

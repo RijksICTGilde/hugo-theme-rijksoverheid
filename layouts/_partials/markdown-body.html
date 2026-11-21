@@ -21,7 +21,7 @@
        table-without-header daarom een lijst; pandoc krijgt een lege koprij,
        want zonder koprij ziet die geen tabel. Moet vóór het strippen van de
        shortcodetags. */ -}}
-{{- range findRE `\{\{<\s*table-without-header\s*>\}\}[\s\S]*?\{\{<\s*/\s*table-without-header\s*>\}\}` $content -}}
+{{- range findRE `\{\{<\s*table-without-header(?:\s[^>]*)?>\}\}[\s\S]*?\{\{<\s*/\s*table-without-header\s*>\}\}` $content -}}
   {{- $rows := slice -}}
   {{- $headerRow := "" -}}
   {{- range split . "\n" -}}
