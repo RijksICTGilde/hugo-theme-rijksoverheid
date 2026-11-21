@@ -64,7 +64,7 @@ article.wide:has(> .page-aside) {
 }
 
 .page-aside {
-  font-size: 1rem;
+  font-size: var(--primitives-font-size-100);
   overflow-wrap: break-word;
 
   @media (width < 59.375rem) {
