@@ -1,0 +1,32 @@
+{{- /*
+  Eén gefingerprinte CSS-bundel. Volgorde: nldd-primitives, tokens, fonts, base,
+  layout, componenten (op naam gesorteerd), daarna de eigen CSS van de site.
+
+  Elk assets/css/*.css van de site komt in de bundel, behalve de vijf namen
+  hierboven (een site die een van die bestanden vervangt, doet dat met hetzelfde
+  pad). Submappen doen niet mee: CSS die niet op elke pagina hoort, zoals die van
+  een presentatie, staat bijvoorbeeld in assets/css/pagina/.
+
+  De bundel gaat door ExecuteAsTemplate: gebruik in CSS geen dubbele accolades
+  behalve voor relURL.
+
+  Geen minify: de minifier van Hugo haalt in geneste CSS de spaties rond + in
+  calc() weg (calc(50% - x / 2+1rem)), en dan vervalt de hele declaratie.
+*/ -}}
+{{- $vast := slice "nldd-primitives.css" "tokens.css" "fonts.css" "base.css" "layout.css" -}}
+{{- $lijst := slice -}}
+{{- range $vast -}}
+  {{- with resources.Get (printf "css/%s" .) -}}
+    {{- $lijst = $lijst | append . -}}
+  {{- else -}}
+    {{- errorf "head-css.html: assets/css/%s ontbreekt" . -}}
+  {{- end -}}
+{{- end -}}
+{{- $lijst = $lijst | append (sort (resources.Match "css/components/*.css") "Name") -}}
+{{- range sort (resources.Match "css/*.css") "Name" -}}
+  {{- if not (in $vast (path.Base .Name)) -}}
+    {{- $lijst = $lijst | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- $css := $lijst | resources.Concat "css/style.css" | resources.ExecuteAsTemplate "css/style.css" . | fingerprint "md5" -}}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" />
