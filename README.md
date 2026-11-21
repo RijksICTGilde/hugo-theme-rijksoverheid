@@ -153,7 +153,7 @@ Alles is optioneel.
 | `second_nav` | In `_index.md`: menu voor de sectienavigatie |
 | `hero.image`, `hero.title`, `hero.text` | Hero op de homepage; de foto is decoratie (lege alt) en valt onder 550px weg |
 | `wide` | Artikel over de volle breedte |
-| `search_index` | `false` houdt de pagina met haar koppen uit de zoekindex, ook via `cascade` voor een sectie; de hook `search-index-extra.html` kan er wel items voor toevoegen. De homepage staat er alleen in met `search_index: true` |
+| `search_index` | `false` houdt de pagina met haar koppen uit de zoekindex, ook via `cascade` voor een sectie, en ook voor de homepage; de hook `search-index-extra.html` kan er wel items voor toevoegen |
 | `synonyms` | Lijst met zoekwoorden voor de pagina; ze staan niet op de pagina en niet in de resultaten |
 
 ### Hooks

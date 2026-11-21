@@ -211,8 +211,8 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   ([#29](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/29)).
 * In de zoekindex heeft een pagina buiten een sectie als sectie de naam van
   haar bestand, en de homepage `home`, zodat
-  `params.search.priority_sections` ze kan noemen. De homepage staat er alleen
-  in met `search_index: true`.
+  `params.search.priority_sections` ze kan noemen. De homepage staat er nu ook
+  in; `search_index: false` in haar front matter haalt haar eruit.
 * Hooks `content-extra.html` (de HTML van een pagina), `toc-extra.html`
   (items in de inhoudsopgave), `lastmod-text.html` (de zin "laatst
   bijgewerkt") en `table-extra.html` (attributen op een tabel);

@@ -1,4 +1,4 @@
-{{- /* Zoekindex voor search.js. Per pagina (ook sectiepagina's) een item voor de
+{{- /* Zoekindex voor search.js. Per pagina (ook sectiepagina's en de homepage) een item voor de
        pagina zelf en een item per h2, h3 en uitklapblok, met het anker erbij,
        zodat een zoekresultaat naar de juiste plek scrollt. Het zijn de
        gerenderde koppen, dus de ankers kloppen met de pagina en een regel met
@@ -7,9 +7,7 @@
        matter blijft er met haar koppen uit. Site-eigen items komen uit de
        hook search-index-extra.html, ook voor zo'n pagina.
 
-       De homepage staat er alleen in met search_index: true: haar kaarten
-       zouden anders elk een tweede treffer geven naast de pagina zelf. Het
-       item van de pagina zelf krijgt ook synonyms en de velden uit
+       Het item van de pagina zelf krijgt ook synonyms en de velden uit
        params.search.extra_fields. Een pagina buiten een sectie krijgt als
        sectie home (de homepage) of de naam van haar bestand, zodat
        params.search.priority_sections haar kan noemen. */ -}}
@@ -52,9 +50,7 @@
   {{- return $texts -}}
 {{- end -}}
 
-{{- $kinds := slice "page" "section" -}}
-{{- if eq .Params.search_index true }}{{ $kinds = $kinds | append "home" }}{{ end -}}
-{{- range where .Site.Pages "Kind" "in" $kinds -}}
+{{- range where .Site.Pages "Kind" "in" (slice "home" "page" "section") -}}
   {{- if and (not .Draft) .RelPermalink (ne .Params.search_index false) -}}
     {{- $pageTitle := .Title -}}
     {{- $pageUrl := .RelPermalink -}}

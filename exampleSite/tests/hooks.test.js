@@ -4,8 +4,8 @@
  * daarom een proefsite in tmp/hooks met eigen versies van content-extra.html,
  * toc-extra.html, lastmod-text.html, table-extra.html en markdown-extra.html,
  * en kijkt of elk ervan in de uitvoer staat. De homepage van de proefsite
- * heeft search_index: true, zodat ook haar sectie in de zoekindex te toetsen
- * is. Daar is hugo voor nodig.
+ * heeft search_index: false, zodat te toetsen is dat ze dan uit de zoekindex
+ * blijft. Daar is hugo voor nodig.
  */
 
 import { test, describe, before } from "node:test";
@@ -64,7 +64,7 @@ Een zin met een voetnoot.[^1]
 
 const BESTANDEN = {
   "hugo.yaml": HUGO_YAML,
-  "content/_index.md": "---\ntitle: Proefsite\nsearch_index: true\n---\n\nTekst op de homepage.\n",
+  "content/_index.md": "---\ntitle: Proefsite\nsearch_index: false\n---\n\nTekst op de homepage.\n",
   "content/hooks.md": HOOKS,
   "content/losse-bundel/index.md": "---\ntitle: Losse bundel\n---\n\nTekst in een bundel.\n",
   "layouts/_shortcodes/modus.html": "",
@@ -155,8 +155,9 @@ describe("hooks in een eigen site", () => {
   describe("zoekindex", () => {
     const sectie = (url) => JSON.parse(uit("index.json")).find((i) => i.url === url)?.section;
 
-    test("de homepage staat erin met search_index: true, met de sectie home", () => {
-      assert.equal(sectie("/"), "home");
+    test("de homepage met search_index: false staat er niet in, ook niet met haar koppen", () => {
+      const urls = JSON.parse(uit("index.json")).map((i) => i.url);
+      assert.deepEqual(urls.filter((u) => u === "/" || u.startsWith("/#")), []);
     });
 
     test("een pagina buiten een sectie heet naar haar bestand, een bundel naar haar map", () => {

@@ -48,6 +48,10 @@ for (const build of builds()) {
       assert.deepEqual(bevindingen, []);
     });
 
+    test("de homepage staat erin, met de sectie home", () => {
+      assert.equal(item("/")?.section, "home");
+    });
+
     test("een pagina met search_index: false staat er niet in, ook niet met haar koppen", () => {
       assert.ok(existsSync(join(build.dir, "onderdelen/buiten-de-zoekindex/index.html")), "de proefpagina is niet gebouwd");
       assert.deepEqual(index.filter((i) => i.url.startsWith("/onderdelen/buiten-de-zoekindex/")).map((i) => i.url), []);
