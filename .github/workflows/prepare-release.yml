@@ -1,0 +1,81 @@
+# Opent de release-PR (CONTRIBUTING.md, "Een release maken"). De PR wordt geopend met een token van
+# de release-App: een PR die met GITHUB_TOKEN wordt geopend start geen CI.
+
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versie zonder v, bijvoorbeeld 0.4.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    # De knop biedt elke branch aan; een release komt alleen van main.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # De sleutel van de App staat in deze environment, alleen main mag hem gebruiken.
+    environment: release
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Werk CHANGELOG.md en README.md bij
+        run: node tools/release/release.mjs "$VERSION"
+
+      - name: Haal een token van de release-App op
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      # Zonder --force: een bestaande branch of tag voor deze versie weigert de push.
+      - name: Push de branch en open de pull request
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null; then
+            echo "::error::Tag v${VERSION} bestaat al." >&2
+            exit 1
+          fi
+          bot="${APP_SLUG}[bot]"
+          id="$(gh api "/users/${bot}" --jq .id)"
+          git config user.name "$bot"
+          git config user.email "${id}+${bot}@users.noreply.github.com"
+          git switch -c "release/v${VERSION}"
+          git add CHANGELOG.md README.md
+          git commit -q -m "release: v${VERSION}"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth}" \
+            push origin "HEAD:refs/heads/release/v${VERSION}"
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "release/v${VERSION}" \
+            --title "release: v${VERSION}" \
+            --body "Na de merge maakt tag-release.yml de tag v${VERSION} en release.yml de GitHub release."
