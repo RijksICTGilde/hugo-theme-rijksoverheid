@@ -1,4 +1,4 @@
-/* Page-banner — site-wide melding bovenaan elke pagina.
+/* Page-banner: site-wide melding bovenaan elke pagina.
  * Activeren via site.Params.page_banner.
  */
 
@@ -8,6 +8,9 @@
 	font-family: var(--font-sans);
 	font-size: 0.9375rem;
 	line-height: 1.4;
+	overflow-wrap: break-word;
+	color: var(--color-text);
+	border-block-end: 3px solid var(--color-accent-info);
 }
 
 .page-banner p {
@@ -16,20 +19,19 @@
 
 .page-banner--info {
 	background: var(--color-bg-info);
-	color: var(--color-text);
 }
 
 .page-banner--warning {
-	background: #fbb900;
-	color: #000;
+	background: var(--color-bg-warning);
+	border-block-end-color: var(--color-accent-warning);
 }
 
 .page-banner--success {
-	background: light-dark(#d1fae5, #064e3b);
-	color: var(--color-text);
+	background: var(--color-bg-success);
+	border-block-end-color: var(--color-accent-success);
 }
 
 .page-banner--danger {
-	background: light-dark(#fee2e2, #7f1d1d);
-	color: var(--color-text);
+	background: var(--color-bg-danger);
+	border-block-end-color: var(--color-accent-danger);
 }
