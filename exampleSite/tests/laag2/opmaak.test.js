@@ -209,6 +209,35 @@ describe("melding over de zoekmarkering (1.4.3)", () => {
   }
 });
 
+describe("zoekvenster", () => {
+  for (const filters of [true, false]) {
+    test(`evenveel ruimte boven als onder het zoekveld, ${filters ? "met" : "zonder"} filters`, async () => {
+      const page = await open("/");
+      try {
+        const knop = await page.evaluateHandle(() =>
+          [...document.querySelectorAll(".search-trigger")].find((el) => el.getClientRects().length > 0),
+        );
+        await knop.asElement().click();
+        await page.waitForSelector("dialog.search-modal[open]");
+        // Een site zonder params.search.filters heeft de filterrij niet.
+        const maat = await page.evaluate((filters) => {
+          const rij = document.querySelector(".search-filters");
+          if (!filters) rij?.remove();
+          const kop = document.querySelector(".search-modal-header").getBoundingClientRect();
+          const veld = document.querySelector("#search-input").getBoundingClientRect();
+          const eerste = filters ? rij?.querySelector(".search-filter") : null;
+          const onder = (eerste ? eerste.getBoundingClientRect().top : kop.bottom) - veld.bottom;
+          return { rij: Boolean(rij), boven: veld.top - kop.top, onder };
+        }, filters);
+        assert.ok(maat.rij, "de voorbeeldsite heeft geen filterrij in het zoekvenster");
+        assert.ok(Math.abs(maat.boven - maat.onder) < 1, `boven het zoekveld ${maat.boven}px, eronder ${maat.onder}px`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
 describe("zoekresultaten (1.3.1)", () => {
   test("de titel van elk resultaat is een kop van niveau 2", async () => {
     const page = await open("/");
