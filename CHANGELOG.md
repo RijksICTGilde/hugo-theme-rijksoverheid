@@ -219,6 +219,10 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   (items in de inhoudsopgave), `lastmod-text.html` (de zin "laatst
   bijgewerkt") en `table-extra.html` (attributen op een tabel);
   `markdown-extra.html` krijgt ook `html` en `tables`.
+* `params.version` en `params.version_url`: het versienummer van de site in
+  de voet, op elke pagina, vóór "laatst bijgewerkt"; in CI met
+  `HUGO_PARAMS_VERSION`. Standaard uit. De zin komt uit de hook
+  `version-text.html`.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. Laag 2 tabt door elke pagina, in licht en
   donker, en meldt elk element waarvan de focus niet zichtbaar verandert

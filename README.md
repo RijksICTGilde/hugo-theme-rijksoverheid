@@ -119,6 +119,8 @@ Alles is optioneel.
 | `footer.left`, `footer.right` | | De koppen van de twee linkkolommen in de voet |
 | `footer.tagline` | `tagline` | Zin in de voet; `tagline` staat er dan alleen onder 600 pixels breed bij, waar de kop hem niet toont |
 | `organization.name`, `organization.url`, `organization.text` | | Regel in de voet met de organisatie achter de site |
+| `version` | | Versienummer van de site, bijvoorbeeld `v1.2.0`; in CI met `HUGO_PARAMS_VERSION`. De voet toont het op elke pagina, vóór "laatst bijgewerkt". Zonder `version` niets |
+| `version_url` | | Link achter het versienummer, bijvoorbeeld de pagina met releases |
 | `links.new_window` | `false` | `true` opent externe links in een nieuw venster, met melding en icoon |
 | `links.private` | `samenwerkruimten.nl`, `digilab.overheid.nl/chat` | Hosts waarvan links besloten zijn (slot en melding), eventueel met een pad; geldt ook voor subdomeinen en paden eronder. Een lege lijst zet het uit |
 | `linkcheck` | `false` | `true` in een controlebuild, bijvoorbeeld met `HUGO_PARAMS_LINKCHECK=true`: besloten links krijgen `data-proofer-ignore`, zodat htmltest ze overslaat. Niet in de gepubliceerde build |
@@ -176,6 +178,7 @@ Partials die een site met hetzelfde pad in `layouts/_partials/` vervangt.
 | `search-index-extra.html` | leeg | Extra items in de zoekindex |
 | `table-extra.html` | geen | Extra attributen op `<table>` van een Markdown-tabel en van `table-without-header`; krijgt `attributes` (de attributen onder de tabel of de parameters van de shortcode) en `page` en geeft een dict met naam en waarde terug |
 | `toc-extra.html` | "Voetnoten" op een pagina met voetnoten | Extra items achteraan de inhoudsopgave; krijgt de pagina en geeft `<li>`'s terug |
+| `version-text.html` | "Versie ...", met `params.version_url` als link; niets zonder `params.version` | De zin met het versienummer in de voet; krijgt de pagina en geeft HTML terug, of niets |
 
 Vervang liever een hook dan een groot partial: een eigen kopie van
 `header.html` krijgt geen fixes uit nieuwe versies van het theme meer.

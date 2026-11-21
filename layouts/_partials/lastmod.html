@@ -1,3 +1,6 @@
-{{- with trim (partial "lastmod-text.html" .) " \n\t" -}}
-<p class="lastmod">{{ . | safeHTML }}</p>
+{{- $parts := slice -}}
+{{- with trim (partial "version-text.html" .) " \n\t" }}{{ $parts = $parts | append . }}{{ end -}}
+{{- with trim (partial "lastmod-text.html" .) " \n\t" }}{{ $parts = $parts | append . }}{{ end -}}
+{{- with $parts -}}
+<p class="lastmod">{{ delimit . " " | safeHTML }}</p>
 {{- end -}}
