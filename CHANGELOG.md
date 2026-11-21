@@ -47,8 +47,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * **Inhoudsopgave.** De uitklapbare inhoudsopgave (`.toc-toggle`,
   `aside#toc`, opslag `toc-open`) is vervangen door een rechterkolom
   (`.page-aside`) direct na de titel, met relevante links en de
-  inhoudsopgave. De tekst in die kolom is 18px in plaats van 16px, de maat
-  van een inhoudsopgave in NLDD DS (`--primitives-font-size-100`).
+  inhoudsopgave. De tekst in die kolom is 18px in plaats van 16px en de
+  koppen erin zijn 1.266rem in plaats van 1.2rem, de maten van een
+  inhoudsopgave in NLDD DS (`--primitives-font-size-100` en `-200`).
 * **Kop en voet.** Het kruimelpad en "laatst bijgewerkt" staan in de voet;
   "laatst bijgewerkt" alleen op een leespagina, niet op een lijstpagina zonder
   eigen tekst, ook niet met `show_lastmod`. De
