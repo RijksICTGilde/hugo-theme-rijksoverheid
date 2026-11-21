@@ -38,6 +38,11 @@ for (const build of builds()) {
       assert.equal(dialoog.attrs.get("data-search-index"), "/index.json");
     });
 
+    test("het zoekvenster krijgt params.search.synonym_weight mee", () => {
+      const dialoog = tags(readFileSync(join(build.dir, "index.html"), "utf8")).find((t) => t.naam === "dialog" && t.attrs.get("id") === "search-modal");
+      assert.equal(dialoog?.attrs.get("data-search-synonym-weight"), "3");
+    });
+
     test("de inhoud bevat geen HTML-entiteiten", () => {
       const bevindingen = index.filter((i) => ENTITEIT.test(i.content)).map((i) => `${i.url}  ${i.content.match(ENTITEIT)[0]}`);
       assert.deepEqual(bevindingen, []);
@@ -71,6 +76,32 @@ for (const build of builds()) {
 
       test("geen enkel item met een anker heeft lege inhoud", () => {
         assert.deepEqual(index.filter((i) => i.url.includes("#") && !i.content).map((i) => i.url), []);
+      });
+    });
+
+    describe("synoniemen, extra velden en secties (params.search)", () => {
+      const colofon = item("/colofon/");
+
+      test("een pagina buiten een sectie heeft de naam van haar bestand als sectie, ook bij haar koppen", () => {
+        assert.ok(colofon, "geen item voor /colofon/");
+        const secties = index.filter((i) => i.url.startsWith("/colofon/")).map((i) => `${i.url} ${i.section}`);
+        assert.deepEqual(secties, ["/colofon/ colofon", "/colofon/#zoeken colofon"]);
+      });
+
+      test("synonyms staan als platte tekst bij de pagina, niet in de tekst", () => {
+        assert.equal(colofon?.synonyms, "impressum verantwoording Hugo");
+        assert.doesNotMatch(colofon.content, /impressum/i);
+      });
+
+      test("alleen het item van een pagina met synonyms heeft dat veld, haar koppen niet", () => {
+        assert.deepEqual(index.filter((i) => "synonyms" in i).map((i) => i.url), ["/colofon/"]);
+      });
+
+      test("een veld uit extra_fields staat als platte tekst achter de tekst van de pagina, zonder verborgen meldingen", () => {
+        assert.match(
+          colofon?.content ?? "",
+          / werkt\. Een voorbeeldsite van het Ministerie van Voorbeeldzaken\. De broncode van het theme staat op GitHub\.$/,
+        );
       });
     });
 

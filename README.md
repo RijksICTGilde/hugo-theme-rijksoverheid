@@ -125,10 +125,12 @@ Alles is optioneel.
 | `callout.heading_level` | `3` | Kopniveau van de titel van een infoblok (2 tot en met 6) |
 | `search.enable` | aan als er een JSON-index is | `false` zet zoeken uit |
 | `search.filters` | | Filters in het zoekvenster, als lijst met `label` en `section` |
-| `search.priority_sections` | | Secties waarvan de resultaten bovenaan staan |
+| `search.priority_sections` | | Secties waarvan de resultaten bovenaan staan. Een pagina buiten een sectie heeft als sectie de naam van haar bestand (`colofon.md`: `colofon`), de homepage `home` |
 | `search.threshold` | `0.3` | Hoe streng Fuse.js zoekt: 0 is exact, 1 is alles |
 | `search.max_results` | `10` | Aantal resultaten; 0 is alles |
 | `search.section_weights` | | Factor per sectie op de zoekscore; onder 1 komt een sectie eerder |
+| `search.synonym_weight` | `3` | Hoe zwaar `synonyms` uit de front matter tellen; de titel telt 2, de tekst 1. 0 zet ze uit |
+| `search.extra_fields` | | Velden uit de front matter die mee doorzocht worden, als tekst achter die van de pagina; een veld is een tekst of een lijst teksten, met Markdown |
 | `llms.sections` | | Secties in `llms.txt`, als lijst met `section`, `heading` en optioneel `limit`, `text` (een regel onder de kop) en `full: false` (niet in `llms-full.txt`) |
 | `og.image` | `favicon-192x192.png` | Deelafbeelding van 1200 bij 630 pixels |
 | `back_to_top` | `false` | Knop "naar boven" op lange pagina's |
@@ -151,7 +153,8 @@ Alles is optioneel.
 | `second_nav` | In `_index.md`: menu voor de sectienavigatie |
 | `hero.image`, `hero.title`, `hero.text` | Hero op de homepage; de foto is decoratie (lege alt) en valt onder 550px weg |
 | `wide` | Artikel over de volle breedte |
-| `search_index` | `false` houdt de pagina met haar koppen uit de zoekindex, ook via `cascade` voor een sectie; de hook `search-index-extra.html` kan er wel items voor toevoegen |
+| `search_index` | `false` houdt de pagina met haar koppen uit de zoekindex, ook via `cascade` voor een sectie; de hook `search-index-extra.html` kan er wel items voor toevoegen. De homepage staat er alleen in met `search_index: true` |
+| `synonyms` | Lijst met zoekwoorden voor de pagina; ze staan niet op de pagina en niet in de resultaten |
 
 ### Hooks
 
@@ -159,16 +162,20 @@ Partials die een site met hetzelfde pad in `layouts/_partials/` vervangt.
 
 | Partial | Standaard | Doel |
 |---|---|---|
+| `content-extra.html` | HTML ongewijzigd | De HTML van een pagina aanpassen voordat het theme er ids, namen en nummers in zet; krijgt de HTML en geeft die terug |
 | `favicons.html` | de favicons van het theme | Eigen favicons |
 | `font-preload.html` | RijksSans | Het lettertype dat de browser vooraf ophaalt; leeg voor geen |
 | `head-extra.html` | leeg | Extra elementen in de `<head>`, na de CSS van het theme |
 | `lastmod-date.html` | `.Lastmod` | De datum achter "laatst bijgewerkt"; krijgt de pagina en geeft een tijd terug |
+| `lastmod-text.html` | "Deze pagina is voor het laatst bijgewerkt op ...", op een leespagina met `show_lastmod` | De zin "laatst bijgewerkt" in de voet; krijgt de pagina en geeft de HTML in de alinea terug, of niets |
 | `og-image.html` | `params.og.image` | Deelafbeelding per pagina; geeft een pad terug |
 | `llms-instructions.html` | leeg | Eigen tekst boven in `llms.txt` |
-| `markdown-extra.html` | tekst ongewijzigd | Eigen shortcodes omzetten in de Markdown-uitvoer; krijgt `tekst` en `page` en geeft de tekst terug |
+| `markdown-extra.html` | tekst ongewijzigd | Eigen shortcodes omzetten in de Markdown-uitvoer; krijgt `text`, `page`, `html` (uitvoer voor buiten de site, met absolute links) en `tables` (`table-without-header` blijft een tabel) en geeft de tekst terug |
 | `page-aside-extra.html` | leeg | Extra blok in de rechterkolom, bijvoorbeeld downloads |
-| `rss-extra.html` | tekst ongewijzigd | De inhoud van een item in de RSS-feed aanpassen; krijgt `tekst` (HTML) en `page` en geeft de tekst terug |
+| `rss-extra.html` | tekst ongewijzigd | De inhoud van een item in de RSS-feed aanpassen; krijgt `text` (HTML) en `page` en geeft de tekst terug |
 | `search-index-extra.html` | leeg | Extra items in de zoekindex |
+| `table-extra.html` | geen | Extra attributen op `<table>` van een Markdown-tabel en van `table-without-header`; krijgt `attributes` (de attributen onder de tabel of de parameters van de shortcode) en `page` en geeft een dict met naam en waarde terug |
+| `toc-extra.html` | "Voetnoten" op een pagina met voetnoten | Extra items achteraan de inhoudsopgave; krijgt de pagina en geeft `<li>`'s terug |
 
 Vervang liever een hook dan een groot partial: een eigen kopie van
 `header.html` krijgt geen fixes uit nieuwe versies van het theme meer.

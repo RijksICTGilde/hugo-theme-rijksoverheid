@@ -32,8 +32,12 @@
 {{- if not $lines -}}
   {{- errorf "table-without-header: verwacht rijen in de vorm `| a | b |`, op pagina %s" .Page.File.Path -}}
 {{- end -}}
+{{- /* Zonder parameters is .Params een lege lijst, met parameters zonder naam
+       een lijst; de hook krijgt altijd een dict. */ -}}
+{{- $extra := partial "table-extra.html" (dict "attributes" (cond (reflect.IsMap .Params) .Params dict) "page" .Page) -}}
 <div class="table-wrap" role="region" tabindex="0" aria-label="{{ .Get "label" | default "Tabel" }}">
-<table{{ with .Get "print-together" }} data-print-together{{ end }}>
+{{- /* printf met safeHTMLAttr: zie render-table.html. */}}
+<table{{ with .Get "print-together" }} data-print-together{{ end }}{{ if reflect.IsMap $extra }}{{ range $name, $value := $extra }}{{ printf ` %s="%s"` $name (htmlEscape $value) | safeHTMLAttr }}{{ end }}{{ end }}>
   <tbody>
     {{- range $lines }}
     {{- $cells := split (trim . "|") "|" }}

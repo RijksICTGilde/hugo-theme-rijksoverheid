@@ -187,6 +187,9 @@ params:
     enable: true
     threshold: 0.3
     max_results: 10
+    synonym_weight: 3
+    extra_fields:
+      - abstract
     priority_sections:
       - onderdelen
     section_weights:

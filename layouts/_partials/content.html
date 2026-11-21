@@ -7,9 +7,11 @@
        gelden de <li>'s niet meer als lijstitem. In plaats daarvan krijgt het
        blok een kop, zodat het ook een naam heeft. De kop staat hier en niet in
        de Markdown, dus de inhoudsopgave moet hem apart toevoegen. */ -}}
-{{- /* Eerst de ids, op dezelfde invoer als in index.json: anders wijzen
-       zoekresultaten naar ankers die de pagina niet heeft. */ -}}
-{{- $content := partial "heading-ids.html" . -}}
+{{- $content := partial "content-extra.html" . -}}
+{{- /* Dan de ids, op dezelfde invoer als in index.json (zie
+       content-extra.html): anders wijzen zoekresultaten naar ankers die de
+       pagina niet heeft. */ -}}
+{{- $content = partial "heading-ids.html" $content -}}
 {{- $content = $content | replaceRE `(<div class="footnotes")\s+role="doc-endnotes"(>\s*<hr\s*/?>)` `${1}${2}<h2 id="voetnoten">Voetnoten</h2>` -}}
 {{- $content = $content | replaceRE `(<a href="#fn:(\d+)" class="footnote-ref" role="doc-noteref")>` `${1} aria-label="Voetnoot ${2}">` -}}
 {{- $content = $content | replaceRE `(<a href="#fnref:(\d+)" class="footnote-backref" role="doc-backlink")>` `${1} aria-label="Terug naar voetnoot ${2} in de tekst">` -}}

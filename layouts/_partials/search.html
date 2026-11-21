@@ -1,11 +1,13 @@
 {{- /* Zoekvenster. De instellingen staan als data-attributen op de dialog, zodat
        het script geen inline code nodig heeft (CSP). Een waarde van 0 is
-       geldig (drempel 0 is exact, max_results 0 is alles), dus geen default. */ -}}
+       geldig (drempel 0 is exact, max_results 0 is alles, synonym_weight 0
+       telt synoniemen niet mee), dus geen default. */ -}}
 {{- $search := site.Params.search | default dict -}}
 {{- $threshold := cond (isset $search "threshold") $search.threshold 0.3 -}}
 {{- $maxResults := cond (isset $search "max_results") $search.max_results 10 -}}
+{{- $synonymWeight := cond (isset $search "synonym_weight") $search.synonym_weight 3 -}}
 {{- $weights := $search.section_weights | default dict -}}
-<dialog id="search-modal" class="search-modal" aria-label="Zoeken"{{ with site.Home.OutputFormats.Get "json" }} data-search-index="{{ .RelPermalink }}"{{ end }} data-search-priority="{{ delimit (default slice $search.priority_sections) "," }}" data-search-threshold="{{ $threshold }}" data-search-max-results="{{ $maxResults }}" data-search-weights="{{ $weights | jsonify }}">
+<dialog id="search-modal" class="search-modal" aria-label="Zoeken"{{ with site.Home.OutputFormats.Get "json" }} data-search-index="{{ .RelPermalink }}"{{ end }} data-search-priority="{{ delimit (default slice $search.priority_sections) "," }}" data-search-threshold="{{ $threshold }}" data-search-max-results="{{ $maxResults }}" data-search-weights="{{ $weights | jsonify }}" data-search-synonym-weight="{{ $synonymWeight }}">
   <div class="search-modal-content">
     <div class="search-modal-header">
       {{- partial "icon.html" "search" -}}

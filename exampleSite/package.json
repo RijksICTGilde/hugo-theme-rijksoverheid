@@ -17,7 +17,8 @@
     "escape": "node --test tests/laag2/escape.test.js",
     "opmaak": "node --test tests/laag2/opmaak.test.js",
     "focus": "node --test tests/laag2/focus.test.js",
-    "a11y-review": "node --test tests/laag2/a11y-review.test.js"
+    "a11y-review": "node --test tests/laag2/a11y-review.test.js",
+    "zoeken": "node --test tests/laag2/zoeken.test.js"
   },
   "devDependencies": {
     "axe-core": "^4.13.0",

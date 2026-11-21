@@ -15,7 +15,7 @@
   {{- $html = .html -}}
 {{- end -}}
 {{- $content := $p.RawContent -}}
-{{- $content = partial "markdown-extra.html" (dict "text" $content "page" $p) -}}
+{{- $content = partial "markdown-extra.html" (dict "text" $content "page" $p "html" $html "tables" $tables) -}}
 
 {{- /* GFM kent geen tabel zonder koprij. In de gepubliceerde .md wordt
        table-without-header daarom een lijst; pandoc krijgt een lege koprij,

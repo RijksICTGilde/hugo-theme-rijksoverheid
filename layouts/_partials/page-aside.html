@@ -14,10 +14,9 @@
        markup-instelling van de site. */ -}}
 {{- $toc := $p.TableOfContents -}}
 {{- with $p.Params.toc_depth }}{{ $toc = $p.Fragments.ToHTML 2 (int .) false }}{{ end -}}
-{{- /* De voetnotenkop komt uit content.html en zit dus niet in de
-       inhoudsopgave die Hugo uit de Markdown bouwt. */ -}}
-{{- if strings.Contains $p.Content `class="footnotes"` -}}
-  {{- $toc = $toc | replaceRE `(?s)</ul>\s*</nav>\s*$` "<li><a href=\"#voetnoten\">Voetnoten</a></li>\n  </ul>\n</nav>" -}}
+{{- /* replaceRE leest een $ in de vervanging als groep. */ -}}
+{{- with trim (partial "toc-extra.html" $p) " \n\t" -}}
+  {{- $toc = $toc | replaceRE `(?s)</ul>\s*</nav>\s*$` (printf "%s\n  </ul>\n</nav>" (replace . "$" "$$")) -}}
 {{- end -}}
 {{- /* Hugo zet de lijst in een eigen <nav id="TableOfContents">; binnen
        <nav class="toc"> zou dat een genest navigatiegebied worden. */ -}}

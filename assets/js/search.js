@@ -12,6 +12,7 @@
   var prioSections = [];
   var sectionWeights = {};
   var maxResults = 10;
+  var synonymWeight = 3;
   var pressedOnBackdrop = false;
   var releasedOnBackdrop = false;
 
@@ -42,6 +43,14 @@
 
     fuseOptions.threshold = Math.min(1, Math.max(0, readNumber(data.searchThreshold, 0.3)));
     maxResults = Math.max(0, Math.floor(readNumber(data.searchMaxResults, 10)));
+
+    // Fuse weigert een gewicht van 0 of minder; dan tellen synoniemen niet mee.
+    synonymWeight = readNumber(data.searchSynonymWeight, 3);
+    if (!isFinite(synonymWeight) || synonymWeight <= 0) {
+      synonymWeight = 0;
+    } else {
+      fuseOptions.keys.push({ name: 'synonyms', weight: synonymWeight });
+    }
 
     // Factor op de Fuse-score: onder 1 komt een sectie eerder, boven 1 later.
     try {
@@ -134,6 +143,7 @@
               title: item.title || '',
               url: item.url,
               content: item.content || '',
+              synonyms: synonymWeight ? String(item.synonyms || '') : '',
               section: item.section
             };
           });
@@ -192,7 +202,8 @@
       var qLower = query.toLowerCase();
       function hasSubstring(item) {
         return item.title.toLowerCase().indexOf(qLower) !== -1
-            || item.content.toLowerCase().indexOf(qLower) !== -1;
+            || item.content.toLowerCase().indexOf(qLower) !== -1
+            || item.synonyms.toLowerCase().indexOf(qLower) !== -1;
       }
       var hasAnySubstring = results.some(function (r) { return hasSubstring(r.item); });
       if (hasAnySubstring) {

@@ -109,6 +109,13 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   * `footer.html` toont "laatst bijgewerkt" nu zelf; haal een eigen aanroep
     van `lastmod.html` in de artikelvoet weg, anders staat de zin er twee
     keer. Voor alleen een andere datum is er de hook `lastmod-date.html`.
+* Een eigen versie is vaak niet meer nodig: `content-extra.html` vervangt een
+  eigen `article.html` die de HTML bewerkt, `toc-extra.html` een eigen
+  `page-aside.html`, `lastmod-text.html` een eigen `lastmod.html` en
+  `table-extra.html` een eigen `render-table.html`. `markdown-extra.html`
+  krijgt ook `html` en `tables`, dus een eigen `markdown-body.html` kan weg.
+  Voor synoniemen en extra velden in de zoekindex zijn er `synonyms` en
+  `params.search.extra_fields`, zonder eigen `index.json` en `search.js`.
 * Een eigen layout die `icon.html` aanroept met `toc-open`, `toc-close`,
   `mail`, `sun` of `moon` stopt met een fout. Haal de aanroep weg, bij
   `toc-open` en `toc-close` met de knop `.toc-toggle` eromheen: die heeft geen
@@ -198,6 +205,18 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `lastmod-date.html` voor de datum achter "laatst bijgewerkt",
   `markdown-extra.html` voor eigen shortcodes in de Markdown-uitvoer en
   `rss-extra.html` voor de inhoud van een item in de RSS-feed.
+* Front matter `synonyms`: zoekwoorden die niet op de pagina staan, met
+  `params.search.synonym_weight` (standaard 3). `params.search.extra_fields`
+  neemt velden uit de front matter op in de zoekindex
+  ([#29](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/29)).
+* In de zoekindex heeft een pagina buiten een sectie als sectie de naam van
+  haar bestand, en de homepage `home`, zodat
+  `params.search.priority_sections` ze kan noemen. De homepage staat er alleen
+  in met `search_index: true`.
+* Hooks `content-extra.html` (de HTML van een pagina), `toc-extra.html`
+  (items in de inhoudsopgave), `lastmod-text.html` (de zin "laatst
+  bijgewerkt") en `table-extra.html` (attributen op een tabel);
+  `markdown-extra.html` krijgt ook `html` en `tables`.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. Laag 2 tabt door elke pagina, in licht en
   donker, en meldt elk element waarvan de focus niet zichtbaar verandert

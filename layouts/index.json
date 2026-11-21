@@ -5,8 +5,17 @@
        "## " in een codeblok wordt geen kop. Codeblokken zitten gewoon in de
        tekst van hun fragment. Een pagina met search_index: false in de front
        matter blijft er met haar koppen uit. Site-eigen items komen uit de
-       hook search-index-extra.html, ook voor zo'n pagina. */ -}}
+       hook search-index-extra.html, ook voor zo'n pagina.
+
+       De homepage staat er alleen in met search_index: true: haar kaarten
+       zouden anders elk een tweede treffer geven naast de pagina zelf. Het
+       item van de pagina zelf krijgt ook synonyms en de velden uit
+       params.search.extra_fields. Een pagina buiten een sectie krijgt als
+       sectie home (de homepage) of de naam van haar bestand, zodat
+       params.search.priority_sections haar kan noemen. */ -}}
 {{- $index := slice -}}
+{{- $extraFields := slice -}}
+{{- with site.Params.search.extra_fields }}{{ $extraFields = cond (reflect.IsSlice .) . (slice .) }}{{ end -}}
 
 {{- define "partials/clean-content" -}}
   {{- $content := . -}}
@@ -33,14 +42,40 @@
   {{- return (partial "clean-content" ($html | plainify | htmlUnescape)) -}}
 {{- end -}}
 
-{{- range where .Site.Pages "Kind" "in" (slice "page" "section") -}}
+{{- /* Een waarde uit de front matter, een tekst of een lijst teksten met
+       Markdown, als lijst platte teksten. */ -}}
+{{- define "partials/front-matter-text" -}}
+  {{- $texts := slice -}}
+  {{- range cond (reflect.IsSlice .) . (slice .) -}}
+    {{- with partial "html-to-text" (markdownify .) }}{{ $texts = $texts | append . }}{{ end -}}
+  {{- end -}}
+  {{- return $texts -}}
+{{- end -}}
+
+{{- $kinds := slice "page" "section" -}}
+{{- if eq .Params.search_index true }}{{ $kinds = $kinds | append "home" }}{{ end -}}
+{{- range where .Site.Pages "Kind" "in" $kinds -}}
   {{- if and (not .Draft) .RelPermalink (ne .Params.search_index false) -}}
     {{- $pageTitle := .Title -}}
     {{- $pageUrl := .RelPermalink -}}
     {{- $pageSection := .Section -}}
+    {{- if not $pageSection -}}
+      {{- if .IsHome }}{{ $pageSection = "home" }}{{ else }}{{ with .File }}{{ $pageSection = .ContentBaseName }}{{ end }}{{ end -}}
+    {{- end -}}
     {{- $content := partial "heading-ids.html" .Content -}}
     {{- $chunks := split (replaceRE `<h([23]) id="` "|||HEADING|||<h${1} id=\"" $content) "|||HEADING|||" -}}
-    {{- $index = $index | append (dict "title" $pageTitle "url" $pageUrl "content" (partial "html-to-text" (index $chunks 0)) "section" $pageSection) -}}
+    {{- $pageText := partial "html-to-text" (index $chunks 0) -}}
+    {{- $params := .Params -}}
+    {{- range $extraFields -}}
+      {{- with index $params (lower .) -}}
+        {{- range partial "front-matter-text" . }}{{ $pageText = strings.TrimSpace (printf "%s %s" $pageText .) }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $pageItem := dict "title" $pageTitle "url" $pageUrl "content" $pageText "section" $pageSection -}}
+    {{- with .Params.synonyms -}}
+      {{- with delimit (partial "front-matter-text" .) " " }}{{ $pageItem = merge $pageItem (dict "synonyms" .) }}{{ end -}}
+    {{- end -}}
+    {{- $index = $index | append $pageItem -}}
     {{- range $i, $chunk := $chunks -}}
       {{- if gt $i 0 -}}
         {{- $id := replaceRE `(?s)^<h[23] id="([^"]+)".*` "$1" $chunk -}}
