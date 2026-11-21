@@ -3,7 +3,11 @@
   <h1>Pagina niet gevonden</h1>
   <p>
     Deze pagina bestaat niet of is verplaatst.
+    {{- with site.GetPage "/contact" }}
+    Ga terug naar de <a href="{{ relURL "/" }}">home-pagina</a> of neem <a href="{{ .RelPermalink }}">contact</a> met ons op als je denkt dat dit een fout is.
+    {{- else }}
     Ga terug naar de <a href="{{ relURL "/" }}">home-pagina</a>.
+    {{- end }}
   </p>
   <p><small>Foutcode: 404</small></p>
 </section>
