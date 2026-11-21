@@ -70,6 +70,11 @@ Stappen om lokaal te werken:
   het NLDD Designsysteem, via `tools/nldd/`. Pas ze niet met de hand aan;
   zie [tools/nldd/README.md](tools/nldd/README.md). De CI controleert dat ze
   gelijk zijn aan wat de generator maakt.
+* `assets/lib/fuse/` is een kopie van het npm-pakket `fuse.js`, bijgehouden
+  via `tools/fuse/`. Pas het niet met de hand aan: verhoog de versie in
+  `tools/fuse/package.json`, draai `node tools/fuse/vendor.js` en commit het
+  resultaat; zie [assets/lib/fuse/README.md](assets/lib/fuse/README.md). De CI
+  controleert dat de kopie gelijk is aan het pakket.
 * Komt er een onderdeel van derden bij, of een nieuwe versie (een font,
   een icoon, een bibliotheek zoals Fuse.js), werk dan
   [NOTICES.md](NOTICES.md) bij met de herkomst en de licentie.

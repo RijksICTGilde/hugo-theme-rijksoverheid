@@ -16,34 +16,34 @@ consumer-sites hun Content Security Policy strikt kunnen houden (geen externe
 Fuse levert geen kant-en-klaar browserscript meer (sinds 7.3.0 alleen ESM en
 CommonJS). `assets/js/fuse-global.js` importeert het bestand en zet `Fuse` op
 `window`; `scripts.html` bouwt dat met `js.Build` tot een gewoon script
-(`format: iife`, `target: es2020`, `minify`). Daarvoor volstaat de
-standaardeditie van Hugo; Node is alleen nodig om bij te werken.
+(`format: iife`, `target: es2020`, `minify`). Hugo Extended is daarvoor
+niet nodig, en Node alleen om bij te werken.
 
 ## Bijwerken
 
+De versie staat vast in `tools/fuse/` (een `package.json` en `package-lock.json`
+die alleen hiervoor dienen). Dependabot volgt die map.
+
 1. Lees de release notes op <https://github.com/krisk/Fuse/releases> op
    breaking changes.
-2. Haal het pakket op in een lege map en controleer de integriteit tegen de
-   registry (beide regels moeten gelijk zijn):
+2. Verhoog `fuse.js` in `tools/fuse/package.json` (Dependabot doet dit voor
+   je) en kopieer het bestand over de oude:
 
    ```sh
-   mkdir /tmp/fuse && cd /tmp/fuse
-   npm pack fuse.js@<versie>
-   npm view fuse.js@<versie> dist.integrity
-   echo "sha512-$(openssl dgst -sha512 -binary fuse.js-<versie>.tgz | openssl base64 -A)"
+   npm install --prefix tools/fuse
+   node tools/fuse/vendor.js
    ```
 
-3. Pak het uit en kopieer het bestand over de oude:
-
-   ```sh
-   tar xzf fuse.js-<versie>.tgz
-   cp package/dist/fuse.min.mjs <theme>/assets/lib/fuse/fuse.min.mjs
-   ```
-
-4. Werk de versie en de integriteit hierboven bij.
-5. Bouw een site met het theme (`hugo --panicOnWarning`) en probeer het zoeken
+   `vendor.js` zet `fuse.min.mjs` en `LICENSE` uit het pakket in deze map en
+   werkt de versie en de integriteit hierboven en de versie in `NOTICES.md`
+   bij.
+3. Bouw een site met het theme (`hugo --panicOnWarning`) en probeer het zoeken
    uit: openen met Ctrl K, zoeken, een resultaat openen.
-6. Vermeld de wijziging in `CHANGELOG.md`.
+4. Vermeld de wijziging in `CHANGELOG.md`.
+
+`node tools/fuse/check.js` vergelijkt de bestanden hier byte voor byte met het
+pakket; de CI draait dat. Een Dependabot-PR faalt dus tot iemand `vendor.js`
+draait en het resultaat commit, net als bij `tools/nldd/`.
 
 ## Waarom geen npm-afhankelijkheid?
 
