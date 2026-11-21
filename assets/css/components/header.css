@@ -279,7 +279,7 @@ header {
         display: inline-flex;
         gap: 0.4rem;
         /* Negatieve marge: de tekst blijft uitgelijnd, de hovertint krijgt ruimte */
-        margin: -0.25rem -0.5rem 0;
+        margin: -0.25rem -0.5rem;
         padding: 0.25rem 0.5rem;
         min-height: 0;
         align-self: auto;
