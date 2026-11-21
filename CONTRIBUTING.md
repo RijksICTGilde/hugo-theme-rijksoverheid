@@ -75,6 +75,53 @@ Voor een pull request graag:
 Reviews kunnen door iedereen met commit rights worden afgehandeld.
 Minstens één review is vereist voor merge naar `main`.
 
+## Een release maken
+
+Een release is een knop, een pull request en een merge. De versie volgt
+[SemVer](https://semver.org/lang/nl/); hieronder staat `X.Y.Z` voor de nieuwe
+versie.
+
+1. Zet de wijzigingen onder `## [Unreleased]` in `CHANGELOG.md`. Een lege
+   sectie geeft een foutmelding.
+2. Start in Actions de workflow **Prepare release** op `main` en vul de versie
+   in, zonder `v`.
+3. De workflow opent de pull request `release: vX.Y.Z`. Daarin staat de inhoud
+   van `[Unreleased]` onder `## [X.Y.Z] - <datum>` en de nieuwe versie in de
+   `hugo mod get`-regels van `README.md`. Controleer de tekst, de datum en de
+   CI.
+4. Merge de pull request. **Tag release** zoekt via de API de gemergde pull
+   request van de branch `release/vX.Y.Z` in deze repository op, controleert
+   de kop `## [X.Y.Z]` in `CHANGELOG.md` en pusht de tag `vX.Y.Z`. Die tag
+   start **Release**, die de GitHub release maakt met de tekst uit de
+   changelog.
+
+Daarna zijn **Tag release** en **Release** groen, staat `vX.Y.Z` onder
+Releases en werkt
+`hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@vX.Y.Z`.
+
+Faalt **Prepare release**, dan is er niets aangemaakt: pas de changelog of de
+versie aan en start opnieuw. Bleef er een branch `release/vX.Y.Z` achter,
+verwijder die dan eerst. Faalt **Tag release**, herstel het dan op `main` en
+push de tag met de hand: `git tag -a vX.Y.Z -m vX.Y.Z` en
+`git push origin vX.Y.Z`. Ook die tag start **Release**.
+
+Lokaal proberen: `node tools/release/release.mjs X.Y.Z` past `CHANGELOG.md` en
+`README.md` aan, en `node --test tools/release/*.test.mjs` draait de toetsen.
+
+### Eenmalige instelling
+
+De workflows gebruiken een GitHub App, zoals Toon: een pull request of tag van
+het standaard `GITHUB_TOKEN` start geen CI en geen release.
+
+1. Maak een GitHub App met de repository-rechten Contents en Pull requests
+   (read and write), en installeer hem op alleen deze repository.
+2. Maak onder Settings, Environments de environment `release` en laat alleen
+   `main` hem gebruiken.
+3. Zet daarin de variabele `RELEASE_APP_CLIENT_ID` (client ID van de App) en
+   het secret `RELEASE_APP_PRIVATE_KEY` (de private key).
+4. Beschermt een ruleset `main` of de tags `v*`, geef de App dan het recht om
+   tags te maken en `release/*` te pushen.
+
 ## Licentie van bijdragen
 
 Door een bijdrage te leveren ga je akkoord met publicatie onder de

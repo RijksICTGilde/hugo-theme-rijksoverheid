@@ -30,11 +30,6 @@ Het NCSC coördineert de afhandeling met ons.
 2. Kies **Report a vulnerability**.
 3. Vul het formulier in met omschrijving, reproductie en impact.
 
-### Of: e-mail aan het team
-
-Mail naar <digigilde@rijksoverheid.nl>. Zet gevoelige details niet
-onversleuteld in de mail; stuur die via het NCSC.
-
 ## Wat je van ons mag verwachten
 
 * Een ontvangstbevestiging binnen vijf werkdagen.
