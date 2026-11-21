@@ -1,0 +1,10 @@
+{{- /* Hook: past de HTML van een pagina aan voordat content.html er ids,
+       namen en nummers in zet. Krijgt de HTML zoals Hugo hem uit de Markdown
+       maakt en geeft de HTML terug; standaard ongewijzigd. Een site vervangt
+       dit bestand, bijvoorbeeld om voetnoten zelf om te zetten:
+         {{ return partial "voetnoten.html" . }}
+       index.json ziet de wijzigingen niet. Verander daarom geen h2, h3 of
+       uitklapblok zonder id: content.html geeft die pas na de hook een id, en
+       de zoekresultaten wijzen naar het id dat index.json zonder de hook
+       berekent. */ -}}
+{{- return . -}}

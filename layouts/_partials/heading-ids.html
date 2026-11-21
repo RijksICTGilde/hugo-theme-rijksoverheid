@@ -1,0 +1,59 @@
+{{- /* Geeft h2- en h3-koppen in HTML-content een id, zodat je ernaar kunt
+       linken. Markdown-content krijgt die ids van Hugo zelf; HTML-content
+       niet. Geeft de bewerkte HTML terug: {{ $html := partial "heading-ids.html" $html }}.
+       content.html en index.json roepen hem allebei aan op de paginainhoud,
+       zodat de zoekresultaten precies de ankers van de pagina gebruiken. */ -}}
+{{- $content := . -}}
+{{- /* Een nieuw id botst niet met een id dat al in de inhoud staat, en ook
+       niet met een vast id uit de templates van het theme. */ -}}
+{{- $seen := slice "main-content" "main-nav" "mobile-menu" "toc" "page-aside-chevron" "voetnoten" "referenties" "theme-options" "theme-system" "theme-light" "theme-dark" "search-modal" "search-input" "search-close" "search-status" "search-results" "highlight-status" "highlight-bar" "highlight-bar-query" -}}
+{{- range findRESubmatch `\sid="([^"]+)"` $content -}}
+  {{- $seen = $seen | append (index . 1) -}}
+{{- end -}}
+{{- range $heading := findRE `(?s)<h[23][^>]*>.*?</h[23]>` $content -}}
+  {{- if not (strings.Contains $heading " id=") -}}
+    {{- $text := $heading | replaceRE `<[^>]+>` "" | htmlUnescape | strings.TrimSpace -}}
+    {{- $base := anchorize $text -}}
+    {{- if $base -}}
+      {{- $id := $base -}}
+      {{- $number := 1 -}}
+      {{- range $seen -}}
+        {{- if in $seen $id -}}
+          {{- $number = add $number 1 -}}
+          {{- $id = printf "%s-%d" $base $number -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $seen = $seen | append $id -}}
+      {{- $new := replaceRE `^<h([23])` (printf `<h${1} id="%s"` $id) $heading -}}
+      {{- $content = strings.Replace $content $heading $new 1 -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Uitklapblokken krijgen een id uit hun summary, zodat ook die vindbaar
+       zijn en een eigen anker hebben. */ -}}
+{{- range $block := findRE `<details[^>]*>\s*<summary>.*?</summary>` $content -}}
+  {{- if not (strings.Contains (index (split $block "<summary>") 0) " id=") -}}
+    {{- /* De klasse geeft een kort anker (#roadmap); anders de summary-tekst */ -}}
+    {{- $class := $block | replaceRE `(?s)^<details[^>]*class="([^" ]+).*` "$1" -}}
+    {{- $base := "" -}}
+    {{- if ne $class $block -}}
+      {{- $base = $class -}}
+    {{- else -}}
+      {{- $base = index (split $block "<summary>") 1 | replaceRE `<[^>]+>` "" | htmlUnescape | strings.TrimSpace | anchorize -}}
+    {{- end -}}
+    {{- if $base -}}
+      {{- $id := $base -}}
+      {{- $number := 1 -}}
+      {{- range $seen -}}
+        {{- if in $seen $id -}}
+          {{- $number = add $number 1 -}}
+          {{- $id = printf "%s-%d" $base $number -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $seen = $seen | append $id -}}
+      {{- $new := replaceRE `^<details` (printf `<details id="%s"` $id) $block -}}
+      {{- $content = strings.Replace $content $block $new 1 -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $content -}}

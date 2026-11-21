@@ -1,0 +1,25 @@
+{{- /* Boom: een boomschema als geneste lijst, met de lijnen in CSS.
+
+  Usage:
+    {{< tree >}}
+    - Bericht
+      - Notificatie
+      - Inhoudelijk bericht
+    {{< /tree >}}
+    {{< tree caption="Soorten berichten" >}}...{{< /tree >}}
+
+  Params:
+    caption optioneel: Markdown, komt als figcaption onder de boom
+    inhoud     een geneste Markdown-lijst
+
+  Safari laat de lijstrol vallen bij list-style: none; role="list" houdt de
+  niveaus hoorbaar.
+*/ -}}
+{{- $list := .Page.RenderString (dict "display" "block") (trim .Inner "\n") -}}
+{{- $list = replace $list "<ul>" `<ul role="list">` -}}
+<figure class="tree">
+  {{ $list | safeHTML }}
+  {{- with .Get "caption" }}
+  <figcaption>{{ . | markdownify }}</figcaption>
+  {{- end }}
+</figure>

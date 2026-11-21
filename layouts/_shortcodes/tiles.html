@@ -7,21 +7,54 @@
       - ...
 
   Optionele params:
-    field    — naam van de frontmatter-key (default "tiles")
-    columns  — 2|3 (default 3, via .card-grid breakpoints)
-    aria     — aria-label op de section
+    field    - naam van de frontmatter-key (default "tiles")
+    columns  - 2|3 (default 3, via .card-grid breakpoints)
+    aria     - aria-label op de lijst
+    heading-level - kopniveau van de tegeltitels (default: een niveau onder de
+               laatste kop vóór de shortcode, anders 2)
 */ -}}
 {{- $field := .Get "field" | default "tiles" -}}
 {{- $tiles := index .Page.Params $field -}}
 {{- $cols := .Get "columns" -}}
 {{- $aria := .Get "aria" -}}
+{{- $level := 2 -}}
+{{- with .Get "heading-level" -}}
+  {{- $level = int . -}}
+{{- else -}}
+  {{- /* Zoek de aanroep met dezelfde field in de bron; staan er twee met
+         dezelfde field, geef dan heading-level mee. */ -}}
+  {{- $raw := .Page.RawContent -}}
+  {{- $shortcodeCall := "" -}}
+  {{- range findRE `\{\{[<%]\s*tiles\b[^}]*[>%]\}\}` $raw -}}
+    {{- $f := "tiles" -}}
+    {{- with findRESubmatch `field\s*=\s*"([^"]*)"` . }}{{ $f = index . 0 1 }}{{ end -}}
+    {{- if and (not $shortcodeCall) (eq $f $field) }}{{ $shortcodeCall = . }}{{ end -}}
+  {{- end -}}
+  {{- with $shortcodeCall -}}
+    {{- with findRE `(?m)^#{1,6}[ \t]|<h[1-6][ >]` (index (split $raw .) 0) -}}
+      {{- $last := index . (sub (len .) 1) -}}
+      {{- $heading := 0 -}}
+      {{- if hasPrefix $last "#" -}}
+        {{- $heading = len (trim $last " \t") -}}
+      {{- else -}}
+        {{- $heading = int (substr $last 2 1) -}}
+      {{- end -}}
+      {{- $level = int (math.Min 6 (add 1 $heading)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $heading := printf "h%d" $level -}}
 {{- with $tiles -}}
-<section class="card-grid{{ with $cols }} columns-{{ . }}{{ end }}"{{ with $aria }} aria-label="{{ . }}"{{ end }}>
+<ul class="card-grid{{ with $cols }} columns-{{ . }}{{ end }}" role="list"{{ with $aria }} aria-label="{{ . }}"{{ end }}>
   {{- range . }}
-  <article>
-    <header><h2>{{ .title }}</h2></header>
-    {{ .body | markdownify }}
-  </article>
+  <li>
+    <article class="card">
+      <header>{{ printf "<%s>" $heading | safeHTML }}{{ .title }}{{ printf "</%s>" $heading | safeHTML }}</header>
+      {{- /* Als blok renderen: dan staat de tekst in een <p>, en krijgt een link
+             erin de onderstreping uit base.css (WCAG 1.4.1). */}}
+      {{ with .body }}{{ $.Page.RenderString (dict "display" "block") . }}{{ end }}
+    </article>
+  </li>
   {{- end }}
-</section>
+</ul>
 {{- end -}}

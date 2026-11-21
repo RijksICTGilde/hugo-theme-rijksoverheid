@@ -1,19 +1,26 @@
-{{- /* Callout: gestyleerd info-blok.
+{{- /* Callout: infoblok met dezelfde opmaak als een alert (> [!NOTE]).
 
   Usage:
-    {{< callout titel="Leeswijzer" >}}body{{< /callout >}}
-    {{< callout titel="Let op" variant="warning" corner="bottom-right" >}}body{{< /callout >}}
+    {{< callout title="Leeswijzer" >}}body{{< /callout >}}
+    {{< callout title="Let op" variant="warning" corner="bottom-right" heading-level="2" >}}body{{< /callout >}}
 
   Params:
-    titel    optioneel
-    variant  optioneel — muted | warning | success | danger
-    corner   optioneel — bottom-right | bottom-left | upper-left
-             (default = upper-right)
+    title     optioneel
+    variant   optioneel: info | muted | warning | success | danger
+              (zonder variant de info-kleur; het info-icoon alleen bij info,
+              het waarschuwingsicoon bij warning)
+    corner    optioneel: bottom-right | bottom-left | upper-left
+              (standaard upper-right)
+    heading-level optioneel: 2 tot en met 6, standaard params.callout.heading_level
+              of 3
 */ -}}
-{{- $titel := .Get "titel" -}}
+{{- $title := .Get "title" -}}
+{{- with .Get "titel" -}}
+  {{- warnf "%s: de parameter titel van callout heet nu title." $.Position -}}
+{{- end -}}
 {{- $variant := .Get "variant" -}}
 {{- $corner := .Get "corner" -}}
-{{- $validVariant := slice "muted" "warning" "success" "danger" -}}
+{{- $validVariant := slice "info" "muted" "warning" "success" "danger" -}}
 {{- $validCorner := slice "bottom-right" "bottom-left" "upper-left" -}}
 {{- if and $variant (not (in $validVariant $variant)) -}}
   {{- errorf "callout: variant %q ongeldig (kies: %s)" $variant (delimit $validVariant ", ") -}}
@@ -21,11 +28,29 @@
 {{- if and $corner (not (in $validCorner $corner)) -}}
   {{- errorf "callout: corner %q ongeldig (kies: %s)" $corner (delimit $validCorner ", ") -}}
 {{- end -}}
-<blockquote class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
-  {{- with $titel }}
-  <header><span class="title">{{ . }}</span></header>
+{{- $level := 3 -}}
+{{- with site.Params.callout -}}
+  {{- with .heading_level -}}{{ $level = int . }}{{- end -}}
+{{- end -}}
+{{- with .Get "heading-level" -}}{{ $level = int . }}{{- end -}}
+{{- if or (lt $level 2) (gt $level 6) -}}
+  {{- errorf "callout: heading-level %d ongeldig (kies 2 tot en met 6)" $level -}}
+{{- end -}}
+{{- $icon := index (dict "info" "info" "warning" "waarschuwing") ($variant | default "") -}}
+<div class="callout{{ with $variant }} {{ . }}{{ end }}{{ with $corner }} corner-{{ . }}{{ end }}">
+  {{- if or $icon $title }}
+  <header>
+    {{- with $icon }}
+    {{- partial "icon.html" . -}}
+    {{- end }}
+    {{- with $title }}<h{{ $level }} class="title">{{ . }}</h{{ $level }}>{{ end }}
+  </header>
+  {{- end }}
+  {{- $text := .Inner | markdownify }}
+  {{- if not $title }}
+    {{- $text = partial "callout-type-name.html" (dict "variant" $variant "text" $text) }}
   {{- end }}
   <div class="content">
-    {{ .Inner | markdownify }}
+    {{ $text }}
   </div>
-</blockquote>
+</div>

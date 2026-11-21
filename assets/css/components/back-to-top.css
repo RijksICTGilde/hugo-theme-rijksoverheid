@@ -1,4 +1,4 @@
-/* Back-to-top — zwevende "naar boven"-knop rechtsonder, bedoeld voor lange
+/* Back-to-top: zwevende "naar boven"-knop rechtsonder, bedoeld voor lange
  * pagina's. Staat standaard uit; aanzetten via `params.back_to_top: true`.
  *
  * Erft van .button, alleen afwijkende styling hier. De knop is een anchor naar
@@ -8,11 +8,17 @@
  * Element + class (a.back-to-top) omdat components/*.css alfabetisch wordt
  * geconcat: button.css komt ná dit bestand, dus een losse class verliest.
  */
+.back-to-top-anchor {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  height: 0;
+}
+
 a.back-to-top {
-  position: fixed;
+  position: absolute;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
@@ -22,22 +28,32 @@ a.back-to-top {
   border-color: var(--color-primary);
   color: var(--color-text-on-primary);
   border-radius: 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-card);
 
   /* .button wisselt bij hover naar rijksblauw; die vlakvulling heeft de knop
-     al, dus in plaats daarvan een schaduwverschuiving zoals bij links. */
+     al. Tekstkleur op paginakleur contrasteert in beide modi, ook waar
+     --color-primary licht is. */
   &:hover,
   &:focus-visible {
-    background-color: color-mix(in oklch, var(--color-primary), black 12%);
-    border-color: color-mix(in oklch, var(--color-primary), black 12%);
-    color: var(--color-text-on-primary);
+    background-color: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-bg-page);
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
   }
 
   /* Zwevend element boven wisselende inhoud: een smallere ring dan de
-     standaard-.button, zodat er minder inhoud onder verdwijnt. */
+     standaard-.button, zodat er minder inhoud onder verdwijnt. De strook in
+     paginakleur eronder houdt de ring zichtbaar boven de gekleurde voet
+     (--color-text op --color-banner haalt maar 1,8:1). */
   &:focus-visible {
     outline: 2px solid var(--color-text);
     outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--color-bg-page), var(--shadow-card);
   }
 
   /* Op smalle schermen alleen het icoon, zodat de knop geen tekst afdekt.
@@ -63,4 +79,16 @@ a.back-to-top {
    [hidden]; daarom expliciet. */
 a.back-to-top[hidden] {
   display: none;
+}
+
+/* Onderaan de pagina staat de knop boven de voet, over de onderkant van main.
+   Daar houdt main ruimte vrij, zodat de knop de laatste inhoud niet afdekt
+   (WCAG 2.4.11). Ruimte op basis van aanwezigheid, niet zichtbaarheid: anders
+   verspringt de pagina bij het scrollen. Vanaf 90rem staat de knop naast de
+   inhoudskolom (1100px plus twee keer knop en marge) en is de ruimte niet
+   nodig. */
+body:has(> .back-to-top-anchor) > main {
+  @media (width < 90rem) {
+    padding-block-end: 5.5rem;
+  }
 }

@@ -1,0 +1,37 @@
+{{- /* Brede tabellen schuiven in een eigen, focusbaar vlak (WCAG 1.4.10,
+       2.1.1). "Tabel" zonder nummer: content.html nummert de wikkels in
+       documentvolgorde, want een shortcode en een render hook draaien niet in
+       die volgorde. Een eigen naam kan met {aria-label="..."} op de regel
+       direct onder de tabel; {print-together="true"} op diezelfde regel houdt de
+       tabel in de afdruk op één pagina. */ -}}
+{{- $label := or (index .Attributes "aria-label") "Tabel" -}}
+{{- $extra := partial "table-extra.html" (dict "attributes" .Attributes "page" .Page) -}}
+<div class="table-wrap" role="region" tabindex="0" aria-label="{{ $label }}">
+{{- /* html/template maakt van een attribuutnaam uit een variabele met een
+       streepje ZgotmplZ; daarom printf met safeHTMLAttr, en de waarde zelf
+       escapen. */}}
+<table{{ with index .Attributes "print-together" }} data-print-together{{ end }}{{ if reflect.IsMap $extra }}{{ range $name, $value := $extra }}{{ printf ` %s="%s"` $name (htmlEscape $value) | safeHTMLAttr }}{{ end }}{{ end }}>
+  {{- with .THead }}
+  <thead>
+    {{- range . }}
+    <tr>
+      {{- range . }}
+      <th{{ with .Alignment }} class="align-{{ . }}"{{ end }}>{{ .Text }}</th>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </thead>
+  {{- end }}
+  {{- with .TBody }}
+  <tbody>
+    {{- range . }}
+    <tr>
+      {{- range . }}
+      <td{{ with .Alignment }} class="align-{{ . }}"{{ end }}>{{ .Text }}</td>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </tbody>
+  {{- end }}
+</table>
+</div>

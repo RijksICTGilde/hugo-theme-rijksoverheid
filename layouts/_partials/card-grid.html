@@ -1,5 +1,22 @@
-<div class="card-grid">
+{{- /* Kaartenraster als lijst. Aanroepen met een slice pagina's (koppen h2)
+       of met een dict:
+         (dict "pages" .Pages "headingLevel" 3 "classes" "boxed clickable")
+       classes: boxed, clickable en/of columns-2. Rendert niets zonder
+       pagina's.
+       role="list" blijft nodig: Safari laat de lijstrol vallen bij
+       list-style: none. */ -}}
+{{- $pages := . -}}
+{{- $level := 2 -}}
+{{- $classes := "" -}}
+{{- if reflect.IsMap . -}}
+  {{- $pages = .pages -}}
+  {{- $level = int (.headingLevel | default 2) -}}
+  {{- $classes = .classes | default "" -}}
+{{- end -}}
+{{- with $pages -}}
+<ul class="card-grid{{ with $classes }} {{ . }}{{ end }}" role="list">
   {{- range . -}}
-  {{- partial "card.html" . -}}
+  <li>{{- partial "card.html" (dict "page" . "headingLevel" $level) -}}</li>
   {{- end -}}
-</div>
+</ul>
+{{- end -}}

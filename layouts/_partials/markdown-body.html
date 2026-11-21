@@ -1,0 +1,158 @@
+{{- /*
+  Schoont RawContent op en herschrijft interne links naar hun .md-variant.
+  Aanroepen met de oorsprongpagina als context (niet met een string): .GetPage
+  resolvet relatieve paden t.o.v. die pagina. Wie de tabellen ongemoeid wil
+  laten, roept aan met (dict "page" . "tables" true). Met "html" true wijzen
+  interne links naar de absolute URL van de HTML-pagina, voor losse documenten
+  buiten de site.
+*/ -}}
+{{- $p := . -}}
+{{- $tables := false -}}
+{{- $html := false -}}
+{{- if reflect.IsMap . -}}
+  {{- $p = .page -}}
+  {{- $tables = .tables -}}
+  {{- $html = .html -}}
+{{- end -}}
+{{- $content := $p.RawContent -}}
+{{- $content = partial "markdown-extra.html" (dict "text" $content "page" $p "html" $html "tables" $tables) -}}
+
+{{- /* GFM kent geen tabel zonder koprij. In de gepubliceerde .md wordt
+       table-without-header daarom een lijst; pandoc krijgt een lege koprij,
+       want zonder koprij ziet die geen tabel. Moet vóór het strippen van de
+       shortcodetags. */ -}}
+{{- range findRE `\{\{<\s*table-without-header(?:\s[^>]*)?>\}\}[\s\S]*?\{\{<\s*/\s*table-without-header\s*>\}\}` $content -}}
+  {{- $rows := slice -}}
+  {{- $headerRow := "" -}}
+  {{- range split . "\n" -}}
+    {{- $line := trim . " " -}}
+    {{- if hasPrefix $line "|" -}}
+      {{- if findRE `^\|[\s:|-]+\|$` $line -}}
+        {{- $headerRow = index (last 1 $rows) 0 -}}
+      {{- else -}}
+        {{- $rows = $rows | append $line -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $headerRow }}{{ $rows = after 1 $rows }}{{ end -}}
+  {{- $lines := slice -}}
+  {{- if $tables -}}
+    {{- $emptyCells := slice -}}
+    {{- $separatorCells := slice -}}
+    {{- range seq (len (split (trim (index $rows 0) "|") "|")) -}}
+      {{- $emptyCells = $emptyCells | append " " -}}
+      {{- $separatorCells = $separatorCells | append " --- " -}}
+    {{- end -}}
+    {{- $lines = $lines | append (printf "|%s|" (delimit $emptyCells "|")) (printf "|%s|" (delimit $separatorCells "|")) -}}
+    {{- range $rows }}{{ $lines = $lines | append . }}{{ end -}}
+  {{- else -}}
+    {{- range $rows -}}
+      {{- $cells := apply (split (trim . "|") "|") "trim" "." " " -}}
+      {{- $lines = $lines | append (printf "- **%s:** %s" (index $cells 0) (delimit (after 1 $cells) ", ")) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $content = replace $content . (delimit $lines "\n") -}}
+{{- end -}}
+
+{{- /* Moet vóór het strippen hieronder, anders verdwijnt de emoji mee. */ -}}
+{{- $content = replaceRE `\{\{<\s*emoji\s[^>]*?symbol="([^"]+)"[^>]*>\}\}` "$1" $content -}}
+{{- $content = replaceRE `\{\{<[^>]+>\}\}` "" $content -}}
+{{- $content = replaceRE `\{\{%[^%]+%\}\}` "" $content -}}
+
+{{- /* Regel voor regel, met de binnenkant van codeblokken met hekken
+       ongemoeid: een alert wordt een citaat met de typenaam vet vooraan,
+       {ref:N} en de attribuutlijsten van Goldmark ({#id}, {.klasse},
+       {naam="..."}) vallen weg. De typenamen zijn die van de HTML; note en
+       info hebben er geen. */ -}}
+{{- $typeNames := partial "callout-type-names.html" . -}}
+{{- $attributes := `\{[ \t]*(?:[#.][^{}\n]*|[A-Za-z_:][\w:.-]*[ \t]*=[^{}\n]*)\}` -}}
+{{- $looseAttributes := printf `^[ \t>]*%s[ \t]*$` $attributes -}}
+{{- $headingAttributes := printf `^([ \t>]*#{1,6}[ \t].*?)[ \t]*%s[ \t]*$` $attributes -}}
+{{- $lines := split $content "\n" -}}
+{{- $out := slice -}}
+{{- $fence := "" -}}
+{{- range $i, $line := $lines -}}
+  {{- $fenceMarker := "" -}}
+  {{- with findRESubmatch `^[ \t>]*(\x60{3,}|~{3,})` $line 1 }}{{ $fenceMarker = index . 0 1 }}{{ end -}}
+  {{- if $fence -}}
+    {{- /* Het blok sluit met alleen hetzelfde teken, minstens zo vaak. */ -}}
+    {{- if and $fenceMarker (eq (trim $line " \t>") $fenceMarker) (hasPrefix $fenceMarker $fence) }}{{ $fence = "" }}{{ end -}}
+  {{- else if $fenceMarker -}}
+    {{- $fence = $fenceMarker -}}
+  {{- else -}}
+    {{- $line = replaceRE `[ \t]*\{ref:\d+\}` "" $line -}}
+    {{- if findRE $looseAttributes $line 1 }}{{ continue }}{{ end -}}
+    {{- $line = replaceRE $headingAttributes "$1" $line -}}
+    {{- /* Alleen de eerste regel van een citaat kan een alert openen. */ -}}
+    {{- $first := true -}}
+    {{- if gt $i 0 }}{{ $first = not (findRE `^[ \t]*>` (index $lines (sub $i 1)) 1) }}{{ end -}}
+    {{- with and $first (findRESubmatch `^([ \t]*>[ \t>]*)\[!([A-Za-z]+)\][+-]?[ \t]*(.*?)[ \t]*$` $line 1) -}}
+      {{- $prefix := index . 0 1 -}}
+      {{- $title := index . 0 3 -}}
+      {{- $heading := "" -}}
+      {{- with index $typeNames (lower (index . 0 2)) }}{{ $heading = printf "**%s:**" . }}{{ end -}}
+      {{- with $title }}{{ $heading = cond (eq $heading "") (printf "**%s**" .) (printf "%s %s" $heading .) }}{{ end -}}
+      {{- if not $heading }}{{ continue }}{{ end -}}
+      {{- $line = printf "%s%s" $prefix $heading -}}
+      {{- /* Na een titel begint de tekst een eigen alinea, zoals onder een kop. */ -}}
+      {{- if and $title (lt (add $i 1) (len $lines)) (findRE `^[ \t]*>[ \t>]*\S` (index $lines (add $i 1)) 1) -}}
+        {{- $out = $out | append $line -}}
+        {{- $line = strings.TrimRight " \t" $prefix -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $out = $out | append $line -}}
+{{- end -}}
+{{- $content = delimit $out "\n" -}}
+
+{{- /* Word en Windows kappen een hyperlink af op 2083 tekens en melden het
+       document daarna als beschadigd. In de uitvoer voor buiten de site wijst
+       zo'n link daarom naar de webpagina, waar hij wel werkt. */ -}}
+{{- if $html -}}
+  {{- range findRESubmatch `\[([^\]]*)\]\((https?://[^)\s]+)\)` $content -}}
+    {{- $fullMatch := index . 0 -}}
+    {{- if gt (len (index . 2)) 2083 -}}
+      {{- $content = replace $content $fullMatch (printf "%s (deze URL is te lang voor dit document, maar op [de site van %s](%s) vind je die wel)" (index . 1) $p.Site.Title $p.Permalink) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* findRESubmatch-groepen: 0=geheel, 1='!', 2=tekst, 3=doel */ -}}
+{{- range findRESubmatch `(!?)\[([^\]]*)\]\(([^)\s]+)\)` $content -}}
+  {{- $whole := index . 0 -}}
+  {{- $text := index . 2 -}}
+  {{- $dest := index . 3 -}}
+  {{- if eq (index . 1) "!" }}{{ continue }}{{ end -}}
+  {{- if hasPrefix $dest "<" }}{{ continue }}{{ end -}}
+  {{- $u := urls.Parse $dest -}}
+  {{- if or $u.IsAbs (hasPrefix $dest "#") (hasPrefix $dest "//") (hasPrefix $dest "mailto:") (hasPrefix $dest "tel:") (not $u.Path) }}{{ continue }}{{ end -}}
+  {{- $path := strings.TrimPrefix "./" $u.Path -}}
+  {{- $new := "" -}}
+  {{- $target := $p.GetPage $path -}}
+  {{- with $target -}}
+    {{- $isMd := false -}}
+    {{- with .File }}{{ if eq .Ext "md" }}{{ $isMd = true }}{{ end }}{{ end -}}
+    {{- $mdOut := .OutputFormats.Get "markdown" -}}
+    {{- if $html -}}
+      {{- $new = .Permalink -}}
+    {{- else if and $isMd $mdOut -}}
+      {{- $new = $mdOut.RelPermalink -}}
+    {{- else -}}
+      {{- $new = .RelPermalink -}}
+    {{- end -}}
+  {{- else -}}
+    {{- with or ($p.Resources.Get $path) (resources.Get $path) -}}
+      {{- $new = cond $html .Permalink .RelPermalink -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* Bijvoorbeeld een alias: GetPage vindt die niet, de site stuurt wel door. */ -}}
+  {{- if and $html (not $new) (hasPrefix $path "/") }}{{ $new = absURL $path }}{{ end -}}
+  {{- if $new -}}
+    {{- with $u.RawQuery }}{{ $new = printf "%s?%s" $new . }}{{ end -}}
+    {{- with $u.Fragment }}{{ $new = printf "%s#%s" $new . }}{{ end -}}
+    {{- $content = replace $content $whole (printf "[%s](%s)" $text $new) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $content = replaceRE `\n{3,}` "\n\n" $content -}}
+{{- return ($content | strings.TrimSpace | safeHTML) -}}

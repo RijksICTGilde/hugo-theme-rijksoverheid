@@ -1,21 +1,97 @@
 <footer>
-  <p class="tagline">{{ .Site.Params.footer.tagline }}</p>
+  {{- $ancestors := .Ancestors.Reverse -}}
+  {{- $breadcrumb := and (not .IsHome) (gt (len $ancestors) 1) -}}
+  {{- $lastmod := partial "lastmod.html" . -}}
+  {{- if or $breadcrumb (trim $lastmod " \n\t") }}
+  <div class="page-meta">
+    {{- if $breadcrumb }}
+    <nav class="breadcrumb" aria-label="Kruimelpad">
+      <ol>
+        {{- range $ancestors -}}
+        <li><a href="{{ .RelPermalink }}">{{ if .IsHome }}Home{{ else }}{{ .Title }}{{ end }}</a><span class="separator" aria-hidden="true"></span></li>
+        {{- end -}}
+        <li><span class="current" aria-current="page">{{ .Title }}</span></li>
+      </ol>
+    </nav>
+    {{- end }}
+    {{ $lastmod }}
+  </div>
+  {{- end }}
+  {{- /* Alleen op de homepage: de voet staat op elke pagina, de melding hoeft maar één keer. */ -}}
+  {{- if and .IsHome (or (index site.Menus "footer-links") (index site.Menus "footer-rechts")) }}
+  {{- warnf "De menu's footer-links en footer-rechts heten nu footer-left en footer-right." }}
+  {{- end }}
+  {{- if and .IsHome (or site.Params.footer.links site.Params.footer.rechts) }}
+  {{- warnf "params.footer.links en params.footer.rechts heten nu footer.left en footer.right." }}
+  {{- end }}
+  {{- /* Met params.footer.tagline toont de voet die zin. params.tagline staat
+         er dan alleen onder 600px bij: daar valt hij uit de kop weg (WCAG
+         1.4.10). */ -}}
+  {{- if or site.Params.tagline site.Params.footer.tagline }}
+  <div class="footer-intro">
+    {{- with site.Params.footer.tagline }}
+    {{- with site.Params.tagline }}
+    <p class="footer-subtitle">{{ . }}</p>
+    {{- end }}
+    <p class="tagline">{{ . }}</p>
+    {{- else }}
+    <p class="tagline">{{ site.Params.tagline }}</p>
+    {{- end }}
+  </div>
+  {{- end }}
+  {{- $links := index site.Menus "footer-left" -}}
+  {{- $right := index site.Menus "footer-right" -}}
+  {{- if or $links $right }}
   <div class="footer-columns">
-    <nav aria-label="{{ .Site.Params.footer.links }}">
-      <h2>{{ .Site.Params.footer.links }}</h2>
+    {{- with $links }}
+    {{- $heading := site.Params.footer.left | default "Zie ook" }}
+    <nav aria-label="{{ $heading }}">
+      <h2>{{ $heading }}</h2>
       <ul>
-        {{ range (index .Site.Menus "footer-links") }}
+        {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
-        {{ end }}
+        {{- end }}
       </ul>
     </nav>
-    <nav aria-label="{{ .Site.Params.footer.rechts }}">
-      <h2>{{ .Site.Params.footer.rechts }}</h2>
+    {{- end }}
+    {{- with $right }}
+    {{- $heading := site.Params.footer.right | default "Over deze site" }}
+    <nav aria-label="{{ $heading }}">
+      <h2>{{ $heading }}</h2>
       <ul>
-        {{ range (index .Site.Menus "footer-rechts") }}
+        {{- range . }}
         <li>{{ partial "render-link" (dict "href" .URL "text" .Name) }}</li>
-        {{ end }}
+        {{- end }}
       </ul>
     </nav>
+    {{- end }}
+  </div>
+  {{- end }}
+  <div class="footer-settings">
+    {{- /* params.organization: name (verplicht voor de regel), url en text. De
+           text staat voor de naam; zonder text een neutrale aanhef. */}}
+    {{- $organization := site.Params.organization | default dict }}
+    {{- with $organization.name }}
+    <p class="organization">{{ $organization.text | default "Afzender:" }} {{ with $organization.url }}{{ partial "render-link" (dict "href" . "text" $organization.name) }}{{ else }}{{ $organization.name }}{{ end }}</p>
+    {{- end }}
+    {{- if ne site.Params.theme_menu false }}
+    {{- /* Zonder JavaScript werkt de keuze niet, dus dan staat hij er ook niet:
+           base.js haalt hidden weg. Native keuzerondjes in plaats van
+           role="menu": pijltjes, naam, rol en stand werken dan vanzelf. */}}
+    <div class="theme-menu" hidden>
+      <button type="button" class="theme-menu-button" aria-expanded="false" aria-controls="theme-options">
+        Weergave
+        {{- partial "icon.html" "chevron-down" -}}
+      </button>
+      <div id="theme-options" class="theme-options" hidden>
+        <fieldset>
+          <legend class="visually-hidden">Weergave</legend>
+          <label for="theme-system"><input type="radio" id="theme-system" name="theme" value="system" checked /> Systeem</label>
+          <label for="theme-light"><input type="radio" id="theme-light" name="theme" value="light" /> Licht</label>
+          <label for="theme-dark"><input type="radio" id="theme-dark" name="theme" value="dark" /> Donker</label>
+        </fieldset>
+      </div>
+    </div>
+    {{- end }}
   </div>
 </footer>

@@ -1,0 +1,13 @@
+{
+  "name": "hugo-theme-rijksoverheid-fuse",
+  "private": true,
+  "type": "module",
+  "description": "Houdt de gevendorde Fuse.js van het theme bij. Niet nodig om een site te bouwen.",
+  "scripts": {
+    "vendor": "node vendor.js",
+    "check": "node check.js"
+  },
+  "devDependencies": {
+    "fuse.js": "7.5.0"
+  }
+}

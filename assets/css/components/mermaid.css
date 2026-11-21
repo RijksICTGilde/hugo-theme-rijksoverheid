@@ -1,4 +1,3 @@
-/* Pre-rendered SVG diagrammen */
 .mermaid-diagram {
   position: relative;
   text-align: center;
@@ -23,36 +22,44 @@
   display: none;
 }
 
-:root[data-theme="dark"] .mermaid-diagram .mermaid-img--light {
+:root[data-scheme="dark"] .mermaid-diagram .mermaid-img--light {
   display: none;
 }
 
-:root[data-theme="dark"] .mermaid-diagram .mermaid-img--dark {
+:root[data-scheme="dark"] .mermaid-diagram .mermaid-img--dark {
   display: block;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .mermaid-diagram .mermaid-img--light {
+  :root:not([data-scheme="light"]) .mermaid-diagram .mermaid-img--light {
     display: none;
   }
 
-  :root:not([data-theme="light"]) .mermaid-diagram .mermaid-img--dark {
+  :root:not([data-scheme="light"]) .mermaid-diagram .mermaid-img--dark {
     display: block;
   }
 }
 
-/* Download-knop */
 .mermaid-download {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 1;
   border-radius: 0.25rem;
-  opacity: 0.6;
-  transition: opacity 0.2s;
 }
 
-.mermaid-diagram:hover .mermaid-download,
-.mermaid-download:focus-visible {
-  opacity: 1;
+@media print {
+  .mermaid-download {
+    display: none;
+  }
+
+  /* Papier is wit, ook bij het donkere thema. !important wint van de
+     schermregels voor donker, die specifieker zijn. */
+  .mermaid-diagram .mermaid-img--light {
+    display: block !important;
+  }
+
+  .mermaid-diagram .mermaid-img--dark {
+    display: none !important;
+  }
 }

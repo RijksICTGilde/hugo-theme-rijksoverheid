@@ -1,10 +1,14 @@
-{{/* Back-to-top — standaard uit; aanzetten met `back_to_top: true` in params.
+{{/* Back-to-top: standaard uit; aanzetten met `back_to_top: true` in params.
      Een anchor naar #main-content (net als de skip-link), zodat de knop ook
      zonder JS werkt en de focus meeverhuist naar de inhoud. base.js haalt het
      `hidden`-attribuut weg zodra er meer dan een schermhoogte is gescrold. */}}
 {{- if site.Params.back_to_top -}}
-<a href="#main-content" class="button back-to-top" hidden>
-  {{- partial "icon.html" "arrow-up" -}}
-  <span>Naar boven</span>
-</a>
+{{- /* Tussen main en de voet: het anker zonder hoogte plakt aan de onderkant
+       van het scherm, en onderaan de pagina blijft de knop boven de voet. */}}
+<div class="back-to-top-anchor">
+  <a href="#main-content" class="button back-to-top" hidden>
+    {{- partial "icon.html" "arrow-up" -}}
+    <span>Naar boven</span>
+  </a>
+</div>
 {{- end -}}
