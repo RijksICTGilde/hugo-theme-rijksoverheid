@@ -63,9 +63,9 @@ offline.
 ## Handhaving
 
 Meldingen van misbruik, intimidatie of anderszins onaanvaardbaar gedrag
-kun je indienen bij de beheerders van het project via het Responsible
-Disclosure contactpunt van RijksICTGilde. Alle klachten worden tijdig en
-eerlijk beoordeeld en onderzocht.
+kun je indienen bij de beheerders van het project via
+<digigilde@rijksoverheid.nl>. Alle klachten worden tijdig en eerlijk
+beoordeeld en onderzocht.
 
 Beheerders zijn verplicht de privacy en veiligheid van de melder te
 respecteren.
