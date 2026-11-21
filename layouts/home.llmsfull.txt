@@ -1,0 +1,40 @@
+{{- /* llms-full.txt: de inhoud van de hoofdpagina's uit het menu main en van de
+       secties uit params.llms.sections (lijst met section, heading en optioneel limit
+       en text); een sectie met full: false staat alleen in llms.txt. */ -}}
+# {{ .Site.Title }}
+
+> {{ .Site.Params.description | default .Site.Title }}
+{{- with partial "llms-instructions.html" . | strings.TrimSpace }}
+
+{{ . }}
+{{- end }}
+
+---
+{{- range site.Menus.main }}
+{{- with .Page }}
+{{- if and .Title .RawContent (not .IsHome) }}
+
+## {{ .Title }}
+
+{{ partial "markdown-body" . }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- range site.Params.llms.sections }}
+{{- if ne .full false }}
+{{- $paginas := where site.RegularPages "Section" .section }}
+{{- with .limit }}{{ $paginas = first . $paginas }}{{ end }}
+
+# {{ .heading | default .section }}
+{{- with .text }}
+
+{{ . }}
+{{- end }}
+{{- range $paginas }}
+
+## {{ .Title }}
+
+{{ partial "markdown-body" . }}
+{{- end }}
+{{- end }}
+{{- end }}
