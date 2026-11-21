@@ -243,7 +243,7 @@ codeblokken hun namen.
 | Shortcode | Gebruik |
 |---|---|
 | `callout` | `{{< callout title="..." variant="info\|muted\|success\|warning\|danger" corner="..." heading-level="3" >}}...{{< /callout >}}` |
-| `card-grid` | `{{< card-grid section="..." heading-level="3" classes="boxed clickable" >}}`: kaarten van een sectie |
+| `card-grid` | `{{< card-grid section="..." heading-level="3" classes="boxed clickable" >}}`: kaarten van een sectie; ze staan niet in de zoekindex, de pagina's zelf wel |
 | `tiles` | `{{< tiles field="tiles" columns="2\|3" heading-level="3" >}}`: kaarten uit de front matter |
 | `quote` | `{{< quote source="..." >}}...{{< /quote >}}`: citaat met bron |
 | `table-without-header` | Tabel zonder koprij, met de eerste kolom als rijkop |

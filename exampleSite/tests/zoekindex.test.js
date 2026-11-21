@@ -52,6 +52,15 @@ for (const build of builds()) {
       assert.equal(item("/")?.section, "home");
     });
 
+    test("een kaartengrid staat er niet in, eigen inhoud van de homepage wel", () => {
+      assert.deepEqual(index.filter((i) => i.url.startsWith("/#")).map((i) => i.url), ["/#waarom-deze-site"]);
+      assert.ok(!item("/").content.includes("·"), "de lijst met kaarten staat in de tekst van de homepage");
+    });
+
+    test("tegels zijn inhoud en staan er wel in", () => {
+      assert.ok(item("/over/#privacy"), "de tegel Privacy op /over/ ontbreekt");
+    });
+
     test("een pagina met search_index: false staat er niet in, ook niet met haar koppen", () => {
       assert.ok(existsSync(join(build.dir, "onderdelen/buiten-de-zoekindex/index.html")), "de proefpagina is niet gebouwd");
       assert.deepEqual(index.filter((i) => i.url.startsWith("/onderdelen/buiten-de-zoekindex/")).map((i) => i.url), []);

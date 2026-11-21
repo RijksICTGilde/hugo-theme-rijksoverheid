@@ -7,6 +7,8 @@
        matter blijft er met haar koppen uit. Site-eigen items komen uit de
        hook search-index-extra.html, ook voor zo'n pagina.
 
+       Een kaartengrid (card-grid) staat er niet in, want de pagina's erin
+       staan er zelf al in; tegels (tiles) zijn inhoud en staan er wel in.
        Het item van de pagina zelf krijgt ook synonyms en de velden uit
        params.search.extra_fields. Een pagina buiten een sectie krijgt als
        sectie home (de homepage) of de naam van haar bestand, zodat
@@ -59,6 +61,9 @@
       {{- if .IsHome }}{{ $pageSection = "home" }}{{ else }}{{ with .File }}{{ $pageSection = .ContentBaseName }}{{ end }}{{ end -}}
     {{- end -}}
     {{- $content := partial "heading-ids.html" .Content -}}
+    {{- /* Pas na heading-ids: anders tellen dubbele koppen anders dan op de
+           pagina en wijzen de ankers ernaast. */ -}}
+    {{- $content = replaceRE `(?s)<section data-search-index="false">.*?</section>` "" $content -}}
     {{- $chunks := split (replaceRE `<h([23]) id="` "|||HEADING|||<h${1} id=\"" $content) "|||HEADING|||" -}}
     {{- $pageText := partial "html-to-text" (index $chunks 0) -}}
     {{- $params := .Params -}}

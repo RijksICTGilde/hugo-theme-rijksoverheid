@@ -1,4 +1,6 @@
 {{- /* Kaarten voor de pagina's in een sectie; een lege sectie geeft niets.
+  index.json laat de <section> met data-search-index="false" weg: die
+  pagina's staan er zelf al in.
 
   Params:
     section  - pad van de sectie (verplicht)
@@ -36,7 +38,7 @@
 {{- end -}}
 {{- with site.GetPage $section -}}
   {{- with .Pages.ByWeight -}}
-<section>
+<section data-search-index="false">
   {{ partial "card-grid.html" (dict "pages" . "headingLevel" $level "classes" ($.Get "classes")) }}
 </section>
   {{- end -}}
