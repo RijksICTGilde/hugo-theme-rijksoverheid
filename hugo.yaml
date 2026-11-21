@@ -1,4 +1,6 @@
 module:
+  hugoVersion:
+    min: 0.162.0
   mounts:
     - source: layouts
       target: layouts
@@ -6,3 +8,22 @@ module:
       target: assets
     - source: static
       target: static
+
+# Hugo neemt outputFormats uit een module over, outputs niet: die zet de site
+# zelf (home: llms, llmsfull; sectie: llms, llmsfull; pagina: markdown).
+outputFormats:
+  llms:
+    baseName: llms
+    mediaType: text/plain
+    isPlainText: true
+    notAlternative: true
+  llmsfull:
+    baseName: llms-full
+    mediaType: text/plain
+    isPlainText: true
+    notAlternative: true
+  markdown:
+    baseName: index
+    mediaType: text/markdown
+    isPlainText: true
+    notAlternative: true
