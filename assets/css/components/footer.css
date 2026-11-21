@@ -99,11 +99,16 @@ body > footer {
     }
   }
 
-  .footer-tagline {
+  /* De kop toont de ondertitel vanaf 600px (header.css). */
+  .footer-subtitle {
     font-size: 1.125rem;
     line-height: 1.5;
     color: var(--color-text-inverse);
     overflow-wrap: anywhere;
+
+    @media (min-width: 600px) {
+      display: none;
+    }
   }
 
   .tagline {

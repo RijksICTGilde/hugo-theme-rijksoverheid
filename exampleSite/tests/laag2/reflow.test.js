@@ -217,12 +217,11 @@ describe(`ondertitel op de site (${SITE.naam})`, () => {
       const baseUrl = `http://127.0.0.1:${server.address().port}`;
       const page = await browser.newPage();
       const bevindingen = [];
-      // Ergens op de pagina is het criterium (F102); de voet toont de ondertitel
-      // op elke breedte, de kop vanaf KOP_VANAF.
+      // Ergens op de pagina is het criterium (F102). De kop toont de ondertitel
+      // vanaf KOP_VANAF; daaronder de voet (met footer.tagline alleen daar).
       const plekken = [
         ["de pagina", "body"],
-        ["de voet", "body > footer"],
-        ...(breedte >= KOP_VANAF ? [["de kop", "body > header"]] : []),
+        breedte >= KOP_VANAF ? ["de kop", "body > header"] : ["de voet", "body > footer"],
       ];
       try {
         const cdp = await page.createCDPSession();

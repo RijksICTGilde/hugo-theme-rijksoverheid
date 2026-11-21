@@ -24,16 +24,18 @@
   {{- if and .IsHome (or site.Params.footer.links site.Params.footer.rechts) }}
   {{- warnf "params.footer.links en params.footer.rechts heten nu footer.left en footer.right." }}
   {{- end }}
-  {{- /* params.tagline staat altijd in de voet: op een smal scherm valt hij uit
-         de kop weg (WCAG 1.4.10). params.footer.tagline is een langere zin
-         eronder. */ -}}
+  {{- /* Met params.footer.tagline toont de voet die zin. params.tagline staat
+         er dan alleen onder 600px bij: daar valt hij uit de kop weg (WCAG
+         1.4.10). */ -}}
   {{- if or site.Params.tagline site.Params.footer.tagline }}
   <div class="footer-intro">
-    {{- with site.Params.tagline }}
-    <p class="tagline">{{ . }}</p>
-    {{- end }}
     {{- with site.Params.footer.tagline }}
-    <p class="footer-tagline">{{ . }}</p>
+    {{- with site.Params.tagline }}
+    <p class="footer-subtitle">{{ . }}</p>
+    {{- end }}
+    <p class="tagline">{{ . }}</p>
+    {{- else }}
+    <p class="tagline">{{ site.Params.tagline }}</p>
     {{- end }}
   </div>
   {{- end }}

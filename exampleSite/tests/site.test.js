@@ -156,14 +156,12 @@ for (const build of builds()) {
       }
     });
 
-    test("de voet toont de ondertitel met de langere zin uit footer.tagline eronder", () => {
+    test("de voet toont footer.tagline als ondertitel, en tagline alleen als footer-subtitle", () => {
       const html = pagina("/");
       const intro = html.match(/<div class="?footer-intro"?>([\s\S]*?)<\/div>/);
       assert.ok(intro, "geen .footer-intro in de voet");
-      const tagline = intro[1].indexOf("Zo ziet elk onderdeel van het theme eruit");
-      const lang = intro[1].indexOf("Een voorbeeld van een langere zin in de voet");
-      assert.ok(tagline >= 0, "params.tagline staat niet in de voet");
-      assert.ok(lang > tagline, "params.footer.tagline staat niet onder de ondertitel");
+      assert.match(intro[1], /<p class="?footer-subtitle"?>Zo ziet elk onderdeel van het theme eruit<\/p>/);
+      assert.match(intro[1], /<p class="?tagline"?>Een langere zin in de voet, in plaats van de ondertitel/);
     });
 
     describe("themakeuze in de voet", () => {
