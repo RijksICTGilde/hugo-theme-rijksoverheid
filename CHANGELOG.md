@@ -54,8 +54,9 @@ focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   keuze voor licht of donker is een menu "Weergave" in de voet met Systeem,
   Licht en Donker, in plaats van de zon-en-maanknop in de kop;
   `params.theme_menu: false` zet het uit. De zoekknop is
-  een menu-item. De sitenaam is altijd een link; het logo is alleen een link
-  met `params.logo.url`.
+  een menu-item: één `.search-trigger`, op smal scherm alleen het icoon;
+  `ul.navbar-right` en `.mobile-search` zijn weg. De sitenaam is altijd een
+  link; het logo is alleen een link met `params.logo.url`.
 * **Paginatitel** volgens NLDD DS: `Pagina · Site`, op de homepage
   `Site: tagline`.
 * **Ondertitel.** De voet toont `params.tagline`, dezelfde zin als naast de
