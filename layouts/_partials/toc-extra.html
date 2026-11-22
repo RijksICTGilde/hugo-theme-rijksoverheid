@@ -1,0 +1,8 @@
+{{- /* Hook: extra items achteraan de inhoudsopgave in de rechterkolom
+       (page-aside.html), voor een kop die niet uit de Markdown komt. Krijgt de
+       pagina en geeft <li>'s terug, of niets. Standaard "Voetnoten" op een
+       pagina met voetnoten: die kop zet content.html erin, dus hij zit niet in
+       de inhoudsopgave die Hugo uit de Markdown bouwt. */ -}}
+{{- if strings.Contains .Content `class="footnotes"` -}}
+<li><a href="#voetnoten">Voetnoten</a></li>
+{{- end -}}
