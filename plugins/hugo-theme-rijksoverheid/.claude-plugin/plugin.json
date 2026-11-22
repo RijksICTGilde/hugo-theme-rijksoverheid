@@ -1,0 +1,9 @@
+{
+  "name": "hugo-theme-rijksoverheid",
+  "description": "Voor een site op dit theme. Twee skills: naslag zoekt hooks, params, front matter en shortcodes op in de versie die de site gebruikt; bijwerken zet de site op een nieuwe versie of test een wijziging aan het theme samen met de site.",
+  "author": {
+    "name": "Rijks ICT Gilde"
+  },
+  "repository": "https://github.com/RijksICTGilde/hugo-theme-rijksoverheid",
+  "license": "EUPL-1.2"
+}

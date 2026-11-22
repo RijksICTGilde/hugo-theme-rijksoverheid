@@ -256,6 +256,8 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * `AGENTS.md` met instructies voor agents, de plugin van het NLDD
   Designsysteem in `.claude/settings.json` en een skill `/release` voor wie
   een versie uitbrengt.
+* Een plugin voor Claude Code voor sites op dit theme, met de skills
+  `naslag` en `bijwerken`; zie `plugins/hugo-theme-rijksoverheid/README.md`.
 
 ### Opgelost
 
