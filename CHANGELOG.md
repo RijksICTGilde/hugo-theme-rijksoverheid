@@ -249,6 +249,9 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   (WCAG 2.4.7); laag 1 meldt vormen in inline SVG die de minifier open liet.
   `doc.go`, zodat Dependabot een site met dit theme kan bijwerken.
   `module.hugoVersion.min`.
+* De voorbeeldsite op Toon: live vanaf `main` op
+  <https://toon.rijks.app/hugo-theme/rijksoverheid/>, en een preview per pull
+  request.
 
 ### Opgelost
 
