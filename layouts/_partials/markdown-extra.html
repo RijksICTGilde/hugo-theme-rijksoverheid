@@ -1,0 +1,12 @@
+{{- /* Hook: zet de eigen shortcodes van een site om in Markdown, voor de
+       Markdown-uitvoer (index.md, llms.txt en llms-full.txt). Krijgt een
+       dict met text (de Markdown-bron van de pagina, shortcodes inbegrepen),
+       page, html en tables, en geeft de tekst terug; standaard ongewijzigd.
+       html en tables zijn de opties van markdown-body.html: met html is de
+       uitvoer een los document buiten de site, met absolute links; met
+       tables blijft table-without-header een tabel.
+       markdown-body.html roept de hook als eerste aan en haalt daarna alle
+       shortcodes weg die er nog staan. Een site vervangt dit bestand,
+       bijvoorbeeld:
+         {{ return replaceRE `\{\{<\s*bron\s+woord="([^"]+)"[^>]*>\}\}` "$1" .text }} */ -}}
+{{- return .text -}}
