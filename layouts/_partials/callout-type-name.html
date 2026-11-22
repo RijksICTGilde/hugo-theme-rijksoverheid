@@ -1,0 +1,20 @@
+{{- /* Verborgen typenaam vooraan een infoblok zonder titel, voor alerts
+       (render-blockquote.html) en de shortcode callout: zonder titel draagt
+       alleen de kleur het type (WCAG 1.4.1). Een alert geeft zijn type, de
+       shortcode zijn variant; een variant krijgt de naam van het alerttype
+       met dezelfde kleur. Info, note, muted en andere typen blijven neutraal.
+       De naam staat in de eerste alinea, zodat de typenaam en de tekst samen
+       worden voorgelezen.
+
+       Gebruik: {{ $text = partial "callout-type-name.html" (dict "alert" .AlertType "text" $text) }}
+       of:      {{ $text = partial "callout-type-name.html" (dict "variant" $variant "text" $text) }} */ -}}
+{{- $typeNames := partial "callout-type-names.html" . -}}
+{{- $kind := .alert -}}
+{{- with .variant -}}
+  {{- $kind = index (dict "success" "tip" "warning" "warning" "danger" "caution") . -}}
+{{- end -}}
+{{- $text := .text -}}
+{{- with index $typeNames ($kind | default "") -}}
+  {{- $text = replaceRE `^\s*(<p>)?` (printf `${1}<span class="visually-hidden">%s: </span>` .) $text 1 -}}
+{{- end -}}
+{{- return ($text | safeHTML) -}}
