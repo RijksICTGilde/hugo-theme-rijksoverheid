@@ -1,16 +1,25 @@
 {{- /*
-  Render voetnotenlijst op basis van .Params.referenties in een accordeon.
+  Render voetnotenlijst op basis van .Params.references in een accordeon.
   Klap automatisch uit wanneer op een referentie-link wordt geklikt.
-  Elke referentie heeft: tekst (verplicht), url (optioneel).
-  Gebruik: {{ partial "referenties.html" . }}
+  Elke referentie heeft: text (verplicht), url (optioneel).
+  Gebruik: {{ partial "references.html" . }}
 
-  Opt-in via .Params.show_referenties (default uit). Op section-niveau
+  Opt-in via .Params.show_references (default uit). Op section-niveau
   in een _index.md kun je cascade gebruiken om het voor alle child-
   pages aan te zetten.
 */ -}}
 {{- $page := . -}}
-{{- if and .Params.show_referenties .Params.referenties -}}
-{{- with .Params.referenties -}}
+{{- if or (isset .Params "show_referenties") (isset .Params "referenties") -}}
+  {{- warnf "%s: show_referenties en referenties heten nu show_references en references." .Path -}}
+{{- end -}}
+{{- range .Params.references -}}
+  {{- if and (reflect.IsMap .) (isset . "tekst") -}}
+    {{- warnf "%s: een bron in references heeft tekst; die sleutel heet nu text." $page.Path -}}
+    {{- break -}}
+  {{- end -}}
+{{- end -}}
+{{- if and .Params.show_references .Params.references -}}
+{{- with .Params.references -}}
 {{- /* Bouw één string van alle velden waar reftext.html op werkt, zodat we
        per ref kunnen bepalen of {ref:N} in de body voorkomt. Refs die niet
        gebruikt worden krijgen geen ↩ back-link. */ -}}
@@ -33,9 +42,9 @@
       {{- $isUsed := strings.Contains $body (printf "{ref:%d}" $num) }}
       <li id="ref-{{ $num }}">
         {{- with $ref.url -}}
-          {{ partial "render-link.html" (dict "href" . "text" $ref.tekst) }}
+          {{ partial "render-link.html" (dict "href" . "text" $ref.text) }}
         {{- else -}}
-          {{ $ref.tekst }}
+          {{ $ref.text }}
         {{- end -}}
         {{- if $isUsed }} <a href="#refback-{{ $num }}" class="ref-back" aria-label="Terug naar tekst">&#8617;</a>{{ end }}
       </li>

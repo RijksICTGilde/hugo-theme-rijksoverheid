@@ -5,7 +5,10 @@
 (function () {
   function openDetailsFor(hash) {
     if (!hash || hash.charAt(0) !== '#') return;
-    var el = document.getElementById(hash.slice(1));
+    var id = hash.slice(1);
+    // location.hash is percent-gecodeerd; een los procentteken is een URIError.
+    try { id = decodeURIComponent(id); } catch (e) {}
+    var el = document.getElementById(id);
     if (!el) return;
     var d = el.closest('details');
     if (d && !d.open) {
@@ -26,7 +29,7 @@
      staat links uitgelijnd op de term; rechts in de regel steekt hij anders
      buiten beeld en geeft hij horizontale scroll (1.4.10). Meten zonder
      transform: offsetWidth plus het eerste regelfragment van de wrapper. */
-  var MARGE = 16;
+  var MARGIN = 16;
   function placeTooltip(wrapper) {
     var tip = wrapper.querySelector('.ref-tooltip');
     var rects = wrapper.getClientRects();
@@ -34,8 +37,8 @@
     var vw = document.documentElement.clientWidth;
     var left = rects[0].left;
     // Alleen naar links schuiven, en nooit voorbij de linkermarge.
-    var shift = Math.min(0, vw - MARGE - (left + tip.offsetWidth));
-    shift = Math.max(shift, Math.min(0, MARGE - left));
+    var shift = Math.min(0, vw - MARGIN - (left + tip.offsetWidth));
+    shift = Math.max(shift, Math.min(0, MARGIN - left));
     tip.style.setProperty('--ref-offset-x', Math.round(shift) + 'px');
   }
   function onShow(e) {
@@ -44,21 +47,33 @@
   }
   document.addEventListener('mouseover', onShow);
   document.addEventListener('focusin', onShow);
+  // Een ander venster (ook zoomen of draaien) verplaatst de term onder een
+  // open tooltip; de oude verschuiving gaf dan alsnog horizontale scroll.
+  window.addEventListener('resize', function () {
+    var open = document.querySelectorAll('.ref-wrapper:hover, .ref-wrapper:focus-within');
+    for (var i = 0; i < open.length; i++) placeTooltip(open[i]);
+  });
 
   /* Escape sluit de open tooltip zonder focus of muis te verplaatsen (1.4.13).
-     Listener staat vóór die van search.js in de bundel; stopImmediatePropagation
-     voorkomt dat dezelfde toets ook de zoektermmarkering weghaalt. */
+     Capture-fase: deze Escape komt voor die van base.js, die eerder in de
+     bundel zit; preventDefault houdt de andere Escape-handlers af. */
   document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    if (document.querySelector('dialog[open]')) return;
     var open = document.querySelectorAll('.ref-wrapper:hover, .ref-wrapper:focus-within');
     var closed = false;
     for (var i = 0; i < open.length; i++) {
       if (open[i].classList.contains('is-dismissed')) continue;
+      // Focus op een link in de tooltip verdwijnt anders met de tooltip, en
+      // ligt dan nergens meer (2.4.7). Daarom eerst naar de term.
+      var tip = open[i].querySelector('.ref-tooltip');
+      var term = open[i].querySelector('.ref-term');
+      if (tip && term && tip.contains(document.activeElement)) term.focus();
       open[i].classList.add('is-dismissed');
       closed = true;
     }
-    if (closed) e.stopImmediatePropagation();
-  });
+    if (closed) e.preventDefault();
+  }, true);
 
   /* Pas weer tonen na een nieuwe hover of focus: de class gaat eraf zodra
      zowel de muis als de focus buiten de wrapper is. */
