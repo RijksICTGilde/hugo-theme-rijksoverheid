@@ -1,0 +1,10 @@
+{{- /* Hook: extra attributen op de <table> van een Markdown-tabel
+       (render-table.html) en van de shortcode table-without-header. Krijgt een
+       dict met attributes (de attributen op de regel onder de Markdown-tabel,
+       of de parameters van de shortcode) en page, en geeft een dict terug met
+       per attribuut de naam en de waarde; standaard leeg. Een site vervangt
+       dit bestand, bijvoorbeeld voor een eigen attribuut onder de tabel:
+         {{ $attributes := dict }}
+         {{ with index .attributes "print-widths" }}{{ $attributes = dict "data-print-widths" . }}{{ end }}
+         {{ return $attributes }} */ -}}
+{{- return dict -}}
