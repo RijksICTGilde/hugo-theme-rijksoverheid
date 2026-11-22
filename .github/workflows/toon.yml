@@ -1,0 +1,105 @@
+name: Toon
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+  workflow_dispatch:
+
+concurrency:
+  group: toon-${{ github.event.pull_request.number || github.ref }}
+  # Een live publicatie vanaf main loopt af; een nieuwere push wacht erop.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  TOON_ORIGIN: https://toon.rijks.app
+  TOON_SITE: hugo-theme/rijksoverheid
+  TOON_SITE_ID: eaf1cd16-cff9-4c5f-8990-ad5a6cd0b74c
+
+jobs:
+  publish:
+    name: Voorbeeldsite op Toon
+    # Live alleen vanaf main. Een PR uit een fork of van een bot krijgt geen
+    # OIDC-token.
+    if: >-
+      (github.event_name != 'pull_request' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.type != 'Bot')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+      deployments: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - uses: peaceiris/actions-hugo@d1c81a15d4e6dca7086a17b9c2565cb70fd576bf # v3.3.0
+        with:
+          hugo-version: "0.162.0"
+
+      - name: Adres op Toon
+        id: adres
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$PR" ]; then
+            echo "ref=pr-$PR" >> "$GITHUB_OUTPUT"
+            echo "url=$TOON_ORIGIN/$TOON_SITE/_preview/pr-$PR/" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=" >> "$GITHUB_OUTPUT"
+            echo "url=$TOON_ORIGIN/$TOON_SITE/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bouw de voorbeeldsite
+        working-directory: exampleSite
+        env:
+          BASE_URL: ${{ steps.adres.outputs.url }}
+        run: hugo --minify --panicOnWarning --baseURL "$BASE_URL" --destination "$RUNNER_TEMP/toon"
+
+      - name: Publiceer
+        uses: DigiGilde/toon/actions/publish@59f0d234d3e844b10fd011473c108a6224c86dc6 # v2026.11.20
+        with:
+          site: ${{ env.TOON_SITE }}
+          site-id: ${{ env.TOON_SITE_ID }}
+          dist-path: ${{ runner.temp }}/toon
+          preview-ref: ${{ steps.adres.outputs.ref }}
+          environment: ${{ github.event_name == 'pull_request' && 'toon-preview' || 'toon' }}
+          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+
+  teardown:
+    name: Preview opruimen
+    if: >-
+      github.event_name == 'pull_request' && github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+      deployments: write
+      pull-requests: write
+    steps:
+      - name: Verwijder de preview
+        uses: DigiGilde/toon/actions/publish@59f0d234d3e844b10fd011473c108a6224c86dc6 # v2026.11.20
+        with:
+          site: ${{ env.TOON_SITE }}
+          site-id: ${{ env.TOON_SITE_ID }}
+          preview-ref: pr-${{ github.event.pull_request.number }}
+          teardown: true
+          environment: toon-preview
+          comment-on-pr: true
