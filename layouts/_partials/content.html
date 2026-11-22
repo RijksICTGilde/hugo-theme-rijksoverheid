@@ -1,0 +1,39 @@
+{{- /* De gerenderde paginainhoud, met de correcties die Goldmark zelf niet
+       toelaat: er is geen render hook voor voetnoten, en de opmaak van dat blok
+       is in Goldmark hardgecodeerd. Gebruik: {{ partial "content.html" .Content }}
+
+       role="doc-endnotes" erft van list en eist lijstitems, terwijl er een <hr>
+       en een <ol> in staan. De rol op de <ol> zetten helpt niet, want dan
+       gelden de <li>'s niet meer als lijstitem. In plaats daarvan krijgt het
+       blok een kop, zodat het ook een naam heeft. De kop staat hier en niet in
+       de Markdown, dus de inhoudsopgave moet hem apart toevoegen. */ -}}
+{{- $content := partial "content-extra.html" . -}}
+{{- /* Dan de ids, op dezelfde invoer als in index.json (zie
+       content-extra.html): anders wijzen zoekresultaten naar ankers die de
+       pagina niet heeft. */ -}}
+{{- $content = partial "heading-ids.html" $content -}}
+{{- $content = $content | replaceRE `(<div class="footnotes")\s+role="doc-endnotes"(>\s*<hr\s*/?>)` `${1}${2}<h2 id="voetnoten">Voetnoten</h2>` -}}
+{{- $content = $content | replaceRE `(<a href="#fn:(\d+)" class="footnote-ref" role="doc-noteref")>` `${1} aria-label="Voetnoot ${2}">` -}}
+{{- $content = $content | replaceRE `(<a href="#fnref:(\d+)" class="footnote-backref" role="doc-backlink")>` `${1} aria-label="Terug naar voetnoot ${2} in de tekst">` -}}
+{{- /* Chroma zet tabindex="0" op elk codeblok, met class="chroma" of (bij
+       noClasses: true) een style-attribuut; een focusbaar vlak heeft een naam
+       en rol nodig. */ -}}
+{{- $content = $content | replaceRE `<pre tabindex="0"((?:\s+(?:class|style)="[^"]*")*)>` `<pre tabindex="0"${1} role="region" aria-label="Codevoorbeeld">` -}}
+
+{{- /* Elke tabelwikkel en elk codeblok een eigen naam: regio's met dezelfde
+       naam zijn niet uit elkaar te houden. De nummering gebeurt hier en niet
+       in de render hook of de shortcode, omdat die twee niet in
+       documentvolgorde draaien: de shortcode is aan de beurt nadat Goldmark
+       klaar is. */ -}}
+{{- range slice "Tabel" "Codevoorbeeld" -}}
+  {{- $name := . -}}
+  {{- $chunks := split $content (printf `aria-label="%s"` $name) -}}
+  {{- if gt (len $chunks) 1 -}}
+    {{- $numbered := index $chunks 0 -}}
+    {{- range $i, $chunk := after 1 $chunks -}}
+      {{- $numbered = printf `%saria-label="%s %d"%s` $numbered $name (add $i 1) $chunk -}}
+    {{- end -}}
+    {{- $content = $numbered -}}
+  {{- end -}}
+{{- end -}}
+{{- $content | safeHTML -}}
