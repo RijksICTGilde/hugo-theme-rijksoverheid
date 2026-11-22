@@ -1,0 +1,53 @@
+{{- /* Tabel zonder koprij, met een willekeurig aantal kolommen. De eerste kolom
+       wordt de rijkop, want een tabel zonder enige kop is voor een schermlezer
+       betekenisloos.
+
+       De inhoud is één rij per regel, met pijpen als scheiding, net als in een
+       Markdown-tabel maar zonder koprij en zonder scheidingsregel. Staat er
+       toch een scheidingsregel, dan wordt die met de koprij erboven genegeerd.
+
+       print-together="true" houdt de tabel in de afdruk op één pagina, net als het
+       gelijknamige attribuut op een Markdown-tabel.
+
+       Zonder label=".." heet de wikkel "Tabel"; content.html maakt daar
+       "Tabel 1", "Tabel 2" van, zodat elke regio een eigen naam heeft. */ -}}
+{{- $lines := slice -}}
+{{- $headerRow := "" -}}
+{{- range split (trim .Inner "\n ") "\n" -}}
+  {{- $line := trim . " " -}}
+  {{- if hasPrefix $line "|" -}}
+    {{- if findRE `^\|[\s:|-]+\|$` $line -}}
+      {{- if not $lines -}}
+        {{- errorf "table-without-header: de scheidingsregel `%s` staat op de eerste regel; zet er een koprij boven of haal hem weg, op pagina %s" $line $.Page.File.Path -}}
+      {{- end -}}
+      {{- $headerRow = index (last 1 $lines) 0 -}}
+    {{- else -}}
+      {{- $lines = $lines | append $line -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if $headerRow -}}
+  {{- $lines = after 1 $lines -}}
+{{- end -}}
+{{- if not $lines -}}
+  {{- errorf "table-without-header: verwacht rijen in de vorm `| a | b |`, op pagina %s" .Page.File.Path -}}
+{{- end -}}
+{{- /* Zonder parameters is .Params een lege lijst, met parameters zonder naam
+       een lijst; de hook krijgt altijd een dict. */ -}}
+{{- $extra := partial "table-extra.html" (dict "attributes" (cond (reflect.IsMap .Params) .Params dict) "page" .Page) -}}
+<div class="table-wrap" role="region" tabindex="0" aria-label="{{ .Get "label" | default "Tabel" }}">
+{{- /* printf met safeHTMLAttr: zie render-table.html. */}}
+<table{{ with .Get "print-together" }} data-print-together{{ end }}{{ if reflect.IsMap $extra }}{{ range $name, $value := $extra }}{{ printf ` %s="%s"` $name (htmlEscape $value) | safeHTMLAttr }}{{ end }}{{ end }}>
+  <tbody>
+    {{- range $lines }}
+    {{- $cells := split (trim . "|") "|" }}
+    <tr>
+      <th scope="row">{{ trim (index $cells 0) " " | $.Page.RenderString (dict "display" "inline") }}</th>
+      {{- range after 1 $cells }}
+      <td>{{ trim . " " | $.Page.RenderString (dict "display" "inline") }}</td>
+      {{- end }}
+    </tr>
+    {{- end }}
+  </tbody>
+</table>
+</div>
