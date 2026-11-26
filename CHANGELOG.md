@@ -7,6 +7,8 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-26
+
 Het theme is opnieuw opgebouwd vanuit
 [moza-site](https://github.com/MinBZK/moza-site): de tokens (kleuren,
 tekstmaten en regelhoogtes), het lettertype en de iconen uit het
@@ -473,6 +475,7 @@ Eerste publieke release.
   `.yamllint` voor consistente code en docs.
 * GitHub Actions workflows voor lint, publiccode-validatie en releases.
 
+[0.3.0]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.3.0
 [0.2.3]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.3
 [0.2.2]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.2
 [0.2.1]: https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag/v0.2.1
