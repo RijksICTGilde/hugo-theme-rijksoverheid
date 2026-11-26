@@ -21,7 +21,7 @@
     "zoeken": "node --test tests/laag2/zoeken.test.js"
   },
   "devDependencies": {
-    "axe-core": "^4.13.0",
+    "axe-core": "^4.14.1",
     "pa11y-ci": "^5.0.0",
     "puppeteer": "^25.9.0"
   },
