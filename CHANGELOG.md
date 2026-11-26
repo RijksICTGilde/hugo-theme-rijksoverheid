@@ -253,6 +253,9 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * De voorbeeldsite op Toon: live vanaf `main` op
   <https://toon.rijks.app/hugo-theme/rijksoverheid/>, en een preview per pull
   request.
+* `AGENTS.md` met instructies voor agents, de plugin van het NLDD
+  Designsysteem in `.claude/settings.json` en een skill `/release` voor wie
+  een versie uitbrengt.
 
 ### Opgelost
 
