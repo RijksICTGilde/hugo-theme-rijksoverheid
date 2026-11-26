@@ -247,8 +247,9 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   minimale en de nieuwste Hugo. Laag 2 tabt door elke pagina, in licht en
   donker, en meldt elk element waarvan de focus niet zichtbaar verandert
   (WCAG 2.4.7); laag 1 meldt vormen in inline SVG die de minifier open liet.
-  `doc.go`, zodat Dependabot een site met dit theme kan bijwerken.
-  `module.hugoVersion.min`.
+* `doc.go`, zodat Dependabot een site met dit theme kan bijwerken.
+* `module.hugoVersion.min` op 0.162.0: een oudere Hugo geeft een
+  waarschuwing.
 * De voorbeeldsite op Toon: live vanaf `main` op
   <https://toon.rijks.app/hugo-theme/rijksoverheid/>, en een preview per pull
   request.
