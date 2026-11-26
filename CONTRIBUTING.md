@@ -142,17 +142,37 @@ Lokaal proberen: `node tools/release/release.mjs X.Y.Z` past `CHANGELOG.md` en
 
 ### Eenmalige instelling
 
-De workflows gebruiken een GitHub App, zoals Toon: een pull request of tag van
-het standaard `GITHUB_TOKEN` start geen CI en geen release.
+De workflows maken een token aan met een GitHub App. Met het standaard
+`GITHUB_TOKEN` wacht de CI op de release-PR op een klik op **Approve workflows
+to run**, en start een gepushte tag geen release. Een eigenaar van de
+organisatie RijksICTGilde zet het eenmalig op:
 
-1. Maak een GitHub App met de repository-rechten Contents en Pull requests
-   (read and write), en installeer hem op alleen deze repository.
-2. Maak onder Settings, Environments de environment `release` en laat alleen
-   `main` hem gebruiken.
-3. Zet daarin de variabele `RELEASE_APP_CLIENT_ID` (client ID van de App) en
-   het secret `RELEASE_APP_PRIVATE_KEY` (de private key).
-4. Beschermt een ruleset `main` of de tags `v*`, geef de App dan het recht om
-   tags te maken en `release/*` te pushen.
+1. **App maken.** Organisatie RijksICTGilde, **Settings**, **Developer
+   settings**, **GitHub Apps**, **New GitHub App**:
+   * **GitHub App name**: bijvoorbeeld `hugo-theme-rijksoverheid-release`.
+   * **Homepage URL**: de URL van deze repository.
+   * **Webhook**: zet **Active** uit.
+   * **Repository permissions**: **Contents** en **Pull requests** op
+     **Read and write**. De rest blijft op **No access**.
+   * **Where can this GitHub App be installed?**: **Only on this account**.
+
+   Klik **Create GitHub App**. Op de pagina van de App staat de **Client ID**.
+2. **Sleutel maken.** Op de pagina van de App: **Credentials**, **Key pairs**,
+   **New key**. Er wordt een `.pem`-bestand gedownload; GitHub bewaart alleen
+   het publieke deel.
+3. **App installeren.** **Install App**, **Install** naast RijksICTGilde, kies
+   **Only select repositories** en alleen deze repository.
+4. **Environment maken.** In deze repository: **Settings**, **Environments**,
+   **New environment**, naam `release`. Kies bij **Deployment branches**
+   **Selected branches and tags** en voeg de branch `main` toe.
+5. **Gegevens invullen.** In de environment `release`: onder **Environment
+   variables** de variabele `RELEASE_APP_CLIENT_ID` met de Client ID, en onder
+   **Environment secrets** het secret `RELEASE_APP_PRIVATE_KEY` met de hele
+   inhoud van het `.pem`-bestand. Gooi het bestand daarna weg.
+
+Beschermt een ruleset later de tags `v*` of de branches `release/*`, zet de App
+dan bij de toegestane uitzonderingen (bypass). De ruleset op `main` raakt de
+App niet: die pusht alleen `release/vX.Y.Z` en de tag.
 
 ## Licentie van bijdragen
 

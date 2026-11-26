@@ -1,5 +1,5 @@
 # Opent de release-PR (CONTRIBUTING.md, "Een release maken"). De PR wordt geopend met een token van
-# de release-App: een PR die met GITHUB_TOKEN wordt geopend start geen CI.
+# de release-App: op een PR van GITHUB_TOKEN wacht de CI op een handmatige goedkeuring.
 
 name: Prepare release
 
