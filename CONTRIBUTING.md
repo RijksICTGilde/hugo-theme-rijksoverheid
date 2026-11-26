@@ -107,6 +107,73 @@ Voor een pull request graag:
 Reviews kunnen door iedereen met commit rights worden afgehandeld.
 Minstens één review is vereist voor merge naar `main`.
 
+## Een release maken
+
+Een release is een knop, een pull request en een merge. De versie volgt
+[SemVer](https://semver.org/lang/nl/); hieronder staat `X.Y.Z` voor de nieuwe
+versie.
+
+1. Zet de wijzigingen onder `## [Unreleased]` in `CHANGELOG.md`. Een lege
+   sectie geeft een foutmelding.
+2. Start in Actions de workflow **Prepare release** op `main` en vul de versie
+   in, zonder `v`.
+3. De workflow opent de pull request `release: vX.Y.Z`. Daarin staat de inhoud
+   van `[Unreleased]` onder `## [X.Y.Z] - <datum>` en de nieuwe versie in de
+   `hugo mod get`-regels van `README.md`. Controleer de tekst, de datum en de
+   CI.
+4. Merge de pull request. **Tag release** zoekt via de API de gemergde pull
+   request van de branch `release/vX.Y.Z` in deze repository op, controleert
+   de kop `## [X.Y.Z]` in `CHANGELOG.md` en pusht de tag `vX.Y.Z`. Die tag
+   start **Release**, die de GitHub release maakt met de tekst uit de
+   changelog.
+
+Daarna zijn **Tag release** en **Release** groen, staat `vX.Y.Z` onder
+Releases en werkt
+`hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@vX.Y.Z`.
+
+Faalt **Prepare release**, dan is er niets aangemaakt: pas de changelog of de
+versie aan en start opnieuw. Bleef er een branch `release/vX.Y.Z` achter,
+verwijder die dan eerst. Faalt **Tag release**, herstel het dan op `main` en
+push de tag met de hand: `git tag -a vX.Y.Z -m vX.Y.Z` en
+`git push origin vX.Y.Z`. Ook die tag start **Release**.
+
+Lokaal proberen: `node tools/release/release.mjs X.Y.Z` past `CHANGELOG.md` en
+`README.md` aan, en `node --test tools/release/*.test.mjs` draait de toetsen.
+
+### Eenmalige instelling
+
+De workflows maken een token aan met een GitHub App. Met het standaard
+`GITHUB_TOKEN` wacht de CI op de release-PR op een klik op **Approve workflows
+to run**, en start een gepushte tag geen release. Een eigenaar van de
+organisatie RijksICTGilde zet het eenmalig op:
+
+1. **App maken.** Organisatie RijksICTGilde, **Settings**, **Developer
+   settings**, **GitHub Apps**, **New GitHub App**:
+   * **GitHub App name**: bijvoorbeeld `hugo-theme-rijksoverheid-release`.
+   * **Homepage URL**: de URL van deze repository.
+   * **Webhook**: zet **Active** uit.
+   * **Repository permissions**: **Contents** en **Pull requests** op
+     **Read and write**. De rest blijft op **No access**.
+   * **Where can this GitHub App be installed?**: **Only on this account**.
+
+   Klik **Create GitHub App**. Op de pagina van de App staat de **Client ID**.
+2. **Sleutel maken.** Op de pagina van de App: **Credentials**, **Key pairs**,
+   **New key**. Er wordt een `.pem`-bestand gedownload; GitHub bewaart alleen
+   het publieke deel.
+3. **App installeren.** **Install App**, **Install** naast RijksICTGilde, kies
+   **Only select repositories** en alleen deze repository.
+4. **Environment maken.** In deze repository: **Settings**, **Environments**,
+   **New environment**, naam `release`. Kies bij **Deployment branches**
+   **Selected branches and tags** en voeg de branch `main` toe.
+5. **Gegevens invullen.** In de environment `release`: onder **Environment
+   variables** de variabele `RELEASE_APP_CLIENT_ID` met de Client ID, en onder
+   **Environment secrets** het secret `RELEASE_APP_PRIVATE_KEY` met de hele
+   inhoud van het `.pem`-bestand. Gooi het bestand daarna weg.
+
+Beschermt een ruleset later de tags `v*` of de branches `release/*`, zet de App
+dan bij de toegestane uitzonderingen (bypass). De ruleset op `main` raakt de
+App niet: die pusht alleen `release/vX.Y.Z` en de tag.
+
 ## Licentie van bijdragen
 
 Door een bijdrage te leveren ga je akkoord met publicatie onder de

@@ -1,0 +1,109 @@
+# Maakt de tag vX.Y.Z na het mergen van een release-PR (CONTRIBUTING.md, "Een release maken").
+#
+# `decide` herkent de merge aan de gemergde pull request van de pushed commit
+# (branch release/vX.Y.Z van deze repository), niet aan de commitmelding.
+# `tag` pusht de tag met een token van de release-App: een tag die met
+# GITHUB_TOKEN wordt gepusht start geen andere workflow, een tag van de App
+# start release.yml wel. Die maakt de GitHub release.
+
+name: Tag release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tag-release
+  cancel-in-progress: false
+
+jobs:
+  decide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # Voor commits/{sha}/pulls.
+      pull-requests: read
+    outputs:
+      version: ${{ steps.decide.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Herken een gemergede release-PR
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # De koppeling commit -> PR kan even op zich laten wachten.
+          pulls='[]'
+          for _ in 1 2 3; do
+            pulls="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls")"
+            [ "$(jq length <<<"$pulls")" -gt 0 ] && break
+            sleep 5
+          done
+          ref="$(jq -r --arg sha "$GITHUB_SHA" --arg repo "$GITHUB_REPOSITORY" '
+            [.[] | select(
+              .merged_at != null
+              and .merge_commit_sha == $sha
+              and .base.ref == "main"
+              and .head.repo.full_name == $repo
+              and (.head.ref | test("^release/v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"))
+            )] | first | .head.ref // empty' <<<"$pulls")"
+          if [ -z "$ref" ]; then
+            echo "Geen gemergde release-PR voor ${GITHUB_SHA}, niets te doen."
+            exit 0
+          fi
+          version="${ref#release/v}"
+          if ! grep -Eq "^## \[${version//./\\.}\]( |$)" CHANGELOG.md; then
+            echo "::error::PR ${ref} is gemerged, maar CHANGELOG.md mist de kop '## [${version}]'." >&2
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+  tag:
+    needs: decide
+    if: needs.decide.outputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # De sleutel van de App staat in deze environment, alleen main mag hem gebruiken.
+    environment: release
+    permissions:
+      contents: read
+    env:
+      TAG: v${{ needs.decide.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Haal een token van de release-App op
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      # Een bestaande tag wordt geweigerd, dus een tag verschuift nooit.
+      - name: Tag en push
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          set -euo pipefail
+          bot="${APP_SLUG}[bot]"
+          id="$(gh api "/users/${bot}" --jq .id)"
+          git config user.name "$bot"
+          git config user.email "${id}+${bot}@users.noreply.github.com"
+          git tag -a "$TAG" "$GITHUB_SHA" -m "$TAG"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth}" \
+            push origin "refs/tags/${TAG}"
