@@ -34,15 +34,15 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   (1.125rem, was 1.2rem) met regelhoogte `--primitives-line-height-snug`
   (1.5, was 1.4), en `--article-max-width` is 720px (was 800px), de maat van
   de tekstkolom in NLDD DS. Een regel houdt zo ongeveer evenveel
-  tekens; de rechterkolom krijgt de ruimte die vrijkomt. Op een pagina met
+  tekens, en de rechterkolom krijgt de ruimte die vrijkomt. Op een pagina met
   `wide` blijft lopende tekst op leesbreedte: zo breed als twee van de drie
   kaartkolommen. Kaarten, tabellen en figuren houden de volle breedte.
 * **`data-scheme`.** De CSS reageert op `data-scheme="light|dark"` op `<html>`
   in plaats van `data-theme`. `theme-init.js` zet in deze versie nog beide.
 * **RijksSans** vervangt RO-Sans en RO-Serif. `--font-serif` is een verouderde
-  alias van `--font-sans`; de tagline staat in schuine sans.
+  alias van `--font-sans`. De tagline staat in schuine sans.
 * **Iconen uit NLDD DS.** `toc-open.svg`, `toc-close.svg`, `mail.svg`, `sun.svg`
-  en `moon.svg` zijn weg; `chevron-down.svg` en `exclamation-triangle.svg`
+  en `moon.svg` zijn weg, `chevron-down.svg` en `exclamation-triangle.svg`
   zijn nieuw.
 * **Externe links** openen in hetzelfde tabblad, zonder icoon. Met
   `params.links.new_window: true` komt het oude gedrag terug.
@@ -64,30 +64,31 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   inhoudsopgave in NLDD DS (`--primitives-font-size-100` en `-200`). Op een
   breed scherm staat de knop naar boven (`back_to_top`) in die kolom, onder
   de inhoudsopgave.
-* **Kop en voet.** Het kruimelpad en "laatst bijgewerkt" staan in de voet;
+* **Kop en voet.** Het kruimelpad en "laatst bijgewerkt" staan in de voet,
   "laatst bijgewerkt" alleen op een leespagina, niet op een lijstpagina zonder
   eigen tekst, ook niet met `show_lastmod`. De
   keuze voor licht of donker is een menu "Weergave" in de voet met Systeem,
-  Licht en Donker, in plaats van de zon-en-maanknop in de kop;
+  Licht en Donker, in plaats van de zon-en-maanknop in de kop.
   `params.theme_menu: false` zet het uit. De zoekknop is
-  een menu-item: één `.search-trigger`, op smal scherm alleen het icoon;
+  een menu-item: één `.search-trigger`, op smal scherm alleen het icoon.
   `ul.navbar-right` en `.mobile-search` zijn weg. De sitenaam is altijd een
-  link; het logo is alleen een link met `params.logo.url`.
+  link. Het logo is alleen een link met `params.logo.url`.
 * **Paginatitel** volgens NLDD DS: `Pagina · Site`, op de homepage
   `Site: tagline`.
 * **Ondertitel.** De voet toont `params.tagline`, dezelfde zin als naast de
-  sitenaam. Op een smal scherm staat de ondertitel niet in de kop; zonder de
+  sitenaam. Op een smal scherm staat de ondertitel niet in de kop, dus zonder de
   voet was hij daar weg (WCAG 1.4.10). Met `params.footer.tagline` toont de
   voet die zin, en `params.tagline` alleen onder 600 pixels breed.
 * **Hero.** De foto is altijd decoratie, met een lege alt: onder 550px valt
   hij weg, en een beschrijving dan ook (WCAG 1.4.10). `hero.image_alt`
   vervalt.
 * **Links** zijn onderstreept in lopende tekst, niet in navigatie en kaarten.
-  Knoppen hebben geen handcursor meer; alleen wat eruitziet als een link.
+  Knoppen hebben geen handcursor meer, alleen wat eruitziet als een link.
 * **Zoeken.** Het aantal resultaten staat in een aparte
-  `<p id="search-status" role="status">`; de lijst heeft geen `aria-live` meer.
+  `<p id="search-status" role="status">`, en de lijst heeft geen
+  `aria-live` meer.
   Fuse.js 7.5.0 staat als ESM in `assets/lib/fuse/fuse.min.mjs` en wordt via
-  `js.Build` geladen; `fuse.min.js` is weg. De zoekknop en het zoekvenster
+  `js.Build` geladen. `fuse.min.js` is weg. De zoekknop en het zoekvenster
   staan er alleen als de site een JSON-index maakt.
 * **Melding over de zoekmarkering.** De knop `#highlight-bar` staat als eerste
   in `<main>` (`baseof.html`) in plaats van in `search.html`: een strook in de
@@ -106,26 +107,26 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * Heb je eigen versies van `article.html`, `baseof.html`, `header.html`,
   `lastmod.html`, `scripts.html`, `index.json` of `search.js`, vergelijk ze
   dan met deze versie:
-  * een eigen `scripts.html` laadt Fuse met
+  * Een eigen `scripts.html` laadt Fuse met
     `resources.Get "js/fuse-global.js" | js.Build (dict "minify" true "format" "iife" "target" "es2020")`
     (`lib/fuse/fuse.min.js` bestaat niet meer, de build stopt) en neemt
-    `js/tooltip.js` op;
-  * een eigen `baseof.html` zet de knop `#highlight-bar` uit die van het theme
-    als eerste in `<main>`; zonder die knop markeert het zoeken niets;
-  * een eigen `header.html` houdt `id="main-nav"` op de `<nav>` van het menu:
-    daar gaat de knop naar boven heen;
-  * een eigen `search.js` vult `#search-status`, anders meldt een schermlezer
+    `js/tooltip.js` op.
+  * Een eigen `baseof.html` zet de knop `#highlight-bar` uit die van het theme
+    als eerste in `<main>`. Zonder die knop markeert het zoeken niets.
+  * Een eigen `header.html` houdt `id="main-nav"` op de `<nav>` van het menu:
+    daar gaat de knop naar boven heen.
+  * Een eigen `search.js` vult `#search-status`, anders meldt een schermlezer
     geen resultaten (WCAG 4.1.3). Hij slaat `#highlight-bar` over bij het
     markeren en laat een Escape met `e.defaultPrevented` liggen:
     `references.js` en `tooltip.js` sluiten hun ballon daarmee, anders
-    verdwijnt de markering ook;
-  * een eigen `index.json` geeft tekst zonder HTML-entiteiten
-    (`htmlUnescape` na `plainify`): `search.js` decodeert ze niet meer;
-  * een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
+    verdwijnt de markering ook.
+  * Een eigen `index.json` geeft tekst zonder HTML-entiteiten
+    (`htmlUnescape` na `plainify`): `search.js` decodeert ze niet meer.
+  * Een eigen inhoudsopgave naast het artikel staat onderaan de pagina: de
     rechterkolom werkt alleen als `.page-aside` binnen `<article>`, met de
     tekst in `<div class="article-text">`. Gebruik `page-aside.html` en voor
-    eigen blokken de hook `page-aside-extra.html`;
-  * `footer.html` toont "laatst bijgewerkt" nu zelf; haal een eigen aanroep
+    eigen blokken de hook `page-aside-extra.html`.
+  * `footer.html` toont "laatst bijgewerkt" nu zelf. Haal een eigen aanroep
     van `lastmod.html` in de artikelvoet weg, anders staat de zin er twee
     keer. Voor alleen een andere datum is er de hook `lastmod-date.html`.
 * Een eigen versie is vaak niet meer nodig: `content-extra.html` vervangt een
@@ -140,12 +141,12 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `toc-open` en `toc-close` met de knop `.toc-toggle` eromheen: die heeft geen
   CSS en geen JavaScript meer. Of zet het icoon in `static/images/icons/` van
   de site.
-* CSS op `blockquote.callout` wordt `.callout`; CSS op `[data-theme]` wordt
+* CSS op `blockquote.callout` wordt `.callout`, CSS op `[data-theme]` wordt
   `[data-scheme]`. Eigen kaart-markup wordt een lijst:
   `<ul class="card-grid" role="list">` met per kaart
   `<li><article class="card">`. De opmaak van `article > footer p` en
   `section > footer p` (gedempt en cursief) is weg.
-* Alleen een link zonder class in lopende tekst is onderstreept; een link met
+* Alleen een link zonder class in lopende tekst is onderstreept. Een link met
   een eigen class daar onderstreep je zelf (WCAG 1.4.1).
 * Bewerk je gerenderde links na, bijvoorbeeld met een reguliere expressie,
   test dat dan opnieuw: een externe link heeft standaard geen verborgen
@@ -155,24 +156,24 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `languageCode`. Zet `build.noJSConfigInAssets: true`, anders schrijft het
   zoeken `assets/jsconfig.json` in de site.
 * Het theme levert nu `rss.xml` met de volledige tekst en `robots.txt` met de
-  sitemap; een eigen bestand in de site gaat voor.
+  sitemap. Een eigen bestand in de site gaat voor.
 * Reken het contrast na als je `--color-primary` of `--color-banner` zelf
   zet: de kleuren eromheen zijn veranderd.
-* Een site die bijwerkt met Dependabot, zet een `tools.go` in de root; zie de
-  README.
+* Een site die bijwerkt met Dependabot, zet een `tools.go` in de root, zoals de
+  README beschrijft.
 * Staat in `params.footer.tagline` dezelfde zin als in `params.tagline`,
   haal hem dan weg: op een smal scherm staat hij anders twee keer in de voet.
-* Haal `hero.image_alt` weg; de build waarschuwt zolang het een waarde heeft.
+* Haal `hero.image_alt` weg: de build waarschuwt zolang het een waarde heeft.
   Wat de foto vertelt, zet je in `hero.text`.
-* Hernoem wat je uit v0.2 gebruikt; de build waarschuwt zolang een oude naam
+* Hernoem wat je uit v0.2 gebruikt. De build waarschuwt zolang een oude naam
   er staat:
-  * front matter `show_referenties` en `referenties` worden `show_references`
+  * Front matter `show_referenties` en `referenties` worden `show_references`
     en `references`, met `text` in plaats van `tekst` per bron, en de sleutel
-    `tekst` van `reftext.html` wordt `text`;
-  * `callout titel="..."` wordt `title="..."`;
-  * de menu's `footer-links` en `footer-rechts` worden `footer-left` en
+    `tekst` van `reftext.html` wordt `text`.
+  * `callout titel="..."` wordt `title="..."`.
+  * De menu's `footer-links` en `footer-rechts` worden `footer-left` en
     `footer-right`, en `params.footer.links` en `params.footer.rechts` worden
-    `footer.left` en `footer.right`;
+    `footer.left` en `footer.right`.
   * `params.logo.woordmerk` wordt `params.logo.wordmark`.
 * Een eigen layout die `referenties.html` of `logo-woordmerk.html` aanroept,
   stopt met een fout: die heten nu `references.html` en `logo-wordmark.html`.
@@ -190,16 +191,16 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   `--color-accent-warning`, `--color-accent-danger`, `--color-border-strong`,
   `--color-border-surface` (de rand van zwevende vlakken) en `--font-mono`.
 * Rechterkolom met inhoudsopgave, relevante links (`related_links`) en de
-  hook `page-aside-extra.html`; leadbeeld (`lead_image`); labels onder de
-  titel (`show_date`, `status`).
+  hook `page-aside-extra.html`, een leadbeeld (`lead_image`) en labels onder
+  de titel (`show_date`, `status`).
 * `aside_nav: true` op een sectie: op de sectie en op elke pagina erin
   staat het blok "Relevante pagina's" in de rechterkolom, met de huidige
   pagina gemarkeerd (`aria-current`). Met `related_links` heet het blok
   "Relevante pagina's en links". Een sectie met `aside_nav` en eigen
   tekst is een leespagina, met de kaarten onder de tekst.
 * Uitvoer voor taalmodellen (`llms.txt`, `llms-full.txt`, Markdown per pagina)
-  en RSS met de volledige inhoud; `robots.txt`. Het theme definieert de
-  uitvoerformaten; de site zet ze aan met `outputs`.
+  en RSS met de volledige inhoud, plus `robots.txt`. Het theme definieert de
+  uitvoerformaten en de site zet ze aan met `outputs`.
 * `meta.html` met canonical, Open Graph, Twitter en een alternate-link naar de
   Markdown-versie, en de hooks `favicons.html`, `og-image.html`,
   `llms-instructions.html` en `search-index-extra.html`.
@@ -209,8 +210,8 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   bij zijn element staat, blijft staan en sluit met Escape.
 * Shortcodes `quote`, `table-without-header`, `emoji` en `tree`, een
   boomschema dat een schermlezer als lijst met niveaus voorleest. `callout`
-  heeft `heading-level`; `card-grid` heeft `heading-level` en `classes`, zodat
-  `boxed`, `clickable` en `columns-2` ook via de shortcode werken
+  heeft `heading-level`, en `card-grid` heeft `heading-level` en `classes`,
+  zodat `boxed`, `clickable` en `columns-2` ook via de shortcode werken
   ([#27](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/27)).
 * Params `links.new_window`, `links.private`, `linkcheck` (besloten
   links overslaan in htmltest), `callout.heading_level`,
@@ -232,21 +233,21 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * In de zoekindex heeft een pagina buiten een sectie als sectie de naam van
   haar bestand, en de homepage `home`, zodat
   `params.search.priority_sections` ze kan noemen. De homepage staat er nu ook
-  in; `search_index: false` in haar front matter haalt haar eruit. De kaarten
-  van `card-grid` staan er niet in, want hun pagina's staan er zelf al in;
-  tegels (`tiles`) wel.
+  in, en `search_index: false` in haar front matter haalt haar eruit. De kaarten
+  van `card-grid` staan er niet in, want hun pagina's staan er zelf al in.
+  Tegels (`tiles`) staan er wel in.
 * Hooks `content-extra.html` (de HTML van een pagina), `toc-extra.html`
   (items in de inhoudsopgave), `lastmod-text.html` (de zin "laatst
-  bijgewerkt") en `table-extra.html` (attributen op een tabel);
+  bijgewerkt") en `table-extra.html` (attributen op een tabel).
   `markdown-extra.html` krijgt ook `html` en `tables`.
 * `params.version` en `params.version_url`: het versienummer van de site in
-  de voet, op elke pagina, vóór "laatst bijgewerkt"; in CI met
+  de voet, op elke pagina, vóór "laatst bijgewerkt". In CI zet je het met
   `HUGO_PARAMS_VERSION`. Standaard uit. De zin komt uit de hook
   `version-text.html`.
 * `exampleSite/` met controles op toegankelijkheid, CSP en links, in CI op de
   minimale en de nieuwste Hugo. Laag 2 tabt door elke pagina, in licht en
   donker, en meldt elk element waarvan de focus niet zichtbaar verandert
-  (WCAG 2.4.7); laag 1 meldt vormen in inline SVG die de minifier open liet.
+  (WCAG 2.4.7). Laag 1 meldt vormen in inline SVG die de minifier open liet.
 * `doc.go`, zodat Dependabot een site met dit theme kan bijwerken.
 * `module.hugoVersion.min` op 0.162.0: een oudere Hugo geeft een
   waarschuwing.
@@ -257,7 +258,9 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   Designsysteem in `.claude/settings.json` en een skill `/release` voor wie
   een versie uitbrengt.
 * Een plugin voor Claude Code voor sites op dit theme, met de skills
-  `naslag` en `bijwerken`; zie `plugins/hugo-theme-rijksoverheid/README.md`.
+  `naslag` en `bijwerken`. Een site zet hem met `ref` vast op dezelfde tag als
+  het theme, zoals `plugins/hugo-theme-rijksoverheid/README.md`
+  beschrijft.
 
 ### Opgelost
 
@@ -293,7 +296,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   context van de pagina: een anker als `[kop](#kop)` wees naar de homepage,
   een link als `[b](b.md)` bleef staan en een mermaid-blok in een callout
   liet de bouw stoppen.
-* Voetnoten hebben een kop en links met een naam; de rol `doc-endnotes` is weg.
+* Voetnoten hebben een kop en links met een naam. De rol `doc-endnotes` is weg.
 * Het icoon in een infoblok is decoratief in plaats van een afbeelding met de
   Engelse alt "Info icon" (WCAG 1.1.1). Een infoblok zonder titel noemt zijn
   type in verborgen tekst, ook met de shortcode `callout` (WCAG 1.4.1).
@@ -302,7 +305,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * Een bronterm (`reftext.html`) is een knop met de bron als beschrijving, in
   plaats van een focusbare `span` zonder rol (WCAG 4.1.2), en de stippellijn
   eronder haalt 3:1. Een `$` in de brontekst of de URL blijft staan.
-* Het woordmerk naast het lint is leesbaar voor hulptechnologie; zonder
+* Het woordmerk naast het lint is leesbaar voor hulptechnologie. Zonder
   `params.logo.url` stond het in een verborgen link (WCAG 1.3.1).
 * Zonder `params.logo` heet het beeldmerk in de kop Rijksoverheid in plaats
   van een lege alt-tekst: een schermlezer hoorde nergens van wie de site is
@@ -313,7 +316,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 * De titel van een zoekresultaat is een kop van niveau 2 (WCAG 1.3.1).
 * De melding over de zoekmarkering is een strook bovenaan de inhoud in plaats
   van een vaste balk onderin, die een element met focus kon afdekken (WCAG
-  2.4.11). Ze is de eerste focusstop van de inhoud; Enter of Escape op de
+  2.4.11). Ze is de eerste focusstop van de inhoud, en Enter of Escape op de
   melding zet de focus op de inhoud (WCAG 2.4.3). Ze markeert haar eigen tekst
   niet.
 * De gemarkeerde zoekterm is ook vet, en onderstreept in tekst die al vet is,
@@ -343,7 +346,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 ### Verwijderd
 
 * RO-Sans, RO-Serif en het ongebruikte `ro-icons-2.3.woff`.
-* `params.search.enable: true` is niet meer nodig; `false` zet zoeken nog wel
+* `params.search.enable: true` is niet meer nodig. `false` zet zoeken nog wel
   uit.
 
 ## [0.2.3] - 2026-10-06
@@ -373,7 +376,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   focus naar de inhoud verhuist en niet alleen de scrollpositie
   (WCAG 2.4.1) ([#15](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/15)).
 * Zoekknop: geen `aria-label="Zoeken"` meer op de knop met zichtbare
-  tekst; de naam komt uit de tekst zelf (WCAG 2.5.3). De icoonknop op
+  tekst. De naam komt uit de tekst zelf (WCAG 2.5.3). De icoonknop op
   mobiel houdt zijn label ([#16](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/16)).
 * Mobiel menu: geen genest navigatielandmark meer (WCAG 1.3.1), de
   menuknop heet vast "Menu" en Escape sluit het menu en zet de focus terug
@@ -384,7 +387,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   (WCAG 1.3.1). Besloten links melden "(besloten omgeving, opent in een
   nieuw venster)". Meta-description en zoekindex laten de melding weg.
   **Let op:** de linkinhoud bevat nu een
-  `<span class="visually-hidden nieuw-venster-melding">`; wie gerenderde
+  `<span class="visually-hidden nieuw-venster-melding">`. Wie gerenderde
   links nabewerkt met regexen of `textContent` moet die meenemen
   ([#17](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/17)).
 * Bron-tooltip sluit met Escape zonder dat focus of muis verplaatst
@@ -400,7 +403,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   focus van hover te onderscheiden is en zichtbaar blijft als een site de
   knopkleuren overschrijft (WCAG 2.4.7) ([#24](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/24)).
 * Koppen breken lange woorden af (`hyphens: auto`, met
-  `overflow-wrap: break-word` als terugval); lange samenstellingen lieten
+  `overflow-wrap: break-word` als terugval), want lange samenstellingen lieten
   de pagina op 320px horizontaal scrollen (WCAG 1.4.10) ([#40](https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/issues/40)).
 
 ## [0.2.2] - 2026-10-05
@@ -409,7 +412,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 
 * TOC scroll-spy: koppen in het laatste schermstuk worden nu ook actief. Die
   haalden de lijn op 20% van het venster nooit, omdat de pagina eerder op
-  was; op korte pagina's werden de laatste secties zo nooit gemarkeerd. Op het
+  was. Op korte pagina's werden de laatste secties zo nooit gemarkeerd. Op het
   laatste stuk scrollen schuift de lijn mee naar beneden, tot onderaan de
   laatste kop actief is.
 * Changelog: de vorige release heette hier `[0.3.0]`, maar is als `v0.2.1`
@@ -429,7 +432,7 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 
 * TOC scroll-spy ("Op deze pagina") volgt nu alleen koppen die ook een
   TOC-link hebben, in plaats van elke `h2`/`h3`/`h4` in het artikel. De
-  actieve sectie loopt daardoor vloeiend mee; voorheen verdween de highlight
+  actieve sectie loopt daardoor vloeiend mee. Voorheen verdween de highlight
   zodra je in een sectie zonder TOC-link scrolde (bv. diepere koppen of een
   als `<summary>` gerenderde kop). Gebruikt `getBoundingClientRect` i.p.v.
   `offsetTop` en `requestAnimationFrame`-throttling
