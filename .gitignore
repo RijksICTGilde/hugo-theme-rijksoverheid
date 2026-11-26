@@ -7,3 +7,7 @@ resources/
 # Voorbeeldsite: de tweede build en de proefsites van de tests
 exampleSite/public-nieuw-venster/
 exampleSite/tmp/
+
+# Claude Code: persoonlijke instellingen en worktrees
+.claude/settings.local.json
+.claude/worktrees/
