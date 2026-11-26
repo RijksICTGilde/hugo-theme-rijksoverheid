@@ -11,6 +11,13 @@ Policy en doet geen verzoeken naar andere domeinen. Het staat onder de
 [EUPL 1.2](LICENSE) en is bedoeld voor hergebruik door overheidsorganisaties.
 Fonts, logo en iconen hebben een eigen licentie; zie [NOTICES.md](NOTICES.md).
 
+## Voorbeelden
+
+- [Voorbeeldsite](https://toon.rijks.app/hugo-theme/rijksoverheid/): elk
+  onderdeel van het theme, gebouwd uit `exampleSite/` op `main`.
+- [Toetsingskader Archiefwet](https://toetsingskader.inspectie-oe.nl/archiefwet/)
+  van de Inspectie Overheidsinformatie en Erfgoed.
+
 ## Vereisten
 
 | Gereedschap | Minimale versie | Opmerking               |
