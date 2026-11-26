@@ -1,0 +1,12 @@
+# Draai vanuit exampleSite, na `hugo --minify --destination public`:
+#   htmltest
+DirectoryPath: public
+
+# Externe links horen niet in een build die altijd moet slagen.
+CheckExternal: false
+
+# alt="" is een bewuste keuze voor een decoratieve afbeelding; een ontbrekende alt
+# vangt de regel afbeelding-alt-aanwezig in tests/ op.
+IgnoreAltEmpty: true
+
+OutputDir: tmp/htmltest

@@ -1,0 +1,12 @@
+{{- /* Hook: de zin met het versienummer van de site in de voet, vóór "laatst
+       bijgewerkt" (lastmod.html). Krijgt de pagina en geeft HTML terug, of
+       niets. Standaard alleen met params.version, dan op elke pagina; met
+       params.version_url is "Versie ..." een link. */ -}}
+{{- with site.Params.version -}}
+  {{- $text := printf "Versie %v" . -}}
+  {{- with site.Params.version_url -}}
+    {{- partial "render-link.html" (dict "href" . "text" $text) -}}.
+  {{- else -}}
+    {{- $text -}}.
+  {{- end -}}
+{{- end -}}

@@ -1,0 +1,37 @@
+{{- /* llms.txt: hoofdpagina's uit het menu main, de secties uit params.llms.sections
+       (lijst met section, heading en optioneel limit, text en full) en het menu
+       footer-right. */ -}}
+# {{ .Site.Title }}
+
+> {{ .Site.Params.description | default .Site.Title }}
+{{- with partial "llms-instructions.html" . | strings.TrimSpace }}
+
+{{ . }}
+{{- end }}
+{{- with site.Menus.main }}
+
+## Hoofdpagina's
+{{- range . }}
+- [{{ .Name }}]({{ .URL }}){{ with .Page }}{{ with .Description }}: {{ . }}{{ end }}{{ end }}
+{{- end }}
+{{- end }}
+{{- range site.Params.llms.sections }}
+{{- $pages := where site.RegularPages "Section" .section }}
+{{- with .limit }}{{ $pages = first . $pages }}{{ end }}
+
+## {{ .heading | default .section }}
+{{- with .text }}
+
+{{ . }}
+{{ end }}
+{{- range $pages }}
+- [{{ .Title }}]({{ with .OutputFormats.Get "markdown" }}{{ .RelPermalink }}{{ else }}{{ .RelPermalink }}{{ end }}){{ with .Description }}: {{ . }}{{ end }}
+{{- end }}
+{{- end }}
+{{- with index site.Menus "footer-right" }}
+
+## Optional
+{{- range . }}
+- [{{ .Name }}]({{ .URL }})
+{{- end }}
+{{- end }}

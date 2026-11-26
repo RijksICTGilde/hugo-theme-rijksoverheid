@@ -1,11 +1,47 @@
+{{- /* Kaarten voor de pagina's in een sectie; een lege sectie geeft niets.
+  index.json laat de <section> met data-search-index="false" weg: die
+  pagina's staan er zelf al in.
+
+  Params:
+    section  - pad van de sectie (verplicht)
+    heading-level - kopniveau van de kaarttitels (default: een niveau onder de
+               laatste kop vóór de shortcode, anders 2)
+    classes       - boxed, clickable en/of columns-2
+*/ -}}
 {{- $section := .Get "section" -}}
 {{- if not $section -}}
   {{- errorf "card-grid shortcode: 'section' parameter is verplicht" -}}
 {{- end -}}
+{{- $level := 2 -}}
+{{- with .Get "heading-level" -}}
+  {{- $level = int . -}}
+{{- else -}}
+  {{- /* Zoek de aanroep voor deze sectie in de bron; staat dezelfde sectie er
+         twee keer, geef dan heading-level mee. */ -}}
+  {{- $raw := .Page.RawContent -}}
+  {{- $shortcodeCall := "" -}}
+  {{- range findRE `\{\{[<%]\s*card-grid\b[^}]*[>%]\}\}` $raw -}}
+    {{- if and (not $shortcodeCall) (strings.Contains . $section) }}{{ $shortcodeCall = . }}{{ end -}}
+  {{- end -}}
+  {{- with $shortcodeCall -}}
+    {{- with findRE `(?m)^#{1,6}[ \t]|<h[1-6][ >]` (index (split $raw .) 0) -}}
+      {{- $last := index . (sub (len .) 1) -}}
+      {{- $heading := 0 -}}
+      {{- if hasPrefix $last "#" -}}
+        {{- $heading = len (trim $last " \t") -}}
+      {{- else -}}
+        {{- $heading = int (substr $last 2 1) -}}
+      {{- end -}}
+      {{- $level = int (math.Min 6 (add 1 $heading)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 {{- with site.GetPage $section -}}
-<section>
-  {{ partial "card-grid.html" .Pages.ByWeight }}
+  {{- with .Pages.ByWeight -}}
+<section data-search-index="false">
+  {{ partial "card-grid.html" (dict "pages" . "headingLevel" $level "classes" ($.Get "classes")) }}
 </section>
+  {{- end -}}
 {{- else -}}
   {{- errorf "card-grid shortcode: sectie %q niet gevonden" $section -}}
 {{- end -}}

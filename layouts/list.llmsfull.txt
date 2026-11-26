@@ -1,0 +1,20 @@
+{{- /* Sectie met volledige inhoud voor taalmodellen. Een sectie met een eigen indeling overschrijft dit bestand. */ -}}
+# {{ .Title }}
+{{- with .Description }}
+
+> {{ . }}
+{{- end }}
+{{- if .RawContent }}
+
+{{ partial "markdown-body" . }}
+{{- end }}
+{{- range .Pages.ByWeight }}
+
+## {{ .Title }}
+{{- with .Description }}
+
+> {{ . }}
+{{- end }}
+
+{{ partial "markdown-body" . }}
+{{- end }}
