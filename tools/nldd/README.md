@@ -18,6 +18,8 @@ Commit `package.json`, `package-lock.json` en de gewijzigde bestanden samen. Daa
 
 `npm ci --prefix tools/nldd && node tools/nldd/check.js` genereert in een tijdelijke map en vergelijkt met de repo. Exit 1 bij een verschil. Dit draait in CI.
 
+`tools/nldd/node_modules/.bin/nldd lint` (vanuit de root van de repo) toetst CSS, templates en scripts tegen het designsysteem, onder andere op NLDD-tokens (`--primitives-*`) die niet bestaan; de eigen tokens van het theme toetst laag 1. CI draait het met `--max-warnings 0`. Een bewuste uitzondering krijgt op de regel ervoor `nldd-lint-disable-next-line <regel> -- <reden>`; `nldd explain <regel>` legt een regel uit.
+
 ## Bestanden
 
 - `tokens.js`: alle kleurschalen, referentiekleuren, functionele aliassen en typografie, plus `--theme-neutral-<stap>` (coolgray met meer verzadiging in dark).

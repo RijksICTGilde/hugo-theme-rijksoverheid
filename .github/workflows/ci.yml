@@ -178,6 +178,25 @@ jobs:
       - name: Vergelijk de gegenereerde bestanden met de repo
         run: node tools/nldd/check.js
 
+  nldd-lint:
+    name: NLDD-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Installeer het designsysteem
+        run: npm ci --prefix tools/nldd
+
+      - name: Toets tokens en markup tegen het designsysteem
+        run: tools/nldd/node_modules/.bin/nldd lint --max-warnings 0 --format github
+
   fuse:
     name: Gevendorde Fuse.js klopt met het npm-pakket
     runs-on: ubuntu-latest

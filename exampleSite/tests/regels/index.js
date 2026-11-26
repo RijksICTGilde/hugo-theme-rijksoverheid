@@ -353,6 +353,7 @@ const BRON_REGELS = [
       [{ css: geef("a.css", "a{color:var(--bestaat-niet)}"), primitives: null }],
       [{ css: geef("a.css", ":root{--x:1} a{color:var(--primitives-color-blue-500)}"), primitives: "" }],
       [{ css: geef("a.css", "a{color:var(--primitives-color-blue-500)}"), primitives: null }],
+      // nldd-lint-disable-next-line token-not-found -- negatieve test: een token dat niet bestaat
       [{ css: geef("a.css", "a{color:var(--primitives-bestaat-niet, red)}"), primitives: ":root{--primitives-color-blue-500:#00f}" }],
     ],
     goed: [
