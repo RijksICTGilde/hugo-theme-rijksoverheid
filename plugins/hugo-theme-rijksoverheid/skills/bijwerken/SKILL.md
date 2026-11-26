@@ -23,6 +23,9 @@ versie.
    hugo mod tidy
    ```
 
+   Zet de site deze plugin aan in `.claude/settings.json`, zet daar `ref` van
+   de marketplace `hugo-theme-rijksoverheid` op dezelfde `vX.Y.Z`.
+
 4. Bekijk de diff van `go.mod` en `go.sum`: alleen regels van het theme.
    `hugo mod tidy` haalt de regels van de oude versie uit `go.sum`. Houdt een
    `tools.go` de require vast (hij importeert het pakket uit `doc.go` van het

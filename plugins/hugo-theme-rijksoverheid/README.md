@@ -19,9 +19,9 @@ Zet in `.claude/settings.json` van de site:
     "hugo-theme-rijksoverheid": {
       "source": {
         "source": "github",
-        "repo": "RijksICTGilde/hugo-theme-rijksoverheid"
-      },
-      "autoUpdate": true
+        "repo": "RijksICTGilde/hugo-theme-rijksoverheid",
+        "ref": "v0.3.0"
+      }
     }
   },
   "enabledPlugins": {
@@ -39,8 +39,8 @@ claude plugin install hugo-theme-rijksoverheid@hugo-theme-rijksoverheid --scope 
 
 ## De plugin bijwerken
 
-De plugin heeft geen versienummer: Claude Code volgt de commits op `main`.
-Door `autoUpdate` hierboven haalt Claude Code nieuwe tekst van de skills
-vanzelf op tijdens een sessie; die geldt na `/reload-plugins` of bij de
-volgende start. Zonder `autoUpdate` doe je het met
-`claude plugin update hugo-theme-rijksoverheid@hugo-theme-rijksoverheid`.
+`ref` zet de plugin vast op een tag van het theme, zodat de skills bij de
+versie van het theme in `go.mod` horen. Zet hem op dezelfde versie, en hoog hem
+op in dezelfde pull request als het theme; de skill `bijwerken` doet dat mee.
+Verandert `ref`, dan haalt Claude Code de plugin opnieuw op; de nieuwe tekst
+van de skills geldt na `/reload-plugins` of bij de volgende start.

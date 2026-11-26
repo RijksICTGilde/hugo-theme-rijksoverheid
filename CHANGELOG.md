@@ -257,7 +257,8 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
   Designsysteem in `.claude/settings.json` en een skill `/release` voor wie
   een versie uitbrengt.
 * Een plugin voor Claude Code voor sites op dit theme, met de skills
-  `naslag` en `bijwerken`; zie `plugins/hugo-theme-rijksoverheid/README.md`.
+  `naslag` en `bijwerken`. Een site zet hem met `ref` vast op dezelfde tag als
+  het theme; zie `plugins/hugo-theme-rijksoverheid/README.md`.
 
 ### Opgelost
 
