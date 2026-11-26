@@ -181,9 +181,10 @@ de focusringen, de hero, de Ctrl+K-hint) is gebleven. Lees "Breaking" en
 
 ### Toegevoegd
 
-* `tools/nldd/`: generator voor de tokens en iconen uit NLDD DS 0.27.1, met
-  `check.js` als controle in CI. `NOTICES.md` met de herkomst en licenties van
-  fonts, logo, iconen en Fuse.js.
+* `tools/nldd/`: generator voor de tokens en iconen uit NLDD DS 0.28.1, met
+  `check.js` als controle in CI, en `nldd lint` in CI voor NLDD-tokens die
+  niet bestaan. `NOTICES.md` met de herkomst en licenties van fonts, logo,
+  iconen en Fuse.js.
 * Tokens `--color-surface`, `--color-bg-success`, `--color-bg-warning`,
   `--color-bg-danger`, `--color-accent-info`, `--color-accent-success`,
   `--color-accent-warning`, `--color-accent-danger`, `--color-border-strong`,
