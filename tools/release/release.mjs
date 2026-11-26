@@ -4,12 +4,12 @@
  * Bereidt een release voor: verplaatst de inhoud van `## [Unreleased]` in
  * CHANGELOG.md naar een nieuwe sectie `## [X.Y.Z] - <datum>`, voegt de
  * linkverwijzing toe en zet de versie in de installatie-instructies van
- * README.md.
+ * README.md en in de `ref` van de plugin (plugins/hugo-theme-rijksoverheid/README.md).
  *
  * Gebruik: node tools/release/release.mjs X.Y.Z [--dir <map met CHANGELOG.md en README.md>]
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const REPO_URL = "https://github.com/RijksICTGilde/hugo-theme-rijksoverheid";
@@ -81,6 +81,14 @@ export function prepareReadme(readme, version) {
   return { text: readme.replace(pattern, `hugo-theme-rijksoverheid@v${version}`), count };
 }
 
+const PLUGIN_README = join("plugins", "hugo-theme-rijksoverheid", "README.md");
+
+export function preparePluginReadme(readme, version) {
+  const pattern = /("ref":\s*")v\d+\.\d+\.\d+(")/g;
+  const count = (readme.match(pattern) ?? []).length;
+  return { text: readme.replace(pattern, `$1v${version}$2`), count };
+}
+
 function main(argv) {
   const args = argv.slice(2);
   const dirAt = args.indexOf("--dir");
@@ -103,8 +111,14 @@ function main(argv) {
     if (readme.count === 0) {
       console.error("Waarschuwing: geen 'hugo-theme-rijksoverheid@vX.Y.Z' gevonden in README.md.");
     }
+    const pluginPath = join(dir, PLUGIN_README);
+    const plugin = existsSync(pluginPath) ? preparePluginReadme(readFileSync(pluginPath, "utf8"), version) : null;
+    if (plugin && plugin.count === 0) {
+      console.error(`Waarschuwing: geen '"ref": "vX.Y.Z"' gevonden in ${PLUGIN_README}.`);
+    }
     writeFileSync(changelogPath, changelog);
     writeFileSync(readmePath, readme.text);
+    if (plugin) writeFileSync(pluginPath, plugin.text);
     console.log(`Release ${version} voorbereid (${today()}).`);
   } catch (err) {
     console.error(`Fout: ${err.message}`);

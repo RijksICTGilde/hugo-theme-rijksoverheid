@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { prepareChangelog, prepareReadme, today } from "./release.mjs";
+import { prepareChangelog, preparePluginReadme, prepareReadme, today } from "./release.mjs";
 
 const URL = "https://github.com/RijksICTGilde/hugo-theme-rijksoverheid/releases/tag";
 const HEAD = "# Changelog\n\nIntro.\n\n";
@@ -101,6 +101,13 @@ test("README: elke vermelding krijgt de nieuwe versie", () => {
   );
 });
 
+test("plugin: de ref krijgt de nieuwe versie, de rest blijft", () => {
+  const bron = '"repo": "x",\n      "ref": "v0.3.0"\n"ref":"v1.2.3"\n"version": "v0.1.0"\n';
+  const { text, count } = preparePluginReadme(bron, "0.4.0");
+  assert.equal(count, 2);
+  assert.equal(text, '"repo": "x",\n      "ref": "v0.4.0"\n"ref":"v0.4.0"\n"version": "v0.1.0"\n');
+});
+
 test("today geeft de Amsterdamse datum", () => {
   // 23:30 UTC op 30 juni is al 1 juli in Amsterdam (zomertijd).
   assert.equal(today(new Date("2026-06-30T23:30:00Z")), "2026-07-01");
@@ -111,10 +118,13 @@ test("CLI schrijft beide bestanden en weigert fouten met exit 1", () => {
   const dir = mkdtempSync(join(tmpdir(), "release-test-"));
   writeFileSync(join(dir, "CHANGELOG.md"), metDatum);
   writeFileSync(join(dir, "README.md"), "hugo mod get x/hugo-theme-rijksoverheid@v0.1.0\n");
+  mkdirSync(join(dir, "plugins", "hugo-theme-rijksoverheid"), { recursive: true });
+  writeFileSync(join(dir, "plugins", "hugo-theme-rijksoverheid", "README.md"), '"ref": "v0.1.0"\n');
   const script = new globalThis.URL("./release.mjs", import.meta.url).pathname;
   execFileSync("node", [script, "0.3.0", "--dir", dir]);
   assert.match(readFileSync(join(dir, "CHANGELOG.md"), "utf8"), /## \[0\.3\.0\] - \d{4}-\d{2}-\d{2}/);
   assert.match(readFileSync(join(dir, "README.md"), "utf8"), /@v0\.3\.0/);
+  assert.equal(readFileSync(join(dir, "plugins", "hugo-theme-rijksoverheid", "README.md"), "utf8"), '"ref": "v0.3.0"\n');
   const again = spawnSync("node", [script, "0.3.0", "--dir", dir], { encoding: "utf8" });
   assert.equal(again.status, 1);
   assert.match(again.stderr, /staat al|leeg/);

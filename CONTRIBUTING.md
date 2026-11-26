@@ -118,9 +118,10 @@ versie.
 2. Start in Actions de workflow **Prepare release** op `main` en vul de versie
    in, zonder `v`.
 3. De workflow opent de pull request `release: vX.Y.Z`. Daarin staat de inhoud
-   van `[Unreleased]` onder `## [X.Y.Z] - <datum>` en de nieuwe versie in de
-   `hugo mod get`-regels van `README.md`. Controleer de tekst, de datum en de
-   CI.
+   van `[Unreleased]` onder `## [X.Y.Z] - <datum>`, en de nieuwe versie in de
+   `hugo mod get`-regels van `README.md` en in de `ref` van de plugin
+   (`plugins/hugo-theme-rijksoverheid/README.md`). Controleer de tekst, de
+   datum en de CI.
 4. Merge de pull request. **Tag release** zoekt via de API de gemergde pull
    request van de branch `release/vX.Y.Z` in deze repository op, controleert
    de kop `## [X.Y.Z]` in `CHANGELOG.md` en pusht de tag `vX.Y.Z`. Die tag
@@ -137,8 +138,8 @@ verwijder die dan eerst. Faalt **Tag release**, herstel het dan op `main` en
 push de tag met de hand: `git tag -a vX.Y.Z -m vX.Y.Z` en
 `git push origin vX.Y.Z`. Ook die tag start **Release**.
 
-Lokaal proberen: `node tools/release/release.mjs X.Y.Z` past `CHANGELOG.md` en
-`README.md` aan, en `node --test tools/release/*.test.mjs` draait de toetsen.
+Lokaal proberen: `node tools/release/release.mjs X.Y.Z` past `CHANGELOG.md`,
+`README.md` en de README van de plugin aan, en `node --test tools/release/*.test.mjs` draait de toetsen.
 
 ### Eenmalige instelling
 
