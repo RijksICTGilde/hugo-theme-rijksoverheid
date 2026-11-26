@@ -453,6 +453,15 @@ en in `.github/dependabot.yml` het ecosysteem `gomod`. Laat de CI na het
 bouwen ook `hugo mod verify` en `git diff --exit-code -- go.mod go.sum`
 draaien, zodat een stille wijziging van de versie opvalt.
 
+## Claude Code
+
+Onderhoud je een site op dit theme met Claude Code, dan geeft een plugin uit
+deze repository de agent twee skills: `naslag` zoekt hooks, params, front
+matter en shortcodes op in de versie van het theme die de site gebruikt, en
+`bijwerken` zet de site op een nieuwe versie. Hoe je de plugin in een site
+aanzet, staat in
+[plugins/hugo-theme-rijksoverheid/README.md](plugins/hugo-theme-rijksoverheid/README.md).
+
 ## Testsite en controles
 
 `exampleSite/` is een site met elk onderdeel van het theme. Hij heeft een eigen
