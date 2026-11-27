@@ -46,9 +46,16 @@ article:has(> .page-aside) {
       overflow-y: auto;
 
       /* overflow-y maakt ook de x-as scrollend, dus een ring buiten de
-         rand wordt afgekapt. */
-      a:focus-visible {
+         rand wordt afgekapt. `li > a`: wint van de kolomlinks verderop. */
+      a:focus-visible,
+      li > a:focus-visible {
         outline-offset: -2px;
+      }
+
+      /* Op -2px ligt de ring half op de knopvulling, half op de pagina. */
+      a.button:focus-visible {
+        outline-color: currentColor;
+        outline-offset: -5px;
       }
     }
   }

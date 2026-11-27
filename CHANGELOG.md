@@ -7,6 +7,15 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+### Opgelost
+
+* De focusring van een knop (`.button`) in de rechterkolom lag op `-2px` half
+  op de knop en half op de pagina, en haalde in donker 1,3:1. Hij ligt nu
+  binnen de knop, in de tekstkleur van de knop (WCAG 1.4.11).
+* De focusring van een link in "Op deze pagina" naast de tekst lag op `+2px`
+  en de scrollende kolom kapte de zijkanten af: alleen een streep boven en
+  onder bleef over. Hij ligt nu binnen de link (WCAG 2.4.7).
+
 ## [0.3.0] - 2026-11-26
 
 Het theme is opnieuw opgebouwd vanuit
