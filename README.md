@@ -41,7 +41,7 @@ werk bij via een pull request (zie [Bijwerken](#bijwerken)).
 hugo new site mijn-site --format=yaml
 cd mijn-site
 hugo mod init github.com/<organisatie>/mijn-site
-hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.3.0
+hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.4.0
 ```
 
 Een minimale `hugo.yaml`:
@@ -439,7 +439,7 @@ Hugo haalt het theme op met `git clone`; `go.sum` legt de inhoud vast. Werk bij
 met:
 
 ```sh
-hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.3.0
+hugo mod get github.com/RijksICTGilde/hugo-theme-rijksoverheid@v0.4.0
 hugo mod tidy
 ```
 

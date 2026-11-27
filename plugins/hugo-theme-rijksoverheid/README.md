@@ -20,7 +20,7 @@ Zet in `.claude/settings.json` van de site:
       "source": {
         "source": "github",
         "repo": "RijksICTGilde/hugo-theme-rijksoverheid",
-        "ref": "v0.3.0"
+        "ref": "v0.4.0"
       }
     }
   },
