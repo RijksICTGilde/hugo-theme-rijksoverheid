@@ -15,6 +15,8 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 * De focusring van een link in "Op deze pagina" naast de tekst lag op `+2px`
   en de scrollende kolom kapte de zijkanten af: alleen een streep boven en
   onder bleef over. Hij ligt nu binnen de link (WCAG 2.4.7).
+* De gemarkeerde link in "Op deze pagina" heeft `aria-current="location"`,
+  zodat een schermlezer ook zegt waar je bent (WCAG 1.3.1).
 
 ## [0.3.0] - 2026-11-26
 

@@ -1090,6 +1090,24 @@ describe("knop in de rechterkolom (1.4.11)", () => {
   }
 });
 
+describe("inhoudsopgave: waar je bent (1.3.1)", () => {
+  test("de gemarkeerde link heeft aria-current, en alleen die", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      await page.evaluate(() => document.querySelectorAll("main h2[id]")[2].scrollIntoView());
+      await page.waitForFunction(() => document.querySelector("#toc a.active"));
+      const m = await page.evaluate(() => ({
+        actief: [...document.querySelectorAll("#toc a.active")].map((a) => a.getAttribute("href")),
+        current: [...document.querySelectorAll("#toc a[aria-current]")].map((a) => `${a.getAttribute("href")}=${a.getAttribute("aria-current")}`),
+      }));
+      assert.equal(m.actief.length, 1, `actief: ${m.actief}`);
+      assert.deepEqual(m.current, [`${m.actief[0]}=location`]);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
 describe("link in de inhoudsopgave naast de tekst (2.4.7)", () => {
   test("de focusring ligt binnen de scrollende kolom, dus geen zijde wordt afgekapt", async () => {
     const page = await open("/onderdelen/lange-pagina/");
