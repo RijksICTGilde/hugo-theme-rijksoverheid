@@ -238,6 +238,12 @@ uit de laatste kop in de tekst van de sectie.
   geeft `{aria-label="..."}` een eigen naam, en houdt `{print-together="true"}` de
   tabel in de afdruk op één pagina. Beide vragen
   `markup.goldmark.parser.attribute.block: true` in de config van de site.
+- **Genummerde lijsten** volgen `{type="a"}` of `{type="i"}` op de regel
+  direct onder de lijst: a, b, c of i, ii, iii. Ook dat vraagt
+  `markup.goldmark.parser.attribute.block: true`.
+- **Knoppen.** `class="button"` is een knop in de stijl van het theme;
+  `class="button button-primary"` een gevulde knop in `--color-primary`, die
+  bij hover `--color-primary-hover` krijgt.
 - **Code** wordt gekleurd via CSS-klassen (`noClasses: false`); een breed
   codeblok scrolt in een eigen vlak.
 - **Voetnoten** krijgen een kop "Voetnoten" en links met een naam.
@@ -298,6 +304,7 @@ Een site past kleuren aan op `:root`, bijvoorbeeld:
 ```css
 :root {
   --color-primary: var(--primitives-color-hemelblauw-700);
+  --color-primary-hover: var(--primitives-color-hemelblauw-750);
   --color-banner: var(--primitives-color-hemelblauw-700);
 }
 ```

@@ -19,6 +19,8 @@
   --color-rijks-oranje: var(--color-rijksoranje);
 
   --color-primary: var(--primitives-color-lintblauw-750);
+  /* Zoals NLDD accent-filled: bij hover van 750 naar 800. */
+  --color-primary-hover: var(--primitives-color-lintblauw-800);
   /* In dark stap 800 in plaats van de gespiegelde 650: die haalt op
      --color-bg-info geen 4,5:1 contrast (WCAG AA) */
   --color-link: light-dark(var(--primitives-color-lintblauw-650), var(--primitives-color-lintblauw-800));
