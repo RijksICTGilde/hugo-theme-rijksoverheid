@@ -206,6 +206,16 @@ ol {
   }
 }
 
+/* `list-style: decimal` hierboven overschrijft het type-attribuut. Chromium
+   matcht [type] hoofdletterongevoelig: type="A" wordt daar ook a. */
+ol[type="a"] {
+  list-style-type: lower-alpha;
+}
+
+ol[type="i"] {
+  list-style-type: lower-roman;
+}
+
 li {
   margin-bottom: 0.5rem;
 

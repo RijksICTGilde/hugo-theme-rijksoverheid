@@ -24,6 +24,8 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
   onder bleef over. Hij ligt nu binnen de link (WCAG 2.4.7).
 * De gemarkeerde link in "Op deze pagina" heeft `aria-current="location"`,
   zodat een schermlezer ook zegt waar je bent (WCAG 1.3.1).
+* `{type="a"}` en `{type="i"}` onder een lijst nummerden toch 1, 2, 3:
+  `list-style: decimal` op `ol` overschreef het type-attribuut (WCAG 1.3.1).
 
 ## [0.3.0] - 2026-11-26
 

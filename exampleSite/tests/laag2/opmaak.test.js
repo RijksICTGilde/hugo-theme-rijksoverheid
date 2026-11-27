@@ -1174,3 +1174,20 @@ describe("knop .button-primary (1.4.3)", () => {
     });
   }
 });
+
+describe("genummerde lijst met type (1.3.1)", () => {
+  test('{type="a"} nummert met letters en {type="i"} met Romeinse cijfers', async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      const m = await page.evaluate(() => {
+        const tekst = document.querySelector("main .article-text");
+        tekst.insertAdjacentHTML("afterbegin", '<ol type="a" id="proef-a"><li>een</li></ol><ol type="i" id="proef-i"><li>een</li></ol><ol id="proef-1"><li>een</li></ol>');
+        const type = (id) => getComputedStyle(document.getElementById(id)).listStyleType;
+        return { a: type("proef-a"), i: type("proef-i"), een: type("proef-1") };
+      });
+      assert.deepEqual(m, { a: "lower-alpha", i: "lower-roman", een: "decimal" });
+    } finally {
+      await page.close();
+    }
+  });
+});
