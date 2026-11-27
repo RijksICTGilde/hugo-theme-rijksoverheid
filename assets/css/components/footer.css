@@ -321,6 +321,11 @@ body > footer {
     /* Past de intro niet naast de kolommen, dan staan die eronder. */
     row-gap: 1rem;
 
+    /* Met de row-gap samen 1.5rem, net als op een smal scherm. */
+    .page-meta {
+      margin-bottom: 0.5rem;
+    }
+
     /* In rem: ch volgt de lopende tekst, niet de grotere tagline. */
     .footer-intro {
       max-width: 31rem;
