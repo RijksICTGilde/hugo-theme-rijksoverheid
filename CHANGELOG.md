@@ -7,6 +7,13 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+### Toegevoegd
+
+* `.button-primary`: een gevulde knop in `--color-primary`, zoals
+  `appearance="primary"` in NLDD DS. Bij hover krijgt hij het nieuwe token
+  `--color-primary-hover` (standaard lintblauw 800); een site die
+  `--color-primary` overschrijft, zet dat token mee.
+
 ### Opgelost
 
 * De focusring van een knop (`.button`) in de rechterkolom lag op `-2px` half

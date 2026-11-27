@@ -1136,3 +1136,41 @@ describe("link in de inhoudsopgave naast de tekst (2.4.7)", () => {
     }
   });
 });
+
+describe("knop .button-primary (1.4.3)", () => {
+  for (const voorkeur of ["light", "dark"]) {
+    test(`tekst haalt 4,5:1 op de vulling, in rust en bij hover, en hover verandert de vulling (${voorkeur})`, async () => {
+      const page = await open("/onderdelen/lange-pagina/", { voorkeur });
+      try {
+        await page.evaluate(() => {
+          const knop = Object.assign(document.createElement("a"), { href: "#", className: "button button-primary", textContent: "Download" });
+          document.querySelector("main .article-text").prepend(knop);
+          const stijl = document.createElement("style");
+          stijl.textContent = "*, *::before, *::after { transition: none !important }";
+          document.head.append(stijl);
+        });
+        const lees = () => page.$eval("a.button-primary", (el) => ({ voor: getComputedStyle(el).color, achter: getComputedStyle(el).backgroundColor }));
+        const token = (naam) =>
+          page.evaluate((n) => {
+            const proef = document.body.appendChild(document.createElement("div"));
+            proef.style.backgroundColor = `var(${n})`;
+            const kleur = getComputedStyle(proef).backgroundColor;
+            proef.remove();
+            return kleur;
+          }, naam);
+        const rust = await lees();
+        assert.equal(rust.achter, await token("--color-primary"), "de knop is in rust niet gevuld met --color-primary");
+        await page.hover("a.button-primary");
+        const hover = await lees();
+        assert.equal(hover.achter, await token("--color-primary-hover"), "de knop krijgt bij hover niet --color-primary-hover");
+        for (const [toestand, k] of [["rust", rust], ["hover", hover]]) {
+          const verhouding = await contrast(page, k.voor, k.achter);
+          assert.ok(verhouding >= 4.5, `${toestand}: ${k.voor} op ${k.achter} is ${verhouding.toFixed(2)}:1`);
+        }
+        assert.notEqual(hover.achter, rust.achter, "de vulling verandert niet bij hover");
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
