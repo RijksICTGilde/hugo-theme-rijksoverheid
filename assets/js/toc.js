@@ -75,10 +75,14 @@
       }
     }
 
-    entries.forEach((entry) => entry.link.classList.remove("active"));
+    entries.forEach((entry) => {
+      entry.link.classList.remove("active");
+      entry.link.removeAttribute("aria-current");
+    });
     const active = current ? current.link : null;
     if (active) {
       active.classList.add("active");
+      active.setAttribute("aria-current", "location");
       if (active !== previousActive) scrollIntoPanel(active);
     }
     previousActive = active;

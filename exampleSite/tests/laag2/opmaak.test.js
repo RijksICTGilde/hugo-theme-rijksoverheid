@@ -1055,3 +1055,84 @@ describe("terugverwijzingen in de voetnoten (2.5.8)", () => {
     }
   });
 });
+
+describe("knop in de rechterkolom (1.4.11)", () => {
+  for (const voorkeur of ["light", "dark"]) {
+    test(`de focusring ligt binnen de knop en contrasteert 3:1 met de vulling (${voorkeur})`, async () => {
+      const page = await open("/onderdelen/lange-pagina/", { voorkeur });
+      try {
+        // Het voorbeeld heeft geen knop in de kolom; een site zet er een via toc-extra.
+        await page.evaluate(() => {
+          const knop = Object.assign(document.createElement("a"), { href: "#", className: "button", textContent: "Download" });
+          document.querySelector("main > article > .page-aside").prepend(knop);
+          const stijl = document.createElement("style");
+          stijl.textContent = "*, *::before, *::after { transition: none !important }";
+          document.head.append(stijl);
+        });
+        await page.focus("main > article > .page-aside > a.button");
+        await page.keyboard.down("Shift");
+        await page.keyboard.press("Tab");
+        await page.keyboard.up("Shift");
+        await page.keyboard.press("Tab");
+        const m = await page.evaluate(() => {
+          const el = document.activeElement;
+          const s = getComputedStyle(el);
+          return { knop: el.matches(".page-aside a.button:focus-visible"), breedte: parseFloat(s.outlineWidth), offset: parseFloat(s.outlineOffset), ring: s.outlineColor, vulling: s.backgroundColor };
+        });
+        assert.ok(m.knop, "de knop heeft geen :focus-visible");
+        assert.ok(-m.offset >= m.breedte, `de ring (${m.breedte}px op ${m.offset}px) steekt buiten de knop, half op de pagina`);
+        const verhouding = await contrast(page, m.ring, m.vulling);
+        assert.ok(verhouding >= 3, `ring ${m.ring} op vulling ${m.vulling}: ${verhouding.toFixed(2)}:1`);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+});
+
+describe("inhoudsopgave: waar je bent (1.3.1)", () => {
+  test("de gemarkeerde link heeft aria-current, en alleen die", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      await page.evaluate(() => document.querySelectorAll("main h2[id]")[2].scrollIntoView());
+      await page.waitForFunction(() => document.querySelector("#toc a.active"));
+      const m = await page.evaluate(() => ({
+        actief: [...document.querySelectorAll("#toc a.active")].map((a) => a.getAttribute("href")),
+        current: [...document.querySelectorAll("#toc a[aria-current]")].map((a) => `${a.getAttribute("href")}=${a.getAttribute("aria-current")}`),
+      }));
+      assert.equal(m.actief.length, 1, `actief: ${m.actief}`);
+      assert.deepEqual(m.current, [`${m.actief[0]}=location`]);
+    } finally {
+      await page.close();
+    }
+  });
+});
+
+describe("link in de inhoudsopgave naast de tekst (2.4.7)", () => {
+  test("de focusring ligt binnen de scrollende kolom, dus geen zijde wordt afgekapt", async () => {
+    const page = await open("/onderdelen/lange-pagina/");
+    try {
+      await page.evaluate(() => {
+        const stijl = document.createElement("style");
+        stijl.textContent = "*, *::before, *::after { transition: none !important }";
+        document.head.append(stijl);
+      });
+      await page.focus("#toc li > a");
+      await page.keyboard.down("Shift");
+      await page.keyboard.press("Tab");
+      await page.keyboard.up("Shift");
+      await page.keyboard.press("Tab");
+      const m = await page.evaluate(() => {
+        const el = document.activeElement;
+        const s = getComputedStyle(el);
+        const kolom = getComputedStyle(el.closest(".page-aside"));
+        return { toc: el.matches("#toc li > a:focus-visible"), scrollt: kolom.overflowY !== "visible", breedte: parseFloat(s.outlineWidth), offset: parseFloat(s.outlineOffset) };
+      });
+      assert.ok(m.toc, "de link in de inhoudsopgave heeft geen :focus-visible");
+      assert.ok(m.scrollt, "de kolom scrolt niet; deze toets meet dan niets");
+      assert.ok(-m.offset >= m.breedte, `de ring (${m.breedte}px op ${m.offset}px) valt buiten de link en wordt afgekapt`);
+    } finally {
+      await page.close();
+    }
+  });
+});
