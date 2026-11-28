@@ -7,6 +7,11 @@ volgt [Semantic Versioning](https://semver.org/lang/nl/).
 
 ## [Unreleased]
 
+### Opgelost
+
+* Voet: vanaf 700px stond er 2.5rem tussen het kruimelpad en de rest van de
+  voet in plaats van 1.5rem.
+
 ## [0.4.0] - 2026-11-27
 
 ### Toegevoegd

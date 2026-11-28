@@ -610,6 +610,19 @@ describe("kruimelpad in de voet", () => {
         await page.close();
       }
     });
+
+    test(`1.5rem tussen het kruimelpad en de rest van de voet bij ${breedte}px`, async () => {
+      const page = await open("/onderdelen/lange-pagina/", { breedte });
+      try {
+        const ruimte = await page.evaluate(() => {
+          const meta = document.querySelector("body > footer .page-meta");
+          return meta.nextElementSibling.getBoundingClientRect().top - meta.getBoundingClientRect().bottom;
+        });
+        assert.ok(Math.abs(ruimte - 24) < 0.5, `${ruimte}px onder het kruimelpad`);
+      } finally {
+        await page.close();
+      }
+    });
   }
 });
 
